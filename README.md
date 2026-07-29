@@ -30,6 +30,7 @@ Funcionalidades clave:
 - Sistema de Notificaciones: Avisos sobre nuevas ofertas que coincidan con el perfil del alumno.
 
 4. Casos de Uso Principales:
+   
 CU 1: Publicación de Oferta Laboral
 Actor: Empresa.
 Descripción: El representante de la empresa ingresa al sistema, completa un formulario con los detalles del puesto y publica la oferta para que sea visible por los alumnos.
