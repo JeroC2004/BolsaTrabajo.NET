@@ -2,7 +2,7 @@ Integrantes:
 - Integrante 1:
 
   Nombre: Jerónimo Corvi
-                }
+                
   Legajo: 52234
 
   Mail: corvijeronimo@gmail.com
