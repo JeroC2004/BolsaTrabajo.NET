@@ -1,16 +1,27 @@
 Integrantes:
 - Integrante 1:
-                Nombre: Jerónimo Corvi
-                Legajo: 52234
-                Mail: corvijeronimo@gmail.com
 
-- Integrante 2: Nombre: Elías Moramarco
-                Legajo: 53413
-                Mail: eliasmoramarco@hotmail.com.ar
+  Nombre: Jerónimo Corvi
+                }
+  Legajo: 52234
 
-- Integrante 3: Nombre: Francisco Julián Coux
-                Legajo: 50749
-                Mail: franciscocoux0@gmail.com
+  Mail: corvijeronimo@gmail.com
+
+- Integrante 2:
+
+  Nombre: Elías Moramarco
+
+  Legajo: 53413
+
+  Mail: eliasmoramarco@hotmail.com.ar
+
+- Integrante 3:
+
+  Nombre: Francisco Julián Coux
+
+  Legajo: 50749
+
+  Mail: franciscocoux0@gmail.com
 
 
 
