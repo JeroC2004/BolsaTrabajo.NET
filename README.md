@@ -15,13 +15,13 @@ Integrantes:
 
 
 Descripción del Sistema: 
-1. Introducción
+1. Introducción:
 El proyecto tiene como objetivo presentar una plataforma de vinculación laboral orientada a estudiantes y empresas. La propuesta busca ofrecer un espacio funcional para la publicación de ofertas laborales, la gestión de perfiles y la interacción entre los distintos actores involucrados.
 
-2. Objetivo del Proyecto
+2. Objetivo del Proyecto:
 Desarrollar una aplicación que facilite el acceso de los alumnos a pasantías y primeros empleos, centralizando la demanda de las empresas y la oferta de los estudiantes de manera eficiente.
 
-3. Alcance y Funcionalidades
+3. Alcance y Funcionalidades:
 El sistema se centrará en un modelo de dos roles principales: Oferta (Empresas/Reclutadores) y Demanda (Alumnos).
 Funcionalidades clave:
 - Gestión de Usuarios: Registro y validación de alumnos.
@@ -29,7 +29,7 @@ Funcionalidades clave:
 - Panel de Alumnos: Carga de CV digital y filtrado de búsquedas por área de interés.
 - Sistema de Notificaciones: Avisos sobre nuevas ofertas que coincidan con el perfil del alumno.
 
-4. Casos de Uso Principales
+4. Casos de Uso Principales:
 CU 1: Publicación de Oferta Laboral
 Actor: Empresa.
 Descripción: El representante de la empresa ingresa al sistema, completa un formulario con los detalles del puesto y publica la oferta para que sea visible por los alumnos.
