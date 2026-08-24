@@ -27,11 +27,7 @@ namespace Application.Services
 
             await alumnoRepository.AddAsync(alumno);
 
-            dto.Id = alumno.Id;
-            dto.FechaAlta = alumno.FechaAlta;
-            dto.CarreraNombre = alumno.Carrera?.NomCarrera;
-
-            return dto;
+            return await GetAsync(alumno.Id) ?? throw new InvalidOperationException("No se pudo recuperar el alumno recién creado.");
         }
 
         public async Task<bool> DeleteAsync(int id)

@@ -13,19 +13,20 @@ namespace WebAPI
             })
             .WithName("GetAllEmpresas")
             .WithTags("Empresas")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapGet("/empresas/{id}", async (int id, IEmpresaService empresaService) =>
             {
                 var dto = await empresaService.GetAsync(id);
                 if (dto == null)
                     return Results.NotFound();
-
                 return Results.Ok(dto);
             })
             .WithName("GetEmpresa")
             .WithTags("Empresas")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
         }
     }
 }

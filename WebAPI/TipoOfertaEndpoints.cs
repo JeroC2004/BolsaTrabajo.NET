@@ -13,7 +13,8 @@ namespace WebAPI
             })
             .WithName("GetAllTiposOferta")
             .WithTags("TiposOferta")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
         }
     }
 }

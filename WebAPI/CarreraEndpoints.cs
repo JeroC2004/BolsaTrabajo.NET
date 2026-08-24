@@ -13,19 +13,20 @@ namespace WebAPI
             })
             .WithName("GetAllCarreras")
             .WithTags("Carreras")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapGet("/carreras/{id}", async (int id, ICarreraService carreraService) =>
             {
                 var dto = await carreraService.GetAsync(id);
                 if (dto == null)
                     return Results.NotFound();
-
                 return Results.Ok(dto);
             })
             .WithName("GetCarrera")
             .WithTags("Carreras")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
         }
     }
 }

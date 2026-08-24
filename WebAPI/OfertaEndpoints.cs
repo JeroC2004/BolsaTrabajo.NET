@@ -10,17 +10,16 @@ namespace WebAPI
             app.MapGet("/ofertas/{id}", async (int id, IOfertaService ofertaService) =>
             {
                 OfertaDTO? dto = await ofertaService.GetAsync(id);
-
                 if (dto == null)
                     return Results.NotFound();
-
                 return Results.Ok(dto);
             })
             .WithName("GetOferta")
             .WithTags("Ofertas")
             .Produces<OfertaDTO>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapGet("/ofertas", async (IOfertaService ofertaService) =>
             {
@@ -30,7 +29,8 @@ namespace WebAPI
             .WithName("GetAllOfertas")
             .WithTags("Ofertas")
             .Produces<List<OfertaDTO>>(StatusCodes.Status200OK)
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapPost("/ofertas", async (OfertaDTO dto, IOfertaService ofertaService) =>
             {
@@ -48,17 +48,16 @@ namespace WebAPI
             .WithTags("Ofertas")
             .Produces<OfertaDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapPut("/ofertas", async (OfertaDTO dto, IOfertaService ofertaService) =>
             {
                 try
                 {
                     var found = await ofertaService.UpdateAsync(dto);
-
                     if (!found)
                         return Results.NotFound();
-
                     return Results.NoContent();
                 }
                 catch (ArgumentException ex)
@@ -71,22 +70,22 @@ namespace WebAPI
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapDelete("/ofertas/{id}", async (int id, IOfertaService ofertaService) =>
             {
                 var deleted = await ofertaService.DeleteAsync(id);
-
                 if (!deleted)
                     return Results.NotFound();
-
                 return Results.NoContent();
             })
             .WithName("DeleteOferta")
             .WithTags("Ofertas")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapGet("/ofertas/criteria", async (string texto, IOfertaService ofertaService) =>
             {
@@ -103,7 +102,8 @@ namespace WebAPI
             })
             .WithName("GetOfertasByCriteria")
             .WithTags("Ofertas")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
         }
     }
 }

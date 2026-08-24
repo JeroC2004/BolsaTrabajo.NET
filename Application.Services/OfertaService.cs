@@ -15,12 +15,15 @@ namespace Application.Services
 
         public async Task<OfertaDTO> AddAsync(OfertaDTO dto)
         {
-            Oferta oferta = new Oferta(0, dto.Titulo, dto.TipoVinculo, dto.FechaDesde, dto.FechaHasta,
-                                        dto.Detalle, dto.Requisitos, dto.Estado, dto.EmpresaId, dto.TipoOfertaId);
+            var tipoVinculo = ParseTipoVinculo(dto.TipoVinculo);
+            var estado = ParseEstado(dto.Estado);
+
+            Oferta oferta = new Oferta(0, dto.Titulo, tipoVinculo, dto.FechaDesde, dto.FechaHasta,
+                                        dto.Detalle, dto.Requisitos, estado, dto.EmpresaId, dto.TipoOfertaId);
 
             await ofertaRepository.AddAsync(oferta);
 
-            return MapToDTO(oferta);
+            return await GetAsync(oferta.Id) ?? throw new InvalidOperationException("No se pudo recuperar la oferta recién creada.");
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -50,8 +53,11 @@ namespace Application.Services
             if (existing == null)
                 return false;
 
-            Oferta oferta = new Oferta(dto.Id, dto.Titulo, dto.TipoVinculo, dto.FechaDesde, dto.FechaHasta,
-                                        dto.Detalle, dto.Requisitos, dto.Estado, dto.EmpresaId, dto.TipoOfertaId);
+            var tipoVinculo = ParseTipoVinculo(dto.TipoVinculo);
+            var estado = ParseEstado(dto.Estado);
+
+            Oferta oferta = new Oferta(dto.Id, dto.Titulo, tipoVinculo, dto.FechaDesde, dto.FechaHasta,
+                                        dto.Detalle, dto.Requisitos, estado, dto.EmpresaId, dto.TipoOfertaId);
 
             return await ofertaRepository.UpdateAsync(oferta);
         }
@@ -63,18 +69,32 @@ namespace Application.Services
             return ofertas.Select(MapToDTO).ToList();
         }
 
+        private static TipoVinculo ParseTipoVinculo(string value)
+        {
+            if (!Enum.TryParse<TipoVinculo>(value, ignoreCase: true, out var result))
+                throw new ArgumentException($"El tipo de vínculo '{value}' no es válido. Valores permitidos: {string.Join(", ", Enum.GetNames(typeof(TipoVinculo)))}.");
+            return result;
+        }
+
+        private static EstadoOferta ParseEstado(string value)
+        {
+            if (!Enum.TryParse<EstadoOferta>(value, ignoreCase: true, out var result))
+                throw new ArgumentException($"El estado '{value}' no es válido. Valores permitidos: {string.Join(", ", Enum.GetNames(typeof(EstadoOferta)))}.");
+            return result;
+        }
+
         private static OfertaDTO MapToDTO(Oferta oferta)
         {
             return new OfertaDTO
             {
                 Id = oferta.Id,
                 Titulo = oferta.Titulo,
-                TipoVinculo = oferta.TipoVinculo,
+                TipoVinculo = oferta.TipoVinculo.ToString(),
+                Estado = oferta.Estado.ToString(),
                 FechaDesde = oferta.FechaDesde,
                 FechaHasta = oferta.FechaHasta,
                 Detalle = oferta.Detalle,
                 Requisitos = oferta.Requisitos,
-                Estado = oferta.Estado,
                 EmpresaId = oferta.EmpresaId,
                 EmpresaNombre = oferta.Empresa?.RazonSocial,
                 TipoOfertaId = oferta.TipoOfertaId,
