@@ -32,7 +32,7 @@ namespace Domain.Model
                 _carrera = value;
                 if (value != null && _carreraId != value.Id)
                 {
-                    _carreraId = value.Id; // Sincronizar automáticamente
+                    _carreraId = value.Id;
                 }
             }
         }
@@ -55,6 +55,8 @@ namespace Domain.Model
             SetCarreraId(carreraId);
             SetFechaAlta(fechaAlta);
         }
+
+        private Alumno() { } // Constructor privado requerido por EF Core
 
         public void SetId(int id)
         {
@@ -140,10 +142,9 @@ namespace Domain.Model
 
             _carreraId = carreraId;
 
-            // Solo invalidar si hay inconsistencia
             if (_carrera != null && _carrera.Id != carreraId)
             {
-                _carrera = null; // Invalidar navigation property
+                _carrera = null;
             }
         }
 

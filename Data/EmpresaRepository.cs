@@ -1,30 +1,25 @@
 using Domain.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data
 {
     public class EmpresaRepository : IEmpresaRepository
     {
-        private static readonly List<Empresa> empresas = new List<Empresa>
-        {
-            new Empresa(1, "TechCorp S.A.", "Empresa de desarrollo de software", "Tecnología"),
-            new Empresa(2, "Banco Litoral", "Entidad financiera regional", "Finanzas"),
-            new Empresa(3, "Agro Insumos S.R.L.", "Distribuidora de insumos agropecuarios", "Agroindustria")
-        };
+        private readonly BolsaTrabajoContext context;
 
-        public Task<IEnumerable<Empresa>> GetAllAsync()
+        public EmpresaRepository(BolsaTrabajoContext context)
         {
-            return Task.FromResult<IEnumerable<Empresa>>(empresas.OrderBy(e => e.RazonSocial).ToList());
+            this.context = context;
         }
 
-        public Task<Empresa?> GetAsync(int id)
+        public async Task<IEnumerable<Empresa>> GetAllAsync()
         {
-            return Task.FromResult(empresas.FirstOrDefault(e => e.Id == id));
+            return await context.Empresas.OrderBy(e => e.RazonSocial).ToListAsync();
         }
 
-        // Método interno sincrónico para uso desde OfertaRepository
-        internal IEnumerable<Empresa> GetAllSync()
+        public async Task<Empresa?> GetAsync(int id)
         {
-            return empresas.OrderBy(e => e.RazonSocial).ToList();
+            return await context.Empresas.FirstOrDefaultAsync(e => e.Id == id);
         }
     }
 }

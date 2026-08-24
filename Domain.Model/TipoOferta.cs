@@ -11,6 +11,8 @@ namespace Domain.Model
             SetNombre(nombre);
         }
 
+        private TipoOferta() { } // Constructor privado requerido por EF Core
+
         public void SetId(int id)
         {
             if (id < 0)

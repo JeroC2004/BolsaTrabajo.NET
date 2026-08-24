@@ -1,95 +1,86 @@
 using Domain.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data
 {
     public class OfertaRepository : IOfertaRepository
     {
-        private static readonly List<Oferta> ofertas = new List<Oferta>();
-        private static int nextId = 1;
+        private readonly BolsaTrabajoContext context;
 
-        public Task AddAsync(Oferta oferta)
+        public OfertaRepository(BolsaTrabajoContext context)
         {
-            // Simular auto-increment de ID
-            oferta.SetId(nextId);
-            nextId++;
-
-            // Asignar navigation properties
-            var empresaRepo = new EmpresaRepository();
-            var empresa = empresaRepo.GetAllSync().FirstOrDefault(e => e.Id == oferta.EmpresaId);
-            if (empresa != null)
-                oferta.SetEmpresa(empresa);
-
-            var tipoOfertaRepo = new TipoOfertaRepository();
-            var tipoOferta = tipoOfertaRepo.GetAllSync().FirstOrDefault(t => t.Id == oferta.TipoOfertaId);
-            if (tipoOferta != null)
-                oferta.SetTipoOferta(tipoOferta);
-
-            ofertas.Add(oferta);
-            return Task.CompletedTask;
+            this.context = context;
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public async Task AddAsync(Oferta oferta)
         {
-            var oferta = ofertas.FirstOrDefault(o => o.Id == id);
+            context.Ofertas.Add(oferta);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var oferta = await context.Ofertas.FindAsync(id);
             if (oferta != null)
             {
-                ofertas.Remove(oferta);
-                return Task.FromResult(true);
+                context.Ofertas.Remove(oferta);
+                await context.SaveChangesAsync();
+                return true;
             }
-            return Task.FromResult(false);
+            return false;
         }
 
-        public Task<Oferta?> GetAsync(int id)
+        public async Task<Oferta?> GetAsync(int id)
         {
-            return Task.FromResult(ofertas.FirstOrDefault(o => o.Id == id));
+            return await context.Ofertas
+                .Include(o => o.Empresa)
+                .Include(o => o.TipoOferta)
+                .FirstOrDefaultAsync(o => o.Id == id);
         }
 
-        public Task<IEnumerable<Oferta>> GetAllAsync()
+        public async Task<IEnumerable<Oferta>> GetAllAsync()
         {
-            return Task.FromResult<IEnumerable<Oferta>>(ofertas.ToList());
+            return await context.Ofertas
+                .Include(o => o.Empresa)
+                .Include(o => o.TipoOferta)
+                .ToListAsync();
         }
 
-        public Task<bool> UpdateAsync(Oferta oferta)
+        public async Task<bool> UpdateAsync(Oferta oferta)
         {
-            var existing = ofertas.FirstOrDefault(o => o.Id == oferta.Id);
+            var existing = await context.Ofertas.FindAsync(oferta.Id);
             if (existing != null)
             {
+                // Fecha hasta se actualiza primero para que la revalidación cruzada
+                // en SetFechaDesde no rechace un rango que en realidad es válido.
+                existing.SetFechaHasta(oferta.FechaHasta);
+                existing.SetFechaDesde(oferta.FechaDesde);
                 existing.SetTitulo(oferta.Titulo);
                 existing.SetTipoVinculo(oferta.TipoVinculo);
-                existing.SetFechaDesde(oferta.FechaDesde);
-                existing.SetFechaHasta(oferta.FechaHasta);
                 existing.SetDetalle(oferta.Detalle);
                 existing.SetRequisitos(oferta.Requisitos);
                 existing.SetEstado(oferta.Estado);
                 existing.SetEmpresaId(oferta.EmpresaId);
                 existing.SetTipoOfertaId(oferta.TipoOfertaId);
 
-                var empresaRepo = new EmpresaRepository();
-                var empresa = empresaRepo.GetAllSync().FirstOrDefault(e => e.Id == oferta.EmpresaId);
-                if (empresa != null)
-                    existing.SetEmpresa(empresa);
-
-                var tipoOfertaRepo = new TipoOfertaRepository();
-                var tipoOferta = tipoOfertaRepo.GetAllSync().FirstOrDefault(t => t.Id == oferta.TipoOfertaId);
-                if (tipoOferta != null)
-                    existing.SetTipoOferta(tipoOferta);
-
-                return Task.FromResult(true);
+                await context.SaveChangesAsync();
+                return true;
             }
-            return Task.FromResult(false);
+            return false;
         }
 
-        public Task<IEnumerable<Oferta>> GetByCriteriaAsync(OfertaCriteria criteria)
+        public async Task<IEnumerable<Oferta>> GetByCriteriaAsync(OfertaCriteria criteria)
         {
             string searchTerm = criteria.Texto.ToLower();
 
-            IEnumerable<Oferta> result = ofertas.Where(o =>
-                o.Titulo.ToLower().Contains(searchTerm) ||
-                o.Detalle.ToLower().Contains(searchTerm) ||
-                o.Estado.ToLower().Contains(searchTerm)
-            ).OrderByDescending(o => o.FechaDesde).ToList();
-
-            return Task.FromResult(result);
+            return await context.Ofertas
+                .Include(o => o.Empresa)
+                .Include(o => o.TipoOferta)
+                .Where(o =>
+                    o.Titulo.ToLower().Contains(searchTerm) ||
+                    o.Detalle.ToLower().Contains(searchTerm))
+                .OrderByDescending(o => o.FechaDesde)
+                .ToListAsync();
         }
     }
 }

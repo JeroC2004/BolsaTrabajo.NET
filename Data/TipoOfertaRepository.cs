@@ -1,26 +1,20 @@
 using Domain.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data
 {
     public class TipoOfertaRepository : ITipoOfertaRepository
     {
-        private static readonly List<TipoOferta> tiposOferta = new List<TipoOferta>
-        {
-            new TipoOferta(1, "Pasantía"),
-            new TipoOferta(2, "Primer empleo"),
-            new TipoOferta(3, "Práctica profesional supervisada"),
-            new TipoOferta(4, "Empleo full-time")
-        };
+        private readonly BolsaTrabajoContext context;
 
-        public Task<IEnumerable<TipoOferta>> GetAllAsync()
+        public TipoOfertaRepository(BolsaTrabajoContext context)
         {
-            return Task.FromResult<IEnumerable<TipoOferta>>(tiposOferta.OrderBy(t => t.Nombre).ToList());
+            this.context = context;
         }
 
-        // Método interno sincrónico para uso desde OfertaRepository
-        internal IEnumerable<TipoOferta> GetAllSync()
+        public async Task<IEnumerable<TipoOferta>> GetAllAsync()
         {
-            return tiposOferta.OrderBy(t => t.Nombre).ToList();
+            return await context.TiposOferta.OrderBy(t => t.Nombre).ToListAsync();
         }
     }
 }

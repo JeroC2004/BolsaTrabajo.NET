@@ -1,52 +1,52 @@
 using Domain.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data
 {
     public class AlumnoRepository : IAlumnoRepository
     {
-        private static readonly List<Alumno> alumnos = new List<Alumno>();
-        private static int nextId = 1;
+        private readonly BolsaTrabajoContext context;
 
-        public Task AddAsync(Alumno alumno)
+        public AlumnoRepository(BolsaTrabajoContext context)
         {
-            // Simular auto-increment de ID
-            alumno.SetId(nextId);
-            nextId++;
-
-            // Asignar navigation property de Carrera
-            var carreraRepo = new CarreraRepository();
-            var carrera = carreraRepo.GetAllSync().FirstOrDefault(c => c.Id == alumno.CarreraId);
-            if (carrera != null)
-                alumno.SetCarrera(carrera);
-
-            alumnos.Add(alumno);
-            return Task.CompletedTask;
+            this.context = context;
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public async Task AddAsync(Alumno alumno)
         {
-            var alumno = alumnos.FirstOrDefault(a => a.Id == id);
+            context.Alumnos.Add(alumno);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var alumno = await context.Alumnos.FindAsync(id);
             if (alumno != null)
             {
-                alumnos.Remove(alumno);
-                return Task.FromResult(true);
+                context.Alumnos.Remove(alumno);
+                await context.SaveChangesAsync();
+                return true;
             }
-            return Task.FromResult(false);
+            return false;
         }
 
-        public Task<Alumno?> GetAsync(int id)
+        public async Task<Alumno?> GetAsync(int id)
         {
-            return Task.FromResult(alumnos.FirstOrDefault(a => a.Id == id));
+            return await context.Alumnos
+                .Include(a => a.Carrera)
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
-        public Task<IEnumerable<Alumno>> GetAllAsync()
+        public async Task<IEnumerable<Alumno>> GetAllAsync()
         {
-            return Task.FromResult<IEnumerable<Alumno>>(alumnos.ToList());
+            return await context.Alumnos
+                .Include(a => a.Carrera)
+                .ToListAsync();
         }
 
-        public Task<bool> UpdateAsync(Alumno alumno)
+        public async Task<bool> UpdateAsync(Alumno alumno)
         {
-            var existing = alumnos.FirstOrDefault(a => a.Id == alumno.Id);
+            var existing = await context.Alumnos.FindAsync(alumno.Id);
             if (existing != null)
             {
                 existing.SetNomAlumno(alumno.NomAlumno);
@@ -60,44 +60,42 @@ namespace Data
                 existing.SetPromedio(alumno.Promedio);
                 existing.SetCarreraId(alumno.CarreraId);
 
-                var carreraRepo = new CarreraRepository();
-                var carrera = carreraRepo.GetAllSync().FirstOrDefault(c => c.Id == alumno.CarreraId);
-                if (carrera != null)
-                    existing.SetCarrera(carrera);
-
-                return Task.FromResult(true);
+                await context.SaveChangesAsync();
+                return true;
             }
-            return Task.FromResult(false);
+            return false;
         }
 
-        public Task<bool> EmailExistsAsync(string email, int? excludeId = null)
+        public async Task<bool> EmailExistsAsync(string email, int? excludeId = null)
         {
-            var query = alumnos.Where(a => a.Email.ToLower() == email.ToLower());
+            var query = context.Alumnos.Where(a => a.Email.ToLower() == email.ToLower());
             if (excludeId.HasValue)
                 query = query.Where(a => a.Id != excludeId.Value);
-            return Task.FromResult(query.Any());
+            return await query.AnyAsync();
         }
 
-        public Task<bool> LegajoExistsAsync(string legajo, int? excludeId = null)
+        public async Task<bool> LegajoExistsAsync(string legajo, int? excludeId = null)
         {
-            var query = alumnos.Where(a => a.Legajo.ToLower() == legajo.ToLower());
+            var query = context.Alumnos.Where(a => a.Legajo.ToLower() == legajo.ToLower());
             if (excludeId.HasValue)
                 query = query.Where(a => a.Id != excludeId.Value);
-            return Task.FromResult(query.Any());
+            return await query.AnyAsync();
         }
 
-        public Task<IEnumerable<Alumno>> GetByCriteriaAsync(AlumnoCriteria criteria)
+        public async Task<IEnumerable<Alumno>> GetByCriteriaAsync(AlumnoCriteria criteria)
         {
             string searchTerm = criteria.Texto.ToLower();
 
-            IEnumerable<Alumno> result = alumnos.Where(a =>
-                a.NomAlumno.ToLower().Contains(searchTerm) ||
-                a.ApeAlumno.ToLower().Contains(searchTerm) ||
-                a.Legajo.ToLower().Contains(searchTerm) ||
-                a.Email.ToLower().Contains(searchTerm)
-            ).OrderBy(a => a.ApeAlumno).ThenBy(a => a.NomAlumno).ToList();
-
-            return Task.FromResult(result);
+            return await context.Alumnos
+                .Include(a => a.Carrera)
+                .Where(a =>
+                    a.NomAlumno.ToLower().Contains(searchTerm) ||
+                    a.ApeAlumno.ToLower().Contains(searchTerm) ||
+                    a.Legajo.ToLower().Contains(searchTerm) ||
+                    a.Email.ToLower().Contains(searchTerm))
+                .OrderBy(a => a.ApeAlumno)
+                .ThenBy(a => a.NomAlumno)
+                .ToListAsync();
         }
     }
 }
