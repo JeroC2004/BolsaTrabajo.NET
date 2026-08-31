@@ -16,9 +16,7 @@ namespace Data
 
         public BolsaTrabajoContext(DbContextOptions<BolsaTrabajoContext> options) : base(options)
         {
-            // La base de datos se autogenera si no existe (pedido de la consigna).
-            // EnsureCreated no soporta migraciones incrementales, pero para este TP
-            // (sin necesidad de versionar el esquema) es la opción más simple y directa.
+            
             Database.EnsureCreated();
         }
 
@@ -37,9 +35,10 @@ namespace Data
 
                 entity.HasData(
                     new { Id = 1, NomCarrera = "Ingeniería en Sistemas de Información", Departamento = "Ingeniería", Duracion = 5 },
-                    new { Id = 2, NomCarrera = "Licenciatura en Administración", Departamento = "Ciencias Económicas", Duracion = 4 },
-                    new { Id = 3, NomCarrera = "Contador Público", Departamento = "Ciencias Económicas", Duracion = 5 },
-                    new { Id = 4, NomCarrera = "Ingeniería Industrial", Departamento = "Ingeniería", Duracion = 5 }
+                    new { Id = 2, NomCarrera = "Ingeniería Mecánica", Departamento = "Ingeniería", Duracion = 5 },
+                    new { Id = 3, NomCarrera = "Ingeniería Química", Departamento = "Ingeniería", Duracion = 5 },
+                    new { Id = 4, NomCarrera = "Ingeniería Industrial", Departamento = "Ingeniería", Duracion = 5 },
+                    new { Id = 5, NomCarrera = "Ingeniería Civil", Departamento = "Ingeniería", Duracion = 5 }
                 );
             });
 
@@ -54,8 +53,8 @@ namespace Data
 
                 entity.HasData(
                     new { Id = 1, RazonSocial = "TechCorp S.A.", Descripcion = "Empresa de desarrollo de software", Rubro = "Tecnología" },
-                    new { Id = 2, RazonSocial = "Banco Litoral", Descripcion = "Entidad financiera regional", Rubro = "Finanzas" },
-                    new { Id = 3, RazonSocial = "Agro Insumos S.R.L.", Descripcion = "Distribuidora de insumos agropecuarios", Rubro = "Agroindustria" }
+                    new { Id = 2, RazonSocial = "DataSoft Rosario S.A.", Descripcion = "Desarrollo de software a medida y consultoría IT", Rubro = "Tecnología" },
+                    new { Id = 3, RazonSocial = "NubeCloud Argentina", Descripcion = "Servicios de infraestructura cloud y ciberseguridad", Rubro = "Tecnología" }
                 );
             });
 
@@ -69,7 +68,7 @@ namespace Data
                 entity.HasData(
                     new { Id = 1, Nombre = "Pasantía" },
                     new { Id = 2, Nombre = "Primer empleo" },
-                    new { Id = 3, Nombre = "Práctica profesional supervisada" },
+                    new { Id = 3, Nombre = "Empleo part-time" },
                     new { Id = 4, Nombre = "Empleo full-time" }
                 );
             });
@@ -92,8 +91,7 @@ namespace Data
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.HasIndex(e => e.Legajo).IsUnique();
 
-                // Backing fields: el dominio expone CarreraId/Carrera con setters privados,
-                // por eso hay que decirle a EF en qué campo privado persistir cada uno.
+               
                 entity.Property(e => e.CarreraId).IsRequired().HasField("_carreraId");
                 entity.Navigation(e => e.Carrera).HasField("_carrera");
 
@@ -144,8 +142,7 @@ namespace Data
                 entity.HasIndex(e => e.Username).IsUnique();
                 entity.HasIndex(e => e.Email).IsUnique();
 
-                // Usuario admin sembrado para poder loguearse la primera vez sin tener
-                // que insertar nada manualmente. Password: admin123
+               
                 var admin = new Usuario(1, "admin", "admin@bolsatrabajo.com", "admin123", new DateTime(2026, 1, 1));
                 entity.HasData(new
                 {
