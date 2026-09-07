@@ -57,8 +57,6 @@ namespace Domain.Model
             SetId(id);
             SetTitulo(titulo);
             SetTipoVinculo(tipoVinculo);
-            // FechaDesde y FechaHasta se validan cruzadas entre sí: se asignan directamente
-            // primero y se revalidan juntas al final del constructor (ver nota en SetFechaDesde).
             FechaDesde = fechaDesde;
             SetFechaHasta(fechaHasta);
             SetFechaDesde(fechaDesde);
@@ -69,7 +67,7 @@ namespace Domain.Model
             SetTipoOfertaId(tipoOfertaId);
         }
 
-        private Oferta() { } // Constructor privado requerido por EF Core
+        private Oferta() { }
 
         public void SetId(int id)
         {
@@ -92,8 +90,7 @@ namespace Domain.Model
             TipoVinculo = tipoVinculo;
         }
 
-        // Corrección de la Entrega 1: antes SetFechaDesde no revalidaba contra FechaHasta,
-        // por lo que una modificación podía dejar el rango invertido pasando primero por este setter.
+        // Corrección de la Entrega 1: antes SetFechaDesde no revalidaba contra FechaHasta
         // Ahora ambos setters se validan cruzados entre sí en los dos sentidos.
         public void SetFechaDesde(DateTime fechaDesde)
         {

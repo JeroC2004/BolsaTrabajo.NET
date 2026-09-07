@@ -56,7 +56,7 @@ namespace Domain.Model
             SetFechaAlta(fechaAlta);
         }
 
-        private Alumno() { } // Constructor privado requerido por EF Core
+        private Alumno() { }
 
         public void SetId(int id)
         {

@@ -18,9 +18,6 @@ namespace WindowsForms
             {
                 if (loginForm.ShowDialog() == DialogResult.OK)
                 {
-                    // Login exitoso: se muestra la pantalla principal.
-                    // Cuando el usuario cierra sesión desde el menú, Home se cierra
-                    // y volvemos a mostrar el login (loop hasta que cierre la app).
                     bool salir = false;
                     while (!salir)
                     {
@@ -32,12 +29,10 @@ namespace WindowsForms
                         var authService = AuthServiceProvider.Instance;
                         if (authService.IsAuthenticatedAsync().Result)
                         {
-                            // Se cerró Home sin cerrar sesión (ej: Alt+F4) -> salir de la app
                             salir = true;
                         }
                         else
                         {
-                            // Se cerró sesión -> volver a mostrar el login
                             using (LoginForm nuevoLogin = new LoginForm())
                             {
                                 if (nuevoLogin.ShowDialog() != DialogResult.OK)

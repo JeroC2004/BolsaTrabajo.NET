@@ -23,9 +23,6 @@ namespace Domain.Model
             SetActivo(activo);
         }
 
-        // Constructor privado sin parámetros requerido por Entity Framework.
-        // EF no puede usar el constructor público porque 'password' no existe como
-        // columna en la BD (ahí solo guardamos PasswordHash y Salt).
         private Usuario() { }
 
         public void SetId(int id)

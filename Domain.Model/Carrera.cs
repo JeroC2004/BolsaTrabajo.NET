@@ -15,7 +15,7 @@ namespace Domain.Model
             SetDuracion(duracion);
         }
 
-        private Carrera() { } // Constructor privado requerido por EF Core
+        private Carrera() { }
 
         public void SetId(int id)
         {

@@ -5,8 +5,6 @@ namespace API.Clients
 {
     public abstract class BaseApiClient
     {
-        // URL base de la WebAPI. Se puede sobreescribir con la variable de entorno
-        // BOLSATRABAJO_API_BASE_URL si se corre contra otro host/puerto.
         protected static async Task<HttpClient> CreateHttpClientAsync()
         {
             var client = new HttpClient();

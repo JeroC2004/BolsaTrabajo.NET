@@ -51,8 +51,6 @@ namespace Data
             var existing = await context.Ofertas.FindAsync(oferta.Id);
             if (existing != null)
             {
-                // Fecha hasta se actualiza primero para que la revalidación cruzada
-                // en SetFechaDesde no rechace un rango que en realidad es válido.
                 existing.SetFechaHasta(oferta.FechaHasta);
                 existing.SetFechaDesde(oferta.FechaDesde);
                 existing.SetTitulo(oferta.Titulo);

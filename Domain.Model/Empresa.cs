@@ -15,7 +15,7 @@ namespace Domain.Model
             SetRubro(rubro);
         }
 
-        private Empresa() { } // Constructor privado requerido por EF Core
+        private Empresa() { }
 
         public void SetId(int id)
         {
