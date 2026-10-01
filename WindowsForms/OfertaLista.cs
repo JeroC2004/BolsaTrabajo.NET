@@ -1,6 +1,5 @@
 ﻿using API.Clients;
 using DTOs;
-using System.Windows.Forms;
 
 namespace WindowsForms
 {
@@ -11,12 +10,37 @@ namespace WindowsForms
         public OfertaLista()
         {
             InitializeComponent();
+            ConfigurarColumnas();
         }
 
-        private async void OfertaLista_Load(object sender, EventArgs e)
+        // Correccion del profe: columnas explicitas en vez de AutoGenerateColumns, para no
+        // mostrar EmpresaId/TipoOfertaId duplicados junto a sus nombres ya resueltos.
+        private void ConfigurarColumnas()
         {
-            await CargarOfertasAsync();
+            dataGridView1.AutoGenerateColumns = false;
+            dataGridView1.Columns.Clear();
+            dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Titulo", HeaderText = "Título", Width = 200 });
+            dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "EmpresaNombre", HeaderText = "Empresa", Width = 180 });
+            dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "TipoOfertaNombre", HeaderText = "Tipo de Oferta", Width = 160 });
+            dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "TipoVinculo", HeaderText = "Vínculo", Width = 130 });
+            dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Estado", HeaderText = "Estado", Width = 90 });
+            dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "FechaDesde",
+                HeaderText = "Desde",
+                Width = 100,
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy" }
+            });
+            dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "FechaHasta",
+                HeaderText = "Hasta",
+                Width = 100,
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy" }
+            });
         }
+
+        private async void OfertaLista_Load(object sender, EventArgs e) => await CargarOfertasAsync();
 
         private async Task CargarOfertasAsync()
         {
@@ -25,18 +49,17 @@ namespace WindowsForms
                 Cursor = Cursors.WaitCursor;
                 var resultado = await OfertaApiClient.GetAllAsync();
                 ofertas = resultado.ToList();
-                RefrescarGrilla();
+                dataGridView1.DataSource = null;
+                dataGridView1.DataSource = ofertas;
             }
             catch (UnauthorizedAccessException)
             {
-                MessageBox.Show("Su sesión expiró. Vuelva a iniciar sesión.", "Sesión expirada",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Su sesión expiró. Vuelva a iniciar sesión.", "Sesión expirada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar ofertas: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar ofertas: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -44,42 +67,21 @@ namespace WindowsForms
             }
         }
 
-        private void RefrescarGrilla()
-        {
-            dataGridView1.DataSource = null;
-            dataGridView1.DataSource = ofertas.Select(o => new
-            {
-                o.Id,
-                o.Titulo,
-                Empresa = o.EmpresaNombre,
-                Tipo = o.TipoOfertaNombre,
-                o.TipoVinculo,
-                o.Estado,
-                Desde = o.FechaDesde.ToShortDateString(),
-                Hasta = o.FechaHasta.ToShortDateString()
-            }).ToList();
-        }
-
         private async void buscarButton_Click(object sender, EventArgs e)
         {
             try
             {
                 Cursor = Cursors.WaitCursor;
-
-                if (string.IsNullOrWhiteSpace(buscarTextBox.Text))
-                {
-                    await CargarOfertasAsync();
-                    return;
-                }
+                if (string.IsNullOrWhiteSpace(buscarTextBox.Text)) { await CargarOfertasAsync(); return; }
 
                 var resultado = await OfertaApiClient.GetByCriteriaAsync(buscarTextBox.Text);
                 ofertas = resultado.ToList();
-                RefrescarGrilla();
+                dataGridView1.DataSource = null;
+                dataGridView1.DataSource = ofertas;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al buscar: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al buscar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -95,56 +97,45 @@ namespace WindowsForms
 
         private async void agregarButton_Click(object sender, EventArgs e)
         {
-            OfertaDetalle detalle = new OfertaDetalle();
-            if (detalle.ShowDialog() == DialogResult.OK)
-            {
-                await CargarOfertasAsync();
-            }
+            var detalle = new OfertaDetalle();
+            if (detalle.ShowDialog(this) == DialogResult.OK) await CargarOfertasAsync();
         }
 
         private async void actualizarButton_Click(object sender, EventArgs e)
         {
-            var id = ObtenerIdSeleccionado();
-            if (id == null)
+            var seleccionada = ObtenerSeleccionada();
+            if (seleccionada == null)
             {
-                MessageBox.Show("Seleccione una oferta de la lista.", "Aviso",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Seleccione una oferta de la lista.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            OfertaDetalle detalle = new OfertaDetalle(id.Value);
-            if (detalle.ShowDialog() == DialogResult.OK)
-            {
-                await CargarOfertasAsync();
-            }
+            var detalle = new OfertaDetalle(seleccionada.Id);
+            if (detalle.ShowDialog(this) == DialogResult.OK) await CargarOfertasAsync();
         }
 
         private async void eliminarButton_Click(object sender, EventArgs e)
         {
-            var id = ObtenerIdSeleccionado();
-            if (id == null)
+            var seleccionada = ObtenerSeleccionada();
+            if (seleccionada == null)
             {
-                MessageBox.Show("Seleccione una oferta de la lista.", "Aviso",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Seleccione una oferta de la lista.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
             var confirm = MessageBox.Show("¿Está seguro que desea eliminar la oferta seleccionada?", "Confirmar eliminación",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            if (confirm != DialogResult.Yes)
-                return;
+            if (confirm != DialogResult.Yes) return;
 
             try
             {
                 Cursor = Cursors.WaitCursor;
-                await OfertaApiClient.DeleteAsync(id.Value);
+                await OfertaApiClient.DeleteAsync(seleccionada.Id);
                 await CargarOfertasAsync();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al eliminar: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al eliminar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -154,20 +145,9 @@ namespace WindowsForms
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
-                actualizarButton_Click(sender, e);
+            if (e.RowIndex >= 0) actualizarButton_Click(sender, e);
         }
 
-        private int? ObtenerIdSeleccionado()
-        {
-            if (dataGridView1.CurrentRow == null)
-                return null;
-
-            var cell = dataGridView1.CurrentRow.Cells["Id"];
-            if (cell?.Value == null)
-                return null;
-
-            return Convert.ToInt32(cell.Value);
-        }
+        private OfertaDTO? ObtenerSeleccionada() => dataGridView1.CurrentRow?.DataBoundItem as OfertaDTO;
     }
 }
