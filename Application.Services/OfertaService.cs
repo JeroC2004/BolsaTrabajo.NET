@@ -19,7 +19,7 @@ namespace Application.Services
             var estado = ParseEstado(dto.Estado);
 
             Oferta oferta = new Oferta(0, dto.Titulo, tipoVinculo, dto.FechaDesde, dto.FechaHasta,
-                                        dto.Detalle, dto.Requisitos, estado, dto.EmpresaId, dto.TipoOfertaId);
+                                        dto.Detalle, estado, dto.EmpresaId, dto.TipoOfertaId);
 
             await ofertaRepository.AddAsync(oferta);
 
@@ -57,7 +57,7 @@ namespace Application.Services
             var estado = ParseEstado(dto.Estado);
 
             Oferta oferta = new Oferta(dto.Id, dto.Titulo, tipoVinculo, dto.FechaDesde, dto.FechaHasta,
-                                        dto.Detalle, dto.Requisitos, estado, dto.EmpresaId, dto.TipoOfertaId);
+                                        dto.Detalle, estado, dto.EmpresaId, dto.TipoOfertaId);
 
             return await ofertaRepository.UpdateAsync(oferta);
         }
@@ -94,7 +94,7 @@ namespace Application.Services
                 FechaDesde = oferta.FechaDesde,
                 FechaHasta = oferta.FechaHasta,
                 Detalle = oferta.Detalle,
-                Requisitos = oferta.Requisitos,
+                //Requisitos = oferta.Requisitos,
                 EmpresaId = oferta.EmpresaId,
                 EmpresaNombre = oferta.Empresa?.RazonSocial,
                 TipoOfertaId = oferta.TipoOfertaId,

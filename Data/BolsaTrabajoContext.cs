@@ -13,11 +13,11 @@ namespace Data
         public DbSet<TipoOferta> TiposOferta { get; set; }
         public DbSet<Oferta> Ofertas { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<RequisitoOferta> RequisitosOferta { get; set; }
 
         public BolsaTrabajoContext(DbContextOptions<BolsaTrabajoContext> options) : base(options)
-        {
-            
-            Database.EnsureCreated();
+        { 
+            //Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -110,7 +110,7 @@ namespace Data
                 entity.Property(e => e.FechaDesde).IsRequired();
                 entity.Property(e => e.FechaHasta).IsRequired();
                 entity.Property(e => e.Detalle).IsRequired().HasMaxLength(1000);
-                entity.Property(e => e.Requisitos).IsRequired().HasMaxLength(1000);
+
                 entity.Property(e => e.Estado).IsRequired().HasConversion<string>().HasMaxLength(20);
 
                 entity.Property(e => e.EmpresaId).IsRequired().HasField("_empresaId");
@@ -126,6 +126,11 @@ namespace Data
                     .WithMany()
                     .HasForeignKey(e => e.TipoOfertaId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(e => e.Requisitos)
+                    .WithOne(r => r.Oferta)
+                    .HasForeignKey(r => r.OfertaId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Usuario>(entity =>

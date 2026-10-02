@@ -12,8 +12,7 @@ namespace DTOs
         public DateTime FechaDesde { get; set; }
         public DateTime FechaHasta { get; set; }
         public string Detalle { get; set; } = string.Empty;
-        public string Requisitos { get; set; } = string.Empty;
-        public int EmpresaId { get; set; }
+        public List<RequisitoOfertaDTO> Requisitos { get; set; } = new(); public int EmpresaId { get; set; }
         public string? EmpresaNombre { get; set; }
         public int TipoOfertaId { get; set; }
         public string? TipoOfertaNombre { get; set; }

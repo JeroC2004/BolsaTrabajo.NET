@@ -8,7 +8,7 @@ namespace Domain.Model
         public DateTime FechaDesde { get; private set; }
         public DateTime FechaHasta { get; private set; }
         public string Detalle { get; private set; }
-        public string Requisitos { get; private set; }
+        public ICollection<RequisitoOferta> Requisitos { get; set; } = new List<RequisitoOferta>();
         public EstadoOferta Estado { get; private set; }
 
         private int _empresaId;
@@ -52,7 +52,7 @@ namespace Domain.Model
         }
 
         public Oferta(int id, string titulo, TipoVinculo tipoVinculo, DateTime fechaDesde, DateTime fechaHasta,
-                       string detalle, string requisitos, EstadoOferta estado, int empresaId, int tipoOfertaId)
+                       string detalle, EstadoOferta estado, int empresaId, int tipoOfertaId)
         {
             SetId(id);
             SetTitulo(titulo);
@@ -61,7 +61,6 @@ namespace Domain.Model
             SetFechaHasta(fechaHasta);
             SetFechaDesde(fechaDesde);
             SetDetalle(detalle);
-            SetRequisitos(requisitos);
             SetEstado(estado);
             SetEmpresaId(empresaId);
             SetTipoOfertaId(tipoOfertaId);
@@ -117,11 +116,12 @@ namespace Domain.Model
             Detalle = detalle;
         }
 
-        public void SetRequisitos(string requisitos)
+        public void SetRequisitos(ICollection<RequisitoOferta> nuevosRequisitos)
         {
-            if (string.IsNullOrWhiteSpace(requisitos))
-                throw new ArgumentException("Los requisitos no pueden ser nulos o vacíos.", nameof(requisitos));
-            Requisitos = requisitos;
+            if (nuevosRequisitos == null)
+                throw new ArgumentNullException(nameof(nuevosRequisitos), "La lista de requisitos no puede ser nula.");
+
+            Requisitos = nuevosRequisitos;
         }
 
         public void SetEstado(EstadoOferta estado)

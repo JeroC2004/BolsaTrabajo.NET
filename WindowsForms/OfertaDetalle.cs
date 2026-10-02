@@ -1,6 +1,7 @@
 ﻿using API.Clients;
 using Domain.Model;
 using DTOs;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace WindowsForms
@@ -11,18 +12,27 @@ namespace WindowsForms
         private List<EmpresaDTO> empresas = new();
         private List<TipoOfertaDTO> tiposOferta = new();
 
-        // Constructor sin parámetros: modo alta
+        // Esta lista en memoria es el "Detalle"
+        private BindingList<RequisitoOfertaDTO> listaRequisitos = new();
+
         public OfertaDetalle()
         {
             InitializeComponent();
             ofertaId = null;
+            ConfigurarGrilla();
         }
 
-        // Constructor con id: modo edición
         public OfertaDetalle(int id)
         {
             InitializeComponent();
             ofertaId = id;
+            ConfigurarGrilla();
+        }
+
+        private void ConfigurarGrilla()
+        {
+            requisitosGridView.AutoGenerateColumns = true;
+            requisitosGridView.DataSource = listaRequisitos;
         }
 
         private async void OfertaDetalle_Load(object sender, EventArgs e)
@@ -31,7 +41,6 @@ namespace WindowsForms
             {
                 Cursor = Cursors.WaitCursor;
 
-                // Combos de lookup (vienen de la API)
                 var resultadoEmpresas = await EmpresaApiClient.GetAllAsync();
                 empresas = resultadoEmpresas.ToList();
                 empresaComboBox.DataSource = empresas;
@@ -44,7 +53,6 @@ namespace WindowsForms
                 tipoOfertaComboBox.DisplayMember = "Nombre";
                 tipoOfertaComboBox.ValueMember = "Id";
 
-                // Combos de enum de dominio (no dependen de la API, se listan directo del enum)
                 tipoVinculoComboBox.DataSource = Enum.GetNames(typeof(TipoVinculo));
                 estadoComboBox.DataSource = Enum.GetNames(typeof(EstadoOferta));
 
@@ -83,7 +91,15 @@ namespace WindowsForms
             fechaDesdePicker.Value = oferta.FechaDesde;
             fechaHastaPicker.Value = oferta.FechaHasta;
             detalleTextBox.Text = oferta.Detalle;
-            requisitosTextBox.Text = oferta.Requisitos;
+
+            listaRequisitos.Clear();
+            if (oferta.Requisitos != null)
+            {
+                foreach (var req in oferta.Requisitos)
+                {
+                    listaRequisitos.Add(req);
+                }
+            }
         }
 
         private async void guardarButton_Click(object sender, EventArgs e)
@@ -102,7 +118,8 @@ namespace WindowsForms
                 FechaDesde = fechaDesdePicker.Value.Date,
                 FechaHasta = fechaHastaPicker.Value.Date,
                 Detalle = detalleTextBox.Text.Trim(),
-                Requisitos = requisitosTextBox.Text.Trim()
+
+                Requisitos = listaRequisitos.ToList()
             };
 
             try
@@ -171,13 +188,61 @@ namespace WindowsForms
                 isValid = false;
             }
 
-            if (string.IsNullOrWhiteSpace(requisitosTextBox.Text))
+            // Validar que exista al menos un detalle (Requisito)
+            if (listaRequisitos.Count == 0)
             {
-                errorProvider.SetError(requisitosTextBox, "Los requisitos son requeridos");
+                errorProvider.SetError(requisitosGridView, "Debe agregar al menos un requisito a la oferta");
                 isValid = false;
             }
 
             return isValid;
+        }
+
+        private void tituloTextBox_TextChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void agregarButton_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(requisitoTextBox.Text))
+            {
+                MessageBox.Show("Ingrese una descripción para el requisito.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            listaRequisitos.Add(new RequisitoOfertaDTO
+            {
+                Descripcion = requisitoTextBox.Text.Trim(),
+                EsExcluyente = EsExcluyentechk.Checked
+            });
+
+            requisitoTextBox.Clear();
+            EsExcluyentechk.Checked = false;
+            requisitoTextBox.Focus();
+        }
+
+        private void btnEliminarRequisito_Click_1(object sender, EventArgs e)
+        {
+            if (requisitosGridView.CurrentRow != null)
+            {
+                var requisitoSeleccionado = (RequisitoOfertaDTO)requisitosGridView.CurrentRow.DataBoundItem;
+                listaRequisitos.Remove(requisitoSeleccionado);
+            }
+        }
+
+        private void EsExcluyentechk_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
