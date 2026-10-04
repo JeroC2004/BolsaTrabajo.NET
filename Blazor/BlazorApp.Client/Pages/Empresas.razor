@@ -1,0 +1,69 @@
+@page "/empresas"
+@attribute [Authorize]
+
+<PageTitle>Empresas</PageTitle>
+
+<h1>Empresas</h1>
+
+@if (_cargando)
+{
+    <p>Cargando empresas...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger">@_error</div>
+}
+else if (_empresas.Count == 0)
+{
+    <p>No hay empresas registradas.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Razón social</th>
+                <th>Rubro</th>
+                <th>Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (EmpresaDTO empresa in _empresas)
+            {
+                <tr>
+                    <td>@empresa.RazonSocial</td>
+                    <td>@empresa.Rubro</td>
+                    <td>@empresa.Descripcion</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Inject]
+    private EmpresaApiClient EmpresaApiClient { get; set; } = default!;
+
+    private List<EmpresaDTO> _empresas = [];
+    private bool _cargando = true;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            IEnumerable<EmpresaDTO> empresas =
+                await EmpresaApiClient.GetAllAsync();
+
+            _empresas = empresas.ToList();
+        }
+        catch (HttpRequestException)
+        {
+            _error = "No fue posible obtener las empresas.";
+        }
+        finally
+        {
+            _cargando = false;
+        }
+    }
+}

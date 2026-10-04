@@ -1,0 +1,83 @@
+@page "/ofertas"
+@attribute [Authorize]
+
+<PageTitle>Ofertas</PageTitle>
+
+<h1>Ofertas laborales</h1>
+
+@if (_cargando)
+{
+    <p>Cargando ofertas...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger">@_error</div>
+}
+else if (_ofertas.Count == 0)
+{
+    <p>No hay ofertas disponibles.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Empresa</th>
+                <th>Tipo</th>
+                <th>Vínculo</th>
+                <th>Estado</th>
+                <th>Vigencia</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (OfertaDTO oferta in _ofertas)
+            {
+                <tr>
+                    <td>
+                        <a href="@($"/ofertas/{oferta.Id}")">
+                            @oferta.Titulo
+                        </a>
+                    </td>
+                    <td>@oferta.EmpresaNombre</td>
+                    <td>@oferta.TipoOfertaNombre</td>
+                    <td>@oferta.TipoVinculo</td>
+                    <td>@oferta.Estado</td>
+                    <td>
+                        @oferta.FechaDesde.ToShortDateString()
+                        -
+                        @oferta.FechaHasta.ToShortDateString()
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Inject]
+    private OfertaApiClient OfertaApiClient { get; set; } = default!;
+
+    private List<OfertaDTO> _ofertas = [];
+    private bool _cargando = true;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            IEnumerable<OfertaDTO> ofertas =
+                await OfertaApiClient.GetAllAsync();
+
+            _ofertas = ofertas.ToList();
+        }
+        catch (HttpRequestException)
+        {
+            _error = "No fue posible obtener las ofertas.";
+        }
+        finally
+        {
+            _cargando = false;
+        }
+    }
+}

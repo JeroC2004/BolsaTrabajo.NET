@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(Program).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView
+                RouteData="routeData"
+                DefaultLayout="typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    <p>No tiene autorización para acceder a esta página.</p>
+                    <a href="/login">Iniciar sesión</a>
+                </NotAuthorized>
+            </AuthorizeRouteView>
+
+            <FocusOnNavigate
+                RouteData="routeData"
+                Selector="h1" />
+        </Found>
+
+        <NotFound>
+            <LayoutView Layout="typeof(Layout.MainLayout)">
+                <p>La página solicitada no existe.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>

@@ -1,0 +1,65 @@
+@page "/tipos-oferta"
+@attribute [Authorize]
+
+<PageTitle>Tipos de oferta</PageTitle>
+
+<h1>Tipos de oferta</h1>
+
+@if (_cargando)
+{
+    <p>Cargando tipos de oferta...</p>
+}
+else if (!string.IsNullOrWhiteSpace(_error))
+{
+    <div class="alert alert-danger">@_error</div>
+}
+else if (_tiposOferta.Count == 0)
+{
+    <p>No hay tipos de oferta registrados.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (TipoOfertaDTO tipoOferta in _tiposOferta)
+            {
+                <tr>
+                    <td>@tipoOferta.Nombre</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Inject]
+    private TipoOfertaApiClient TipoOfertaApiClient { get; set; } = default!;
+
+    private List<TipoOfertaDTO> _tiposOferta = [];
+    private bool _cargando = true;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            IEnumerable<TipoOfertaDTO> tiposOferta =
+                await TipoOfertaApiClient.GetAllAsync();
+
+            _tiposOferta = tiposOferta.ToList();
+        }
+        catch (HttpRequestException)
+        {
+            _error = "No fue posible obtener los tipos de oferta.";
+        }
+        finally
+        {
+            _cargando = false;
+        }
+    }
+}

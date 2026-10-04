@@ -48,7 +48,6 @@ builder.Services.AddScoped<IOfertaRepository, OfertaRepository>();
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<ITipoOfertaRepository, TipoOfertaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
-
 builder.Services.AddScoped<IAlumnoService, AlumnoService>();
 builder.Services.AddScoped<ICarreraService, CarreraService>();
 builder.Services.AddScoped<IOfertaService, OfertaService>();
@@ -82,9 +81,9 @@ builder.Services.AddAuthorization();
 // Add CORS (para que la app de WinForms/otros clientes puedan consumir la API)
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("BlazorClient", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("https://localhost:puerto-blazor")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -105,8 +104,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-app.UseCors("AllowAll");
-
+app.UseCors("BlazorClient");
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -117,5 +115,6 @@ app.MapCarreraEndpoints();
 app.MapOfertaEndpoints();
 app.MapEmpresaEndpoints();
 app.MapTipoOfertaEndpoints();
+app.MapEntidadEndpoints();
 
 app.Run();
