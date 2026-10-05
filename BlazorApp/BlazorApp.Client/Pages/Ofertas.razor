@@ -1,0 +1,197 @@
+@page "/ofertas"
+
+@using API.Clients
+@using DTOs
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<PageTitle>Ofertas</PageTitle>
+
+<h1>Ofertas laborales</h1>
+
+<div class="mb-3 d-flex gap-2">
+    <input class="form-control"
+           placeholder="Buscar por criterio"
+           @bind="criterio" />
+
+    <button class="btn btn-primary"
+            @onclick="BuscarAsync">
+        Buscar
+    </button>
+
+    <button class="btn btn-secondary"
+            @onclick="CargarAsync">
+        Mostrar todas
+    </button>
+
+    <button class="btn btn-success"
+            @onclick="NuevaOferta">
+        Nueva oferta
+    </button>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
+@if (loading)
+{
+    <p>Cargando ofertas...</p>
+}
+else if (ofertas.Count == 0)
+{
+    <p>No se encontraron ofertas.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Empresa</th>
+                <th>Tipo de oferta</th>
+                <th>Vínculo</th>
+                <th>Estado</th>
+                <th>Desde</th>
+                <th>Hasta</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (OfertaDTO oferta in ofertas)
+            {
+                <tr>
+                    <td>@oferta.Titulo</td>
+                    <td>@oferta.EmpresaNombre</td>
+                    <td>@oferta.TipoOfertaNombre</td>
+                    <td>@oferta.TipoVinculo</td>
+                    <td>@oferta.Estado</td>
+                    <td>@oferta.FechaDesde.ToString("dd/MM/yyyy")</td>
+                    <td>@oferta.FechaHasta.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1"
+                                @onclick="() => Editar(oferta.Id)">
+                            Editar
+                        </button>
+
+                        <button class="btn btn-sm btn-danger"
+                                @onclick="() => EliminarAsync(oferta.Id)">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private readonly List<OfertaDTO> ofertas = new();
+
+    private string criterio = string.Empty;
+    private string? errorMessage;
+    private bool loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarAsync();
+    }
+
+    private async Task CargarAsync()
+    {
+        loading = true;
+        errorMessage = null;
+
+        try
+        {
+            IEnumerable<OfertaDTO> resultado =
+                await OfertaApiClient.GetAllAsync();
+
+            ofertas.Clear();
+            ofertas.AddRange(resultado);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar las ofertas: {ex.Message}";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task BuscarAsync()
+    {
+        if (string.IsNullOrWhiteSpace(criterio))
+        {
+            await CargarAsync();
+            return;
+        }
+
+        loading = true;
+        errorMessage = null;
+
+        try
+        {
+            IEnumerable<OfertaDTO> resultado =
+                await OfertaApiClient.GetByCriteriaAsync(criterio);
+
+            ofertas.Clear();
+            ofertas.AddRange(resultado);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al buscar ofertas: {ex.Message}";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void NuevaOferta()
+    {
+        Navigation.NavigateTo("/ofertas/nueva");
+    }
+
+    private void Editar(int id)
+    {
+        Navigation.NavigateTo($"/ofertas/editar/{id}");
+    }
+
+    private async Task EliminarAsync(int id)
+    {
+        bool confirmar = await JS.InvokeAsync<bool>(
+            "confirm",
+            "¿Está seguro de eliminar la oferta seleccionada?");
+
+        if (!confirmar)
+            return;
+
+        try
+        {
+            await OfertaApiClient.DeleteAsync(id);
+            await CargarAsync();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al eliminar la oferta: {ex.Message}";
+        }
+    }
+}

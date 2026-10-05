@@ -1,0 +1,108 @@
+@page "/login"
+
+@using API.Clients
+@using DTOs
+@using Microsoft.AspNetCore.Authorization
+@attribute [AllowAnonymous]
+
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject BlazorApp.Client.Authentication.BlazorAuthenticationStateProvider AuthenticationProvider
+
+<PageTitle>Iniciar sesión</PageTitle>
+
+<h1>Iniciar sesión</h1>
+
+<EditForm Model="loginRequest"
+          OnValidSubmit="IniciarSesionAsync">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="username" class="form-label">
+            Usuario
+        </label>
+
+        <InputText id="username"
+                   class="form-control"
+                   @bind-Value="loginRequest.Username" />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">
+            Contraseña
+        </label>
+
+        <InputText id="password"
+                   type="password"
+                   class="form-control"
+                   @bind-Value="loginRequest.Password" />
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="alert alert-danger">
+            @errorMessage
+        </div>
+    }
+
+    <button type="submit"
+            class="btn btn-primary"
+            disabled="@loading">
+        @(loading ? "Ingresando..." : "Ingresar")
+    </button>
+</EditForm>
+
+@code {
+    private readonly LoginRequest loginRequest = new();
+
+    private bool loading;
+    private string? errorMessage;
+
+    private async Task IniciarSesionAsync()
+    {
+        loading = true;
+        errorMessage = null;
+
+        try
+        {
+            bool authenticated = await AuthService.LoginAsync(
+                loginRequest.Username,
+                loginRequest.Password);
+
+            if (!authenticated)
+            {
+                errorMessage = "Usuario o contraseña incorrectos.";
+                return;
+            }
+
+            string? token = await AuthService.GetTokenAsync();
+            string? username = await AuthService.GetUsernameAsync();
+
+            if (string.IsNullOrWhiteSpace(token) ||
+                string.IsNullOrWhiteSpace(username))
+            {
+                errorMessage = "La sesión no pudo inicializarse correctamente.";
+                return;
+            }
+
+            await AuthenticationProvider.NotifyLoginAsync(
+                token,
+                username);
+
+            Navigation.NavigateTo("/ofertas");
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "No fue posible conectarse con la API.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al iniciar sesión: {ex.Message}";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}
