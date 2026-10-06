@@ -1,4 +1,5 @@
-﻿using API.Clients;
+﻿using API.Auth.WindowsForms;
+using API.Clients;
 using DTOs;
 using System.Windows.Forms;
 
@@ -9,18 +10,26 @@ namespace WindowsForms
         private readonly int? alumnoId;
         private List<CarreraDTO> carreras = new();
 
-        // Constructor sin parámetros: modo alta
+        private readonly AlumnoApiClient _alumnoClient;
+        private readonly CarreraApiClient _carreraClient;
+
         public AlumnoDetalle()
         {
             InitializeComponent();
             alumnoId = null;
+            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            _alumnoClient = new AlumnoApiClient(httpClient);
+            _carreraClient = new CarreraApiClient(httpClient);
         }
 
-        // Constructor con id: modo edición
         public AlumnoDetalle(int id)
         {
             InitializeComponent();
             alumnoId = id;
+
+            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            _alumnoClient = new AlumnoApiClient(httpClient);
+            _carreraClient = new CarreraApiClient(httpClient);
         }
 
         private async void AlumnoDetalle_Load(object sender, EventArgs e)
@@ -29,7 +38,7 @@ namespace WindowsForms
             {
                 Cursor = Cursors.WaitCursor;
 
-                var resultado = await CarreraApiClient.GetAllAsync();
+                var resultado = await _carreraClient.GetAllAsync();
                 carreras = resultado.ToList();
                 carreraComboBox.DataSource = carreras;
                 carreraComboBox.DisplayMember = "NomCarrera";
@@ -38,7 +47,7 @@ namespace WindowsForms
                 if (alumnoId.HasValue)
                 {
                     Text = "Editar Alumno";
-                    var alumno = await AlumnoApiClient.GetAsync(alumnoId.Value);
+                    var alumno = await _alumnoClient.GetAsync(alumnoId.Value);
                     CargarDatos(alumno);
                 }
                 else
@@ -98,9 +107,9 @@ namespace WindowsForms
                 guardarButton.Enabled = false;
 
                 if (alumnoId.HasValue)
-                    await AlumnoApiClient.UpdateAsync(dto);
+                    await _alumnoClient.UpdateAsync(dto);
                 else
-                    await AlumnoApiClient.AddAsync(dto);
+                    await _alumnoClient.AddAsync(dto);
 
                 DialogResult = DialogResult.OK;
                 Close();

@@ -1,5 +1,6 @@
 ﻿using API.Auth.WindowsForms;
 using API.Clients;
+using System.Net.Http;
 
 namespace WindowsForms
 {
@@ -10,9 +11,11 @@ namespace WindowsForms
         {
             ApplicationConfiguration.Initialize();
 
-            // Registra la implementación de IAuthService que va a usar toda la
-            // capa API.Clients para agregar el token JWT a cada request.
-            AuthServiceProvider.Register(new WindowsFormsAuthService());
+            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+
+            var authClient = new AuthApiClient(httpClient);
+
+            AuthServiceProvider.Register(new WindowsFormsAuthService(authClient));
 
             using (LoginForm loginForm = new LoginForm())
             {

@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using API.Clients;
 using DTOs;
 using Microsoft.JSInterop;
@@ -11,16 +10,15 @@ public sealed class BlazorAuthService : IAuthService
     private const string UsernameKey = "bolsaTrabajoUsername";
     private const string ExpirationKey = "bolsaTrabajoExpiration";
 
-    private readonly HttpClient httpClient;
+    private readonly AuthApiClient _authClient;
     private readonly IJSRuntime jsRuntime;
 
     public event Action<bool>? AuthenticationStateChanged;
-
     public BlazorAuthService(
-        HttpClient httpClient,
+        AuthApiClient authClient,
         IJSRuntime jsRuntime)
     {
-        this.httpClient = httpClient;
+        _authClient = authClient;
         this.jsRuntime = jsRuntime;
     }
 
@@ -32,17 +30,9 @@ public sealed class BlazorAuthService : IAuthService
             Password = password
         };
 
-        using HttpResponseMessage response =
-            await httpClient.PostAsJsonAsync("auth/login", request);
+        LoginResponse? loginResponse = await _authClient.LoginAsync(request);
 
-        if (!response.IsSuccessStatusCode)
-            return false;
-
-        LoginResponse? loginResponse =
-            await response.Content.ReadFromJsonAsync<LoginResponse>();
-
-        if (loginResponse == null ||
-            string.IsNullOrWhiteSpace(loginResponse.Token))
+        if (loginResponse == null || string.IsNullOrWhiteSpace(loginResponse.Token))
         {
             return false;
         }

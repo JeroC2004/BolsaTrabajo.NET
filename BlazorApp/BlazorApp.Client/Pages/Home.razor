@@ -1,7 +1,63 @@
 ﻿@page "/"
+@inject NavigationManager Navigation
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Portal de Empleo - Inicio</PageTitle>
 
-<h1>¡Hola!</h1>
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-sm p-5 text-center" style="max-width: 550px; border: 1px solid #dee2e6; border-radius: 8px;">
 
-Bienvenido a nuestra aplicación sobre Bolsa de Trabajo.
+        <h1 class="h3 fw-bold text-dark mb-3">Sistema de Bolsa de Trabajo</h1>
+
+        <p class="text-secondary mb-4" style="font-size: 1.05rem; line-height: 1.5;">
+            Bienvenido al portal de gestión de oportunidades laborales. Por favor, acceda con sus credenciales para continuar operando en la plataforma.
+        </p>
+
+        <hr class="my-4 text-muted" />
+
+        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+
+            <AuthorizeView>
+                <Authorized>
+                    <!-- Si ya está logueado, le mostramos un acceso directo al sistema -->
+                    <button class="btn btn-success px-5 py-2" @onclick="IrAOfertas">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Ir al Panel
+                    </button>
+                </Authorized>
+                <NotAuthorized>
+                    <!-- Si NO está logueado, mostramos el Login y Registro -->
+                    <button class="btn btn-primary px-5 py-2" @onclick="IrALogin">
+                        Iniciar Sesión
+                    </button>
+
+                    <button class="btn btn-secondary px-5 py-2" disabled aria-disabled="true" title="El registro no está disponible en este momento">
+                        Registrarse
+                    </button>
+                </NotAuthorized>
+            </AuthorizeView>
+
+        </div>
+
+        <AuthorizeView>
+            <NotAuthorized>
+                <div class="mt-4">
+                    <small class="text-muted">
+                        * La creación de nuevas cuentas se encuentra temporalmente deshabilitada.
+                    </small>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+
+    </div>
+</div>
+
+@code {
+    private void IrALogin()
+    {
+        Navigation.NavigateTo("/login");
+    }
+
+    private void IrAOfertas()
+    {
+        Navigation.NavigateTo("/ofertas");
+    }
+}

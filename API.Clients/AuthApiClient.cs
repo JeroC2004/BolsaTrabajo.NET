@@ -1,29 +1,24 @@
 ﻿using DTOs;
-using System.Text;
-using System.Text.Json;
+using System.Net.Http.Json;
 
 namespace API.Clients
 {
-    public class AuthApiClient : BaseApiClient
+    public class AuthApiClient
     {
+        private readonly HttpClient _httpClient;
+
+        public AuthApiClient(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
+
         public async Task<LoginResponse?> LoginAsync(LoginRequest request)
         {
-            // No requiere token todavía (es el propio login), pero reutiliza
-            // CreateHttpClientAsync para no duplicar la resolución de la URL base.
-            using var httpClient = await CreateHttpClientAsync();
-
-            var json = JsonSerializer.Serialize(request);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await httpClient.PostAsync("/auth/login", content);
+            var response = await _httpClient.PostAsJsonAsync("auth/login", request);
 
             if (response.IsSuccessStatusCode)
             {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<LoginResponse>(responseContent, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+                return await response.Content.ReadFromJsonAsync<LoginResponse>();
             }
 
             return null;

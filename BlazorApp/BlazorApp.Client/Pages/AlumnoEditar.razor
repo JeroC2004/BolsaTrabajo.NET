@@ -1,0 +1,137 @@
+﻿@page "/alumnos/nuevo"
+@page "/alumnos/editar/{AlumnoId:int}"
+
+@using DTOs
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+@inject NavigationManager Navigation
+@inject API.Clients.AlumnoApiClient AlumnoClient
+@inject API.Clients.CarreraApiClient CarreraClient
+
+<PageTitle>@TituloPagina</PageTitle>
+
+<h3>@TituloPagina</h3>
+
+@if (cargando)
+{
+    <p>Cargando datos...</p>
+}
+else
+{
+    <EditForm Model="alumno" OnValidSubmit="GuardarAsync">
+        <DataAnnotationsValidator />
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Nombre</label>
+                <InputText class="form-control" @bind-Value="alumno.NomAlumno" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Apellido</label>
+                <InputText class="form-control" @bind-Value="alumno.ApeAlumno" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Email</label>
+                <InputText class="form-control" @bind-Value="alumno.Email" type="email" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>DNI</label>
+                <InputText class="form-control" @bind-Value="alumno.Dni" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label>Legajo</label>
+                <InputText class="form-control" @bind-Value="alumno.Legajo" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label>Carrera</label>
+                <InputSelect class="form-select" @bind-Value="alumno.CarreraId">
+                    <option value="0">Seleccione una carrera</option>
+                    @foreach (var c in carreras)
+                    {
+                        <option value="@c.Id">@c.NomCarrera</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label>Plan</label>
+                <InputText class="form-control" @bind-Value="alumno.Plan" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label>Año de Cursado</label>
+                <InputNumber class="form-control" @bind-Value="alumno.AnioCurso" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label>Materias Aprobadas</label>
+                <InputNumber class="form-control" @bind-Value="alumno.CantMatAp" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label>Promedio</label>
+                <InputNumber class="form-control" @bind-Value="alumno.Promedio" />
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" disabled="@guardando">
+            @(guardando ? "Guardando..." : "Guardar")
+        </button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="Cancelar">Cancelar</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int? AlumnoId { get; set; }
+
+    private AlumnoDTO alumno = new();
+    private List<CarreraDTO> carreras = new();
+    private bool cargando = true;
+    private bool guardando = false;
+
+    private string TituloPagina => AlumnoId.HasValue ? "Editar Alumno" : "Nuevo Alumno";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await CarreraClient.GetAllAsync();
+            carreras = result.ToList();
+
+            if (AlumnoId.HasValue)
+            {
+                alumno = await AlumnoClient.GetAsync(AlumnoId.Value);
+            }
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task GuardarAsync()
+    {
+        guardando = true;
+        try
+        {
+            if (AlumnoId.HasValue)
+                await AlumnoClient.UpdateAsync(alumno);
+            else
+                await AlumnoClient.AddAsync(alumno);
+
+            Navigation.NavigateTo("/alumnos");
+        }
+        finally
+        {
+            guardando = false;
+        }
+    }
+
+    private void Cancelar() => Navigation.NavigateTo("/alumnos");
+}

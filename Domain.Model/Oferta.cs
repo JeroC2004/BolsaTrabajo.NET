@@ -88,9 +88,6 @@ namespace Domain.Model
                 throw new ArgumentException("El tipo de vínculo no es válido.", nameof(tipoVinculo));
             TipoVinculo = tipoVinculo;
         }
-
-        // Corrección de la Entrega 1: antes SetFechaDesde no revalidaba contra FechaHasta
-        // Ahora ambos setters se validan cruzados entre sí en los dos sentidos.
         public void SetFechaDesde(DateTime fechaDesde)
         {
             if (fechaDesde == default)

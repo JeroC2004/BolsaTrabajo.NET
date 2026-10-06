@@ -1,0 +1,254 @@
+﻿@page "/ofertas/nueva"
+@page "/ofertas/editar/{OfertaId:int}"
+
+@using DTOs
+@using Domain.Model
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+@inject NavigationManager Navigation
+@inject API.Clients.OfertaApiClient OfertaClient
+@inject API.Clients.EmpresaApiClient EmpresaClient
+@inject API.Clients.TipoOfertaApiClient TipoOfertaClient
+
+<PageTitle>@TituloPagina</PageTitle>
+
+<h3>@TituloPagina</h3>
+
+@if (cargando)
+{
+    <p>Cargando datos...</p>
+}
+else
+{
+    <EditForm Model="oferta" OnValidSubmit="GuardarAsync">
+        <DataAnnotationsValidator />
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Título</label>
+                <InputText class="form-control" @bind-Value="oferta.Titulo" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label>Empresa</label>
+                <InputSelect class="form-select" @bind-Value="oferta.EmpresaId">
+                    <option value="0">Seleccione...</option>
+                    @foreach (var emp in empresas)
+                    {
+                        <option value="@emp.Id">@emp.RazonSocial</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label>Tipo Oferta</label>
+                <InputSelect class="form-select" @bind-Value="oferta.TipoOfertaId">
+                    <option value="0">Seleccione...</option>
+                    @foreach (var tipo in tiposOferta)
+                    {
+                        <option value="@tipo.Id">@tipo.Nombre</option>
+                    }
+                </InputSelect>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label>Vínculo</label>
+                <InputSelect class="form-select" @bind-Value="oferta.TipoVinculo">
+                    <option value="">Seleccione...</option>
+                    @foreach (var vinculo in Enum.GetNames<TipoVinculo>())
+                    {
+                        <option value="@vinculo">@vinculo</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label>Estado</label>
+                <InputSelect class="form-select" @bind-Value="oferta.Estado">
+                    <option value="">Seleccione...</option>
+                    @foreach (var estado in Enum.GetNames<EstadoOferta>())
+                    {
+                        <option value="@estado">@estado</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label>Fecha Desde</label>
+                <InputDate class="form-control" @bind-Value="oferta.FechaDesde" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label>Fecha Hasta</label>
+                <InputDate class="form-control" @bind-Value="oferta.FechaHasta" />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label>Detalle</label>
+            <InputTextArea class="form-control" rows="3" @bind-Value="oferta.Detalle" />
+        </div>
+
+        <hr />
+        <h5 class="mt-4">Requisitos de la Oferta</h5>
+
+        <div class="card p-3 mb-4 bg-light">
+            <div class="row align-items-end">
+                <div class="col-md-7">
+                    <label>Descripción del Requisito</label>
+                    <input type="text" class="form-control" @bind="nuevoRequisitoDesc" placeholder="Ej: Conocimientos en C#" />
+                </div>
+                <div class="col-md-3 d-flex align-items-center mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="chkExcluyente" @bind="nuevoRequisitoExcluyente">
+                        <label class="form-check-label" for="chkExcluyente">
+                            Es Excluyente
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-secondary w-100" @onclick="AgregarRequisito">Agregar</button>
+                </div>
+            </div>
+        </div>
+
+        @if (oferta.Requisitos != null && oferta.Requisitos.Any())
+        {
+            <table class="table table-bordered table-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Descripción</th>
+                        <th style="width: 150px;">Excluyente</th>
+                        <th style="width: 100px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var req in oferta.Requisitos)
+                    {
+                        <tr>
+                            <td>@req.Descripcion</td>
+                            <td class="text-center">
+                                @(req.EsExcluyente ? "Sí" : "No")
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-danger" @onclick="() => EliminarRequisito(req)">
+                                    Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="text-muted fst-italic">No se han agregado requisitos aún.</p>
+        }
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger mt-3">@errorMessage</div>
+        }
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary" disabled="@guardando">
+                @(guardando ? "Guardando..." : "Guardar Oferta")
+            </button>
+            <button type="button" class="btn btn-outline-secondary ms-2" @onclick="Cancelar">Cancelar</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int? OfertaId { get; set; }
+
+    private OfertaDTO oferta = new() { Requisitos = new List<RequisitoOfertaDTO>() };
+    private List<EmpresaDTO> empresas = new();
+    private List<TipoOfertaDTO> tiposOferta = new();
+
+    private string nuevoRequisitoDesc = string.Empty;
+    private bool nuevoRequisitoExcluyente = false;
+
+    private bool cargando = true;
+    private bool guardando = false;
+    private string? errorMessage;
+
+    private string TituloPagina => OfertaId.HasValue ? "Editar Oferta" : "Nueva Oferta";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var empTask = EmpresaClient.GetAllAsync();
+            var tipoTask = TipoOfertaClient.GetAllAsync();
+            await Task.WhenAll(empTask, tipoTask);
+
+            empresas = (await empTask).ToList();
+            tiposOferta = (await tipoTask).ToList();
+
+            if (OfertaId.HasValue)
+            {
+                oferta = await OfertaClient.GetAsync(OfertaId.Value);
+                if (oferta.Requisitos == null) oferta.Requisitos = new List<RequisitoOfertaDTO>();
+            }
+            else
+            {
+                oferta.FechaDesde = DateTime.Today;
+                oferta.FechaHasta = DateTime.Today.AddMonths(3);
+            }
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private void AgregarRequisito()
+    {
+        if (string.IsNullOrWhiteSpace(nuevoRequisitoDesc))
+            return;
+
+        oferta.Requisitos.Add(new RequisitoOfertaDTO
+        {
+            Descripcion = nuevoRequisitoDesc.Trim(),
+            EsExcluyente = nuevoRequisitoExcluyente
+        });
+
+        nuevoRequisitoDesc = string.Empty;
+        nuevoRequisitoExcluyente = false;
+    }
+
+    private void EliminarRequisito(RequisitoOfertaDTO req)
+    {
+        oferta.Requisitos.Remove(req);
+    }
+
+    private async Task GuardarAsync()
+    {
+        if (oferta.Requisitos == null || !oferta.Requisitos.Any())
+        {
+            errorMessage = "Debe agregar al menos un requisito a la oferta.";
+            return;
+        }
+
+        errorMessage = null;
+        guardando = true;
+        try
+        {
+            if (OfertaId.HasValue)
+                await OfertaClient.UpdateAsync(oferta);
+            else
+                await OfertaClient.AddAsync(oferta);
+
+            Navigation.NavigateTo("/ofertas");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            guardando = false;
+        }
+    }
+
+    private void Cancelar() => Navigation.NavigateTo("/ofertas");
+}

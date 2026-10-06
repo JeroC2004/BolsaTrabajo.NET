@@ -12,13 +12,22 @@ namespace WindowsForms
         private List<EmpresaDTO> empresas = new();
         private List<TipoOfertaDTO> tiposOferta = new();
 
-        // Esta lista en memoria es el "Detalle"
+        private readonly OfertaApiClient _ofertaClient;
+        private readonly EmpresaApiClient _empresaClient;
+        private readonly TipoOfertaApiClient _tipoOfertaClient;
+
         private BindingList<RequisitoOfertaDTO> listaRequisitos = new();
 
         public OfertaDetalle()
         {
             InitializeComponent();
             ofertaId = null;
+
+            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            _ofertaClient = new OfertaApiClient(httpClient);
+            _empresaClient = new EmpresaApiClient(httpClient);
+            _tipoOfertaClient = new TipoOfertaApiClient(httpClient);
+
             ConfigurarGrilla();
         }
 
@@ -26,6 +35,12 @@ namespace WindowsForms
         {
             InitializeComponent();
             ofertaId = id;
+
+            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            _ofertaClient = new OfertaApiClient(httpClient);
+            _empresaClient = new EmpresaApiClient(httpClient);
+            _tipoOfertaClient = new TipoOfertaApiClient(httpClient);
+
             ConfigurarGrilla();
         }
 
@@ -41,13 +56,13 @@ namespace WindowsForms
             {
                 Cursor = Cursors.WaitCursor;
 
-                var resultadoEmpresas = await EmpresaApiClient.GetAllAsync();
+                var resultadoEmpresas = await _empresaClient.GetAllAsync();
                 empresas = resultadoEmpresas.ToList();
                 empresaComboBox.DataSource = empresas;
                 empresaComboBox.DisplayMember = "RazonSocial";
                 empresaComboBox.ValueMember = "Id";
 
-                var resultadoTipos = await TipoOfertaApiClient.GetAllAsync();
+                var resultadoTipos = await _tipoOfertaClient.GetAllAsync();
                 tiposOferta = resultadoTipos.ToList();
                 tipoOfertaComboBox.DataSource = tiposOferta;
                 tipoOfertaComboBox.DisplayMember = "Nombre";
@@ -59,7 +74,7 @@ namespace WindowsForms
                 if (ofertaId.HasValue)
                 {
                     Text = "Editar Oferta";
-                    var oferta = await OfertaApiClient.GetAsync(ofertaId.Value);
+                    var oferta = await _ofertaClient.GetAsync(ofertaId.Value);
                     CargarDatos(oferta);
                 }
                 else
@@ -128,9 +143,9 @@ namespace WindowsForms
                 guardarButton.Enabled = false;
 
                 if (ofertaId.HasValue)
-                    await OfertaApiClient.UpdateAsync(dto);
+                    await _ofertaClient.UpdateAsync(dto);
                 else
-                    await OfertaApiClient.AddAsync(dto);
+                    await _ofertaClient.AddAsync(dto);
 
                 DialogResult = DialogResult.OK;
                 Close();
@@ -188,7 +203,6 @@ namespace WindowsForms
                 isValid = false;
             }
 
-            // Validar que exista al menos un detalle (Requisito)
             if (listaRequisitos.Count == 0)
             {
                 errorProvider.SetError(requisitosGridView, "Debe agregar al menos un requisito a la oferta");
@@ -198,19 +212,10 @@ namespace WindowsForms
             return isValid;
         }
 
-        private void tituloTextBox_TextChanged(object sender, EventArgs e)
-        {
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
+        private void tituloTextBox_TextChanged(object sender, EventArgs e) { }
+        private void textBox1_TextChanged(object sender, EventArgs e) { }
+        private void label1_Click(object sender, EventArgs e) { }
+        private void EsExcluyentechk_CheckedChanged(object sender, EventArgs e) { }
 
         private void agregarButton_Click(object sender, EventArgs e)
         {
@@ -238,11 +243,6 @@ namespace WindowsForms
                 var requisitoSeleccionado = (RequisitoOfertaDTO)requisitosGridView.CurrentRow.DataBoundItem;
                 listaRequisitos.Remove(requisitoSeleccionado);
             }
-        }
-
-        private void EsExcluyentechk_CheckedChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }

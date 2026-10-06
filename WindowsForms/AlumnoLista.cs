@@ -1,5 +1,6 @@
 ﻿using API.Clients;
 using DTOs;
+using System.Windows.Forms;
 
 namespace WindowsForms
 {
@@ -7,13 +8,18 @@ namespace WindowsForms
     {
         private List<AlumnoDTO> alumnos = new();
 
+        private readonly AlumnoApiClient _alumnoClient;
+
         public AlumnoLista()
         {
             InitializeComponent();
+
+            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            _alumnoClient = new AlumnoApiClient(httpClient);
+
             ConfigurarColumnas();
         }
 
-       
         private void ConfigurarColumnas()
         {
             dataGridView1.AutoGenerateColumns = false;
@@ -35,10 +41,10 @@ namespace WindowsForms
             try
             {
                 Cursor = Cursors.WaitCursor;
-                var resultado = await AlumnoApiClient.GetAllAsync();
+                var resultado = await _alumnoClient.GetAllAsync();
                 alumnos = resultado.ToList();
                 dataGridView1.DataSource = null;
-                dataGridView1.DataSource = alumnos; 
+                dataGridView1.DataSource = alumnos;
             }
             catch (UnauthorizedAccessException)
             {
@@ -62,7 +68,7 @@ namespace WindowsForms
                 Cursor = Cursors.WaitCursor;
                 if (string.IsNullOrWhiteSpace(buscarTextBox.Text)) { await CargarAlumnosAsync(); return; }
 
-                var resultado = await AlumnoApiClient.GetByCriteriaAsync(buscarTextBox.Text);
+                var resultado = await _alumnoClient.GetByCriteriaAsync(buscarTextBox.Text);
                 alumnos = resultado.ToList();
                 dataGridView1.DataSource = null;
                 dataGridView1.DataSource = alumnos;
@@ -118,7 +124,7 @@ namespace WindowsForms
             try
             {
                 Cursor = Cursors.WaitCursor;
-                await AlumnoApiClient.DeleteAsync(seleccionado.Id);
+                await _alumnoClient.DeleteAsync(seleccionado.Id);
                 await CargarAlumnosAsync();
             }
             catch (Exception ex)
@@ -136,7 +142,6 @@ namespace WindowsForms
             if (e.RowIndex >= 0) actualizarButton_Click(sender, e);
         }
 
-        
         private AlumnoDTO? ObtenerSeleccionado() => dataGridView1.CurrentRow?.DataBoundItem as AlumnoDTO;
     }
 }

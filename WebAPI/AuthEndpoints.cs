@@ -21,7 +21,7 @@ namespace WebAPI
             .Produces<LoginResponse>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
             .WithOpenApi()
-            .AllowAnonymous(); // Único endpoint público para poder loguearse
+            .AllowAnonymous();
         }
     }
 }

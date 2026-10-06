@@ -1,5 +1,6 @@
 ﻿using API.Clients;
 using DTOs;
+using System.Windows.Forms;
 
 namespace WindowsForms
 {
@@ -7,14 +8,18 @@ namespace WindowsForms
     {
         private List<OfertaDTO> ofertas = new();
 
+        private readonly OfertaApiClient _ofertaClient;
+
         public OfertaLista()
         {
             InitializeComponent();
+
+            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            _ofertaClient = new OfertaApiClient(httpClient);
+
             ConfigurarColumnas();
         }
 
-        // Correccion del profe: columnas explicitas en vez de AutoGenerateColumns, para no
-        // mostrar EmpresaId/TipoOfertaId duplicados junto a sus nombres ya resueltos.
         private void ConfigurarColumnas()
         {
             dataGridView1.AutoGenerateColumns = false;
@@ -47,7 +52,7 @@ namespace WindowsForms
             try
             {
                 Cursor = Cursors.WaitCursor;
-                var resultado = await OfertaApiClient.GetAllAsync();
+                var resultado = await _ofertaClient.GetAllAsync();
                 ofertas = resultado.ToList();
                 dataGridView1.DataSource = null;
                 dataGridView1.DataSource = ofertas;
@@ -74,7 +79,7 @@ namespace WindowsForms
                 Cursor = Cursors.WaitCursor;
                 if (string.IsNullOrWhiteSpace(buscarTextBox.Text)) { await CargarOfertasAsync(); return; }
 
-                var resultado = await OfertaApiClient.GetByCriteriaAsync(buscarTextBox.Text);
+                var resultado = await _ofertaClient.GetByCriteriaAsync(buscarTextBox.Text);
                 ofertas = resultado.ToList();
                 dataGridView1.DataSource = null;
                 dataGridView1.DataSource = ofertas;
@@ -130,7 +135,7 @@ namespace WindowsForms
             try
             {
                 Cursor = Cursors.WaitCursor;
-                await OfertaApiClient.DeleteAsync(seleccionada.Id);
+                await _ofertaClient.DeleteAsync(seleccionada.Id);
                 await CargarOfertasAsync();
             }
             catch (Exception ex)

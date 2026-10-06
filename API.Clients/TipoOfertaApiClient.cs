@@ -1,19 +1,28 @@
 ﻿using DTOs;
 using System.Net.Http.Json;
+using System.Net;
 
 namespace API.Clients
 {
-    public class TipoOfertaApiClient : BaseApiClient
+    public class TipoOfertaApiClient
     {
-        public static async Task<IEnumerable<TipoOfertaDTO>> GetAllAsync()
+        private readonly HttpClient _httpClient;
+
+        public TipoOfertaApiClient(HttpClient httpClient)
         {
-            using var client = await CreateHttpClientAsync();
-            HttpResponseMessage response = await client.GetAsync("tiposoferta");
+            _httpClient = httpClient;
+        }
+
+        public async Task<IEnumerable<TipoOfertaDTO>> GetAllAsync()
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync("tiposoferta");
 
             if (response.IsSuccessStatusCode)
                 return (await response.Content.ReadFromJsonAsync<IEnumerable<TipoOfertaDTO>>())!;
 
-            await HandleUnauthorizedResponseAsync(response);
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                throw new UnauthorizedAccessException();
+
             string errorContent = await response.Content.ReadAsStringAsync();
             throw new Exception($"Error al obtener lista de tipos de oferta. Status: {response.StatusCode}, Detalle: {errorContent}");
         }

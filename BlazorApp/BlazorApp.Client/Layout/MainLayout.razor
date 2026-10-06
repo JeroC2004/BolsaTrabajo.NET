@@ -1,23 +1,71 @@
 ﻿@inherits LayoutComponentBase
 
+@using API.Clients
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        <!-- Encabezado del menú lateral con fondo oscuro asegurado -->
+        <div class="top-row ps-3 navbar navbar-dark bg-dark">
+            <div class="container-fluid">
+                <span class="navbar-brand text-white fw-bold fs-6">Bolsa de Trabajo</span>
+            </div>
+        </div>
+
+        <div class="nav-scrollable">
+            <nav class="flex-column">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Inicio
+                    </NavLink>
+                </div>
+
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="alumnos">
+                                <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Alumnos
+                            </NavLink>
+                        </div>
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="ofertas">
+                                <span class="bi bi-briefcase-fill-nav-menu" aria-hidden="true"></span> Ofertas
+                            </NavLink>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+            </nav>
+        </div>
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        <!-- Barra superior limpia, alineada a la derecha y con fondo sutil -->
+        <div class="top-row px-4 d-flex justify-content-end align-items-center bg-white border-bottom shadow-sm" style="height: 60px;">
+            <AuthorizeView>
+                <Authorized>
+                    <span class="me-3 text-secondary">Conectado como: <strong class="text-dark">@context.User.Identity?.Name</strong></span>
+                    <button class="btn btn-outline-danger btn-sm px-3" @onclick="CerrarSesionAsync">
+                        Cerrar sesión
+                    </button>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="login" class="btn btn-primary btn-sm">Iniciar sesión</a>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
 
-        <article class="content px-4">
+        <!-- Contenido principal con un padding cómodo -->
+        <article class="content px-4 py-4">
             @Body
         </article>
     </main>
 </div>
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
+@code {
+    private async Task CerrarSesionAsync()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

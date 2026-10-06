@@ -1,19 +1,17 @@
-@page "/ofertas"
+ï»¿@page "/alumnos"
 
 @using API.Clients
 @using DTOs
 @using Microsoft.AspNetCore.Authorization
-@* Protegemos la ruta para que solo usuarios logueados puedan ver la lista *@
 @attribute [Authorize]
 
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
-@* 1. INYECTAMOS EL CLIENTE AQUÍ *@
-@inject API.Clients.OfertaApiClient OfertaClient
+@inject API.Clients.AlumnoApiClient AlumnoClient
 
-<PageTitle>Ofertas</PageTitle>
+<PageTitle>Alumnos</PageTitle>
 
-<h1>Ofertas laborales</h1>
+<h1>GestiÃ³n de Alumnos</h1>
 
 <div class="mb-3 d-flex gap-2">
     <input class="form-control"
@@ -27,12 +25,12 @@
 
     <button class="btn btn-secondary"
             @onclick="CargarAsync">
-        Mostrar todas
+        Mostrar todos
     </button>
 
     <button class="btn btn-success"
-            @onclick="NuevaOferta">
-        Nueva oferta
+            @onclick="NuevoAlumno">
+        Nuevo alumno
     </button>
 </div>
 
@@ -47,53 +45,48 @@
 {
     <div class="d-flex align-items-center mt-3">
         <div class="spinner-border text-primary me-2" role="status"></div>
-        <span>Cargando ofertas...</span>
+        <span>Cargando alumnos...</span>
     </div>
 }
-else if (ofertas.Count == 0)
+else if (alumnos.Count == 0)
 {
-    <p>No se encontraron ofertas.</p>
+    <p>No se encontraron alumnos.</p>
 }
 else
 {
     <table class="table table-striped mt-3">
         <thead>
             <tr>
-                <th>Título</th>
-                <th>Empresa</th>
-                <th>Tipo de oferta</th>
-                <th>Vínculo</th>
-                <th>Estado</th>
-                <th>Desde</th>
-                <th>Hasta</th>
+                <th>Legajo</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>DNI</th>
+                <th>Email</th>
+                <th>Carrera</th>
+                <th>AÃ±o</th>
+                <th>Promedio</th>
                 <th>Acciones</th>
             </tr>
         </thead>
-
         <tbody>
-            @foreach (OfertaDTO oferta in ofertas)
+            @foreach (AlumnoDTO alumno in alumnos)
             {
                 <tr>
-                    <td>@oferta.Titulo</td>
-                    <td>@oferta.EmpresaNombre</td>
-                    <td>@oferta.TipoOfertaNombre</td>
-                    <td>@oferta.TipoVinculo</td>
-                    <td>
-                        @* Pequeño detalle visual para el estado *@
-                        <span class="badge @(oferta.Estado == "Activa" ? "bg-success" : "bg-secondary")">
-                            @oferta.Estado
-                        </span>
-                    </td>
-                    <td>@oferta.FechaDesde.ToString("dd/MM/yyyy")</td>
-                    <td>@oferta.FechaHasta.ToString("dd/MM/yyyy")</td>
+                    <td>@alumno.Legajo</td>
+                    <td>@alumno.NomAlumno</td>
+                    <td>@alumno.ApeAlumno</td>
+                    <td>@alumno.Dni</td>
+                    <td>@alumno.Email</td>
+                    <td>@alumno.CarreraNombre</td>
+                    <td>@alumno.AnioCurso</td>
+                    <td>@alumno.Promedio</td>
                     <td>
                         <button class="btn btn-sm btn-warning me-1"
-                                @onclick="() => Editar(oferta.Id)">
+                                @onclick="() => Editar(alumno.Id)">
                             Editar
                         </button>
-
                         <button class="btn btn-sm btn-danger"
-                                @onclick="() => EliminarAsync(oferta.Id)">
+                                @onclick="() => EliminarAsync(alumno.Id)">
                             Eliminar
                         </button>
                     </td>
@@ -104,8 +97,7 @@ else
 }
 
 @code {
-    private readonly List<OfertaDTO> ofertas = new();
-
+    private readonly List<AlumnoDTO> alumnos = new();
     private string criterio = string.Empty;
     private string? errorMessage;
     private bool loading;
@@ -122,10 +114,9 @@ else
 
         try
         {
-            IEnumerable<OfertaDTO> resultado = await OfertaClient.GetAllAsync();
-
-            ofertas.Clear();
-            ofertas.AddRange(resultado);
+            IEnumerable<AlumnoDTO> resultado = await AlumnoClient.GetAllAsync();
+            alumnos.Clear();
+            alumnos.AddRange(resultado);
         }
         catch (UnauthorizedAccessException)
         {
@@ -133,7 +124,7 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error al cargar las ofertas: {ex.Message}";
+            errorMessage = $"Error al cargar los alumnos: {ex.Message}";
         }
         finally
         {
@@ -154,11 +145,9 @@ else
 
         try
         {
-
-            IEnumerable<OfertaDTO> resultado = await OfertaClient.GetByCriteriaAsync(criterio);
-
-            ofertas.Clear();
-            ofertas.AddRange(resultado);
+            IEnumerable<AlumnoDTO> resultado = await AlumnoClient.GetByCriteriaAsync(criterio);
+            alumnos.Clear();
+            alumnos.AddRange(resultado);
         }
         catch (UnauthorizedAccessException)
         {
@@ -166,7 +155,7 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error al buscar ofertas: {ex.Message}";
+            errorMessage = $"Error al buscar alumnos: {ex.Message}";
         }
         finally
         {
@@ -174,28 +163,24 @@ else
         }
     }
 
-    private void NuevaOferta()
+    private void NuevoAlumno()
     {
-        Navigation.NavigateTo("/ofertas/nueva");
+        Navigation.NavigateTo("/alumnos/nuevo");
     }
 
     private void Editar(int id)
     {
-        Navigation.NavigateTo($"/ofertas/editar/{id}");
+        Navigation.NavigateTo($"/alumnos/editar/{id}");
     }
 
     private async Task EliminarAsync(int id)
     {
-        bool confirmar = await JS.InvokeAsync<bool>(
-            "confirm",
-            "¿Está seguro de eliminar la oferta seleccionada?");
-
-        if (!confirmar)
-            return;
+        bool confirmar = await JS.InvokeAsync<bool>("confirm", "Â¿EstÃ¡ seguro de eliminar el alumno seleccionado?");
+        if (!confirmar) return;
 
         try
         {
-            await OfertaClient.DeleteAsync(id);
+            await AlumnoClient.DeleteAsync(id);
             await CargarAsync();
         }
         catch (UnauthorizedAccessException)
@@ -204,7 +189,7 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error al eliminar la oferta: {ex.Message}";
+            errorMessage = $"Error al eliminar el alumno: {ex.Message}";
         }
     }
 }

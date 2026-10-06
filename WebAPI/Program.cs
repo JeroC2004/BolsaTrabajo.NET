@@ -11,8 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    // Configurar JWT en Swagger para poder probar los endpoints protegidos
-    // pegando el token con el botón "Authorize"
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Description = "Ingresar el token JWT. Ejemplo: \"Bearer {token}\"",
@@ -38,7 +36,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// La base de datos se autogenera si no existe
 builder.Services.AddDbContext<BolsaTrabajoContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -79,7 +76,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// Add CORS (para que la app de WinForms/otros clientes puedan consumir la API)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -98,8 +94,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// HTTPS redirection deshabilitado en desarrollo para que el cliente de WinForms
-// no pierda el header Authorization al seguir el redirect (cambio de puerto)
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
@@ -110,8 +104,7 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Map endpoints
-app.MapAuthEndpoints(); // No requiere autenticación
+app.MapAuthEndpoints();
 app.MapAlumnoEndpoints();
 app.MapCarreraEndpoints();
 app.MapOfertaEndpoints();

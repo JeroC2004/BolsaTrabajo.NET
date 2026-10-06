@@ -9,7 +9,14 @@ namespace API.Auth.WindowsForms
         private static DateTime _tokenExpiration;
         private static string? _currentUsername;
 
+        private readonly AuthApiClient _authClient;
+
         public event Action<bool>? AuthenticationStateChanged;
+
+        public WindowsFormsAuthService(AuthApiClient authClient)
+        {
+            _authClient = authClient;
+        }
 
         public Task<bool> IsAuthenticatedAsync()
         {
@@ -32,8 +39,7 @@ namespace API.Auth.WindowsForms
         {
             var request = new LoginRequest { Username = username, Password = password };
 
-            var authClient = new AuthApiClient();
-            var response = await authClient.LoginAsync(request);
+            var response = await _authClient.LoginAsync(request);
 
             if (response != null)
             {
