@@ -14,7 +14,7 @@ namespace WindowsForms
         {
             InitializeComponent();
 
-            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            var httpClient = ApiHttpClientFactory.Shared;
             _alumnoClient = new AlumnoApiClient(httpClient);
 
             ConfigurarColumnas();

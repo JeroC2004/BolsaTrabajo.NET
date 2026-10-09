@@ -17,7 +17,7 @@ namespace WindowsForms
         {
             InitializeComponent();
             alumnoId = null;
-            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            var httpClient = ApiHttpClientFactory.Shared;
             _alumnoClient = new AlumnoApiClient(httpClient);
             _carreraClient = new CarreraApiClient(httpClient);
         }
@@ -27,7 +27,7 @@ namespace WindowsForms
             InitializeComponent();
             alumnoId = id;
 
-            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            var httpClient = ApiHttpClientFactory.Shared;
             _alumnoClient = new AlumnoApiClient(httpClient);
             _carreraClient = new CarreraApiClient(httpClient);
         }

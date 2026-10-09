@@ -35,6 +35,7 @@ namespace Data
             return await context.Ofertas
                 .Include(o => o.Empresa)
                 .Include(o => o.TipoOferta)
+                .Include(o => o.Requisitos)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
 
@@ -43,28 +44,63 @@ namespace Data
             return await context.Ofertas
                 .Include(o => o.Empresa)
                 .Include(o => o.TipoOferta)
+                .Include(o => o.Requisitos)
                 .ToListAsync();
         }
 
         public async Task<bool> UpdateAsync(Oferta oferta)
         {
-            var existing = await context.Ofertas.FindAsync(oferta.Id);
-            if (existing != null)
-            {
-                existing.SetFechaHasta(oferta.FechaHasta);
-                existing.SetFechaDesde(oferta.FechaDesde);
-                existing.SetTitulo(oferta.Titulo);
-                existing.SetTipoVinculo(oferta.TipoVinculo);
-                existing.SetDetalle(oferta.Detalle);
-                existing.SetRequisitos(oferta.Requisitos);
-                existing.SetEstado(oferta.Estado);
-                existing.SetEmpresaId(oferta.EmpresaId);
-                existing.SetTipoOfertaId(oferta.TipoOfertaId);
+            var existing = await context.Ofertas
+                .Include(o => o.Requisitos)
+                .FirstOrDefaultAsync(o => o.Id == oferta.Id);
 
-                await context.SaveChangesAsync();
-                return true;
+            if (existing == null)
+                return false;
+
+            existing.SetFechaHasta(oferta.FechaHasta);
+            existing.SetFechaDesde(oferta.FechaDesde);
+            existing.SetTitulo(oferta.Titulo);
+            existing.SetTipoVinculo(oferta.TipoVinculo);
+            existing.SetDetalle(oferta.Detalle);
+            existing.SetEstado(oferta.Estado);
+            existing.SetEmpresaId(oferta.EmpresaId);
+            existing.SetTipoOfertaId(oferta.TipoOfertaId);
+
+            SincronizarRequisitos(existing, oferta.Requisitos);
+
+            // Cabecera y requisitos se guardan juntos en un único SaveChanges (una transacción).
+            await context.SaveChangesAsync();
+            return true;
+        }
+
+        // Deja en 'existing' exactamente los requisitos recibidos: actualiza las líneas que
+        // siguen (mismo Id), agrega las nuevas (Id = 0 o Id que no pertenece a esta oferta)
+        // y elimina las que ya no vienen.
+        private void SincronizarRequisitos(Oferta existing, ICollection<RequisitoOferta> recibidos)
+        {
+            var actuales = existing.Requisitos.ToDictionary(r => r.Id);
+            var conservados = new HashSet<int>();
+
+            foreach (var recibido in recibidos)
+            {
+                if (recibido.Id != 0 && actuales.TryGetValue(recibido.Id, out var actual))
+                {
+                    actual.Descripcion = recibido.Descripcion;
+                    actual.EsExcluyente = recibido.EsExcluyente;
+                    conservados.Add(actual.Id);
+                }
+                else
+                {
+                    existing.Requisitos.Add(new RequisitoOferta
+                    {
+                        Descripcion = recibido.Descripcion,
+                        EsExcluyente = recibido.EsExcluyente
+                    });
+                }
             }
-            return false;
+
+            var eliminados = actuales.Values.Where(r => !conservados.Contains(r.Id)).ToList();
+            context.RequisitosOferta.RemoveRange(eliminados);
         }
 
         public async Task<IEnumerable<Oferta>> GetByCriteriaAsync(OfertaCriteria criteria)
@@ -74,6 +110,7 @@ namespace Data
             return await context.Ofertas
                 .Include(o => o.Empresa)
                 .Include(o => o.TipoOferta)
+                .Include(o => o.Requisitos)
                 .Where(o =>
                     o.Titulo.ToLower().Contains(searchTerm) ||
                     o.Detalle.ToLower().Contains(searchTerm))

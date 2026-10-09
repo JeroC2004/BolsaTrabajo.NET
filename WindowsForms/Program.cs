@@ -11,7 +11,7 @@ namespace WindowsForms
         {
             ApplicationConfiguration.Initialize();
 
-            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            var httpClient = new HttpClient { BaseAddress = new Uri(ApiConfiguration.BaseUrl) };
 
             var authClient = new AuthApiClient(httpClient);
 

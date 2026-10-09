@@ -22,14 +22,7 @@ namespace API.Clients
             await AddAuthorizationHeaderAsync(client);
         }
 
-        private static string GetBaseUrlFromConfig()
-        {
-            string? envUrl = Environment.GetEnvironmentVariable("BOLSATRABAJO_API_BASE_URL");
-            if (!string.IsNullOrEmpty(envUrl))
-                return envUrl;
-
-            return "http://localhost:5183/";
-        }
+        private static string GetBaseUrlFromConfig() => ApiConfiguration.BaseUrl;
 
         protected static async Task AddAuthorizationHeaderAsync(HttpClient client)
         {

@@ -20,6 +20,7 @@ namespace Application.Services
 
             Oferta oferta = new Oferta(0, dto.Titulo, tipoVinculo, dto.FechaDesde, dto.FechaHasta,
                                         dto.Detalle, estado, dto.EmpresaId, dto.TipoOfertaId);
+            oferta.SetRequisitos(MapRequisitos(dto.Requisitos, conservarIds: false));
 
             await ofertaRepository.AddAsync(oferta);
 
@@ -58,6 +59,7 @@ namespace Application.Services
 
             Oferta oferta = new Oferta(dto.Id, dto.Titulo, tipoVinculo, dto.FechaDesde, dto.FechaHasta,
                                         dto.Detalle, estado, dto.EmpresaId, dto.TipoOfertaId);
+            oferta.SetRequisitos(MapRequisitos(dto.Requisitos, conservarIds: true));
 
             return await ofertaRepository.UpdateAsync(oferta);
         }
@@ -83,6 +85,27 @@ namespace Application.Services
             return result;
         }
 
+        private static List<RequisitoOferta> MapRequisitos(IEnumerable<RequisitoOfertaDTO>? requisitos, bool conservarIds)
+        {
+            if (requisitos == null)
+                return new List<RequisitoOferta>();
+
+            return requisitos.Select(r =>
+            {
+                if (string.IsNullOrWhiteSpace(r.Descripcion))
+                    throw new ArgumentException("La descripción de un requisito no puede ser nula o vacía.");
+
+                return new RequisitoOferta
+                {
+                    // En el alta todas las líneas son nuevas (Id = 0). En la modificación el Id
+                    // permite que el repositorio distinga líneas existentes de líneas nuevas.
+                    Id = conservarIds ? r.Id : 0,
+                    Descripcion = r.Descripcion.Trim(),
+                    EsExcluyente = r.EsExcluyente
+                };
+            }).ToList();
+        }
+
         private static OfertaDTO MapToDTO(Oferta oferta)
         {
             return new OfertaDTO
@@ -94,7 +117,14 @@ namespace Application.Services
                 FechaDesde = oferta.FechaDesde,
                 FechaHasta = oferta.FechaHasta,
                 Detalle = oferta.Detalle,
-                //Requisitos = oferta.Requisitos,
+                Requisitos = oferta.Requisitos
+                    .Select(r => new RequisitoOfertaDTO
+                    {
+                        Id = r.Id,
+                        Descripcion = r.Descripcion,
+                        EsExcluyente = r.EsExcluyente
+                    })
+                    .ToList(),
                 EmpresaId = oferta.EmpresaId,
                 EmpresaNombre = oferta.Empresa?.RazonSocial,
                 TipoOfertaId = oferta.TipoOfertaId,

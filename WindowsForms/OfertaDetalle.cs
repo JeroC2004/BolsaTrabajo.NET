@@ -23,7 +23,7 @@ namespace WindowsForms
             InitializeComponent();
             ofertaId = null;
 
-            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            var httpClient = ApiHttpClientFactory.Shared;
             _ofertaClient = new OfertaApiClient(httpClient);
             _empresaClient = new EmpresaApiClient(httpClient);
             _tipoOfertaClient = new TipoOfertaApiClient(httpClient);
@@ -36,7 +36,7 @@ namespace WindowsForms
             InitializeComponent();
             ofertaId = id;
 
-            var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5183/") };
+            var httpClient = ApiHttpClientFactory.Shared;
             _ofertaClient = new OfertaApiClient(httpClient);
             _empresaClient = new EmpresaApiClient(httpClient);
             _tipoOfertaClient = new TipoOfertaApiClient(httpClient);
