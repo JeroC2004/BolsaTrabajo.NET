@@ -80,6 +80,11 @@ else
             </div>
         </div>
 
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
         <button type="submit" class="btn btn-primary" disabled="@guardando">
             @(guardando ? "Guardando..." : "Guardar")
         </button>
@@ -94,6 +99,7 @@ else
     private List<CarreraDTO> carreras = new();
     private bool cargando = true;
     private bool guardando = false;
+    private string? errorMessage;
 
     private string TituloPagina => AlumnoId.HasValue ? "Editar Alumno" : "Nuevo Alumno";
 
@@ -109,6 +115,14 @@ else
                 alumno = await AlumnoClient.GetAsync(AlumnoId.Value);
             }
         }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar el formulario: {ex.Message}";
+        }
         finally
         {
             cargando = false;
@@ -117,6 +131,7 @@ else
 
     private async Task GuardarAsync()
     {
+        errorMessage = null;
         guardando = true;
         try
         {
@@ -126,6 +141,14 @@ else
                 await AlumnoClient.AddAsync(alumno);
 
             Navigation.NavigateTo("/alumnos");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
         }
         finally
         {

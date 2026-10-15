@@ -20,7 +20,8 @@ namespace WebAPI
             .WithTags("Alumnos")
             .Produces<AlumnoDTO>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapGet("/alumnos", async (IAlumnoService alumnoService) =>
             {
@@ -30,7 +31,8 @@ namespace WebAPI
             .WithName("GetAllAlumnos")
             .WithTags("Alumnos")
             .Produces<List<AlumnoDTO>>(StatusCodes.Status200OK)
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapPost("/alumnos", async (AlumnoDTO dto, IAlumnoService alumnoService) =>
             {
@@ -48,7 +50,8 @@ namespace WebAPI
             .WithTags("Alumnos")
             .Produces<AlumnoDTO>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapPut("/alumnos", async (AlumnoDTO dto, IAlumnoService alumnoService) =>
             {
@@ -71,7 +74,8 @@ namespace WebAPI
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status400BadRequest)
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapDelete("/alumnos/{id}", async (int id, IAlumnoService alumnoService) =>
             {
@@ -86,7 +90,8 @@ namespace WebAPI
             .WithTags("Alumnos")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound)
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
 
             app.MapGet("/alumnos/criteria", async (string texto, IAlumnoService alumnoService) =>
             {
@@ -103,7 +108,8 @@ namespace WebAPI
             })
             .WithName("GetAlumnosByCriteria")
             .WithTags("Alumnos")
-            .WithOpenApi();
+            .WithOpenApi()
+            .RequireAuthorization();
         }
     }
 }

@@ -7,10 +7,17 @@ namespace Application.Services
     public class OfertaService : IOfertaService
     {
         private readonly IOfertaRepository ofertaRepository;
+        private readonly IEmpresaRepository empresaRepository;
+        private readonly ITipoOfertaRepository tipoOfertaRepository;
 
-        public OfertaService(IOfertaRepository ofertaRepository)
+        public OfertaService(
+            IOfertaRepository ofertaRepository,
+            IEmpresaRepository empresaRepository,
+            ITipoOfertaRepository tipoOfertaRepository)
         {
             this.ofertaRepository = ofertaRepository;
+            this.empresaRepository = empresaRepository;
+            this.tipoOfertaRepository = tipoOfertaRepository;
         }
 
         public async Task<OfertaDTO> AddAsync(OfertaDTO dto)
@@ -21,6 +28,8 @@ namespace Application.Services
             Oferta oferta = new Oferta(0, dto.Titulo, tipoVinculo, dto.FechaDesde, dto.FechaHasta,
                                         dto.Detalle, estado, dto.EmpresaId, dto.TipoOfertaId);
             oferta.SetRequisitos(MapRequisitos(dto.Requisitos, conservarIds: false));
+
+            await ValidarReferenciasAsync(dto.EmpresaId, dto.TipoOfertaId);
 
             await ofertaRepository.AddAsync(oferta);
 
@@ -61,6 +70,8 @@ namespace Application.Services
                                         dto.Detalle, estado, dto.EmpresaId, dto.TipoOfertaId);
             oferta.SetRequisitos(MapRequisitos(dto.Requisitos, conservarIds: true));
 
+            await ValidarReferenciasAsync(dto.EmpresaId, dto.TipoOfertaId);
+
             return await ofertaRepository.UpdateAsync(oferta);
         }
 
@@ -83,6 +94,17 @@ namespace Application.Services
             if (!Enum.TryParse<EstadoOferta>(value, ignoreCase: true, out var result))
                 throw new ArgumentException($"El estado '{value}' no es válido. Valores permitidos: {string.Join(", ", Enum.GetNames(typeof(EstadoOferta)))}.");
             return result;
+        }
+
+        // Evita que una empresa o un tipo de oferta inexistentes lleguen a la base y terminen
+        // en un error de clave foránea (500): se informan como dato inválido (400).
+        private async Task ValidarReferenciasAsync(int empresaId, int tipoOfertaId)
+        {
+            if (await empresaRepository.GetAsync(empresaId) == null)
+                throw new ArgumentException($"La empresa con Id {empresaId} no existe.");
+
+            if (await tipoOfertaRepository.GetAsync(tipoOfertaId) == null)
+                throw new ArgumentException($"El tipo de oferta con Id {tipoOfertaId} no existe.");
         }
 
         private static List<RequisitoOferta> MapRequisitos(IEnumerable<RequisitoOfertaDTO>? requisitos, bool conservarIds)

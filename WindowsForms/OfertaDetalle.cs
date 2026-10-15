@@ -46,7 +46,26 @@ namespace WindowsForms
 
         private void ConfigurarGrilla()
         {
-            requisitosGridView.AutoGenerateColumns = true;
+            requisitosGridView.AutoGenerateColumns = false;
+            requisitosGridView.Columns.Clear();
+            requisitosGridView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Descripcion",
+                HeaderText = "Descripción",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            });
+            requisitosGridView.Columns.Add(new DataGridViewCheckBoxColumn
+            {
+                DataPropertyName = "EsExcluyente",
+                HeaderText = "Excluyente",
+                Width = 75
+            });
+
+            requisitosGridView.ReadOnly = true;
+            requisitosGridView.AllowUserToAddRows = false;
+            requisitosGridView.AllowUserToDeleteRows = false;
+            requisitosGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            requisitosGridView.RowHeadersVisible = false;
             requisitosGridView.DataSource = listaRequisitos;
         }
 
