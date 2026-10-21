@@ -1,0 +1,263 @@
+@page "/registro"
+
+@using API.Clients
+@using DTOs
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [AllowAnonymous]
+
+@inject AuthApiClient AuthClient
+@inject NavigationManager Navigation
+
+<PageTitle>Registro de alumno</PageTitle>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1>Registro de alumno</h1>
+            <p class="text-muted">
+                Complete sus datos para crear una cuenta en la Bolsa de Trabajo.
+            </p>
+
+            <EditForm Model="registro" OnValidSubmit="RegistrarAsync">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label class="form-label" for="username">
+                        Nombre de usuario
+                    </label>
+
+                    <InputText id="username"
+                               class="form-control"
+                               autocomplete="username"
+                               @bind-Value="registro.Username" />
+
+                    <div class="form-text">
+                        Utilizará este nombre para iniciar sesión.
+                    </div>
+
+                    <ValidationMessage For="@(() => registro.Username)" />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="nombre">Nombre</label>
+                        <InputText id="nombre"
+                                   class="form-control"
+                                   @bind-Value="registro.NomAlumno" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="apellido">Apellido</label>
+                        <InputText id="apellido"
+                                   class="form-control"
+                                   @bind-Value="registro.ApeAlumno" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="email">Correo electrónico</label>
+                        <InputText id="email"
+                                   type="email"
+                                   class="form-control"
+                                   @bind-Value="registro.Email" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="dni">DNI</label>
+                        <InputText id="dni"
+                                   class="form-control"
+                                   inputmode="numeric"
+                                   maxlength="9"
+                                   minlength="8"
+                                   pattern="[0-9]{8,9}"
+                                   @bind-Value="registro.Dni" />
+                        <ValidationMessage For="@(() => registro.Dni)" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="legajo">Legajo</label>
+                        <InputText id="legajo"
+                                   class="form-control"
+                                   @bind-Value="registro.Legajo" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="carrera">Carrera</label>
+
+                        <InputSelect id="carrera"
+                                     class="form-select"
+                                     @bind-Value="registro.CarreraId">
+                            <option value="0" disabled>
+                                Seleccione una carrera
+                            </option>
+
+                            @foreach (CarreraDTO carrera in carreras)
+                            {
+                                <option value="@carrera.Id">
+                                    @carrera.NomCarrera
+                                </option>
+                            }
+                        </InputSelect>
+
+                        <ValidationMessage For="@(() => registro.CarreraId)" />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="plan">Plan</label>
+                        <InputText id="plan"
+                                   class="form-control"
+                                   @bind-Value="registro.Plan" />
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="anio">Año de cursado</label>
+                        <InputNumber id="anio"
+                                     class="form-control"
+                                     @bind-Value="registro.AnioCurso" />
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label" for="materias">
+                            Materias aprobadas
+                        </label>
+                        <InputNumber id="materias"
+                                     class="form-control"
+                                     @bind-Value="registro.CantMatAp" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" for="promedio">Promedio</label>
+                    <InputNumber id="promedio"
+                                 class="form-control"
+                                 min="0"
+                                 max="10"
+                                 step="0.01"
+                                 @bind-Value="registro.Promedio" />
+                    <ValidationMessage For="@(() => registro.Promedio)" />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="password">Contraseña</label>
+                        <InputText id="password"
+                                   type="password"
+                                   class="form-control"
+                                   @bind-Value="registro.Password" />
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" for="confirmPassword">
+                            Confirmar contraseña
+                        </label>
+                        <InputText id="confirmPassword"
+                                   type="password"
+                                   class="form-control"
+                                   @bind-Value="registro.ConfirmPassword" />
+                    </div>
+                </div>
+
+                
+
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    <div class="alert alert-danger">
+                        @errorMessage
+                    </div>
+                }
+
+                <button type="submit"
+                        class="btn btn-primary"
+                        disabled="@guardando">
+                    @(guardando ? "Registrando..." : "Crear cuenta")
+                </button>
+
+                <button type="button"
+                        class="btn btn-secondary ms-2"
+                        @onclick="VolverAlInicio">
+                    Cancelar
+                </button>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    private readonly RegisterRequest registro = new();
+
+    private readonly List<CarreraDTO> carreras =
+    [
+        new()
+        {
+            Id = 1,
+            NomCarrera = "Ingeniería en Sistemas de Información"
+        },
+        new()
+        {
+            Id = 2,
+            NomCarrera = "Ingeniería Mecánica"
+        },
+        new()
+        {
+            Id = 3,
+            NomCarrera = "Ingeniería Química"
+        },
+        new()
+        {
+            Id = 4,
+            NomCarrera = "Ingeniería Industrial"
+        },
+        new()
+        {
+            Id = 5,
+            NomCarrera = "Ingeniería Civil"
+        }
+    ];
+
+    private bool guardando;
+    private string? errorMessage;
+
+    private async Task RegistrarAsync()
+    {
+        errorMessage = null;
+        guardando = true;
+
+        try
+        {
+            (bool success, string? error) =
+                await AuthClient.RegisterAsync(registro);
+
+            if (!success)
+            {
+                errorMessage = error;
+                return;
+            }
+
+            Navigation.NavigateTo("/login");
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "No fue posible conectarse con la API.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al registrar la cuenta: {ex.Message}";
+        }
+        finally
+        {
+            guardando = false;
+        }
+    }
+
+    private void VolverAlInicio()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

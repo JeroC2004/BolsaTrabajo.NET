@@ -1,52 +1,43 @@
 ﻿@page "/"
+
 @inject NavigationManager Navigation
 
 <PageTitle>Portal de Empleo - Inicio</PageTitle>
 
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
     <div class="card shadow-sm p-5 text-center" style="max-width: 550px; border: 1px solid #dee2e6; border-radius: 8px;">
-
-        <h1 class="h3 fw-bold text-dark mb-3">Sistema de Bolsa de Trabajo</h1>
+        <h1 class="h3 fw-bold text-dark mb-3">
+            Sistema de Bolsa de Trabajo
+        </h1>
 
         <p class="text-secondary mb-4" style="font-size: 1.05rem; line-height: 1.5;">
-            Bienvenido al portal de gestión de oportunidades laborales. Por favor, acceda con sus credenciales para continuar operando en la plataforma.
+            Acceda al portal o registre una cuenta nueva para consultar oportunidades laborales.
         </p>
 
         <hr class="my-4 text-muted" />
 
-        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+        <AuthorizeView>
+            <Authorized>
+                <button class="btn btn-success px-5 py-2"
+                        @onclick="IrAOfertas">
+                    Ir al panel
+                </button>
+            </Authorized>
 
-            <AuthorizeView>
-                <Authorized>
-                    <!-- Si ya está logueado, le mostramos un acceso directo al sistema -->
-                    <button class="btn btn-success px-5 py-2" @onclick="IrAOfertas">
-                        <i class="bi bi-box-arrow-in-right me-2"></i> Ir al Panel
-                    </button>
-                </Authorized>
-                <NotAuthorized>
-                    <!-- Si NO está logueado, mostramos el Login y Registro -->
-                    <button class="btn btn-primary px-5 py-2" @onclick="IrALogin">
-                        Iniciar Sesión
+            <NotAuthorized>
+                <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                    <button class="btn btn-primary px-5 py-2"
+                            @onclick="IrALogin">
+                        Iniciar sesión
                     </button>
 
-                    <button class="btn btn-secondary px-5 py-2" disabled aria-disabled="true" title="El registro no está disponible en este momento">
+                    <button class="btn btn-secondary px-5 py-2"
+                            @onclick="IrARegistro">
                         Registrarse
                     </button>
-                </NotAuthorized>
-            </AuthorizeView>
-
-        </div>
-
-        <AuthorizeView>
-            <NotAuthorized>
-                <div class="mt-4">
-                    <small class="text-muted">
-                        * La creación de nuevas cuentas se encuentra temporalmente deshabilitada.
-                    </small>
                 </div>
             </NotAuthorized>
         </AuthorizeView>
-
     </div>
 </div>
 
@@ -54,6 +45,11 @@
     private void IrALogin()
     {
         Navigation.NavigateTo("/login");
+    }
+
+    private void IrARegistro()
+    {
+        Navigation.NavigateTo("/registro");
     }
 
     private void IrAOfertas()

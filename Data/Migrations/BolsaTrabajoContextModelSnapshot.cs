@@ -79,6 +79,9 @@ namespace Data.Migrations
 
                     b.HasIndex("CarreraId");
 
+                    b.HasIndex("Dni")
+                        .IsUnique();
+
                     b.HasIndex("Email")
                         .IsUnique();
 
@@ -376,8 +379,8 @@ namespace Data.Migrations
                             Activo = true,
                             Email = "admin@bolsatrabajo.com",
                             FechaCreacion = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PasswordHash = "3/UhTWW1eosf/i6p2ydV5T/aANktq+KOQdvFvt7j9H4=",
-                            Salt = "RvmlmT923wpd20J6N8L3coCXmcKeclZ+2DJMBXdLQPE=",
+                            PasswordHash = "0WDIU6VcDofgFSmUIq7Y4Tt+R2xYv/OkzE1ExzsL124=",
+                            Salt = "2Bgx84tQLSMZxjgh2ePErVRnf+/XjycNJ8rd515E7j0=",
                             Username = "admin"
                         });
                 });

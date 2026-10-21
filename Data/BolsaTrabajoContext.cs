@@ -16,7 +16,7 @@ namespace Data
         public DbSet<RequisitoOferta> RequisitosOferta { get; set; }
 
         public BolsaTrabajoContext(DbContextOptions<BolsaTrabajoContext> options) : base(options)
-        { 
+        {
             //Database.EnsureCreated();
         }
 
@@ -90,8 +90,9 @@ namespace Data
 
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.HasIndex(e => e.Legajo).IsUnique();
+                entity.HasIndex(e => e.Dni).IsUnique();
 
-               
+
                 entity.Property(e => e.CarreraId).IsRequired().HasField("_carreraId");
                 entity.Navigation(e => e.Carrera).HasField("_carrera");
 
@@ -147,7 +148,7 @@ namespace Data
                 entity.HasIndex(e => e.Username).IsUnique();
                 entity.HasIndex(e => e.Email).IsUnique();
 
-               
+
                 var admin = new Usuario(1, "admin", "admin@bolsatrabajo.com", "admin123", new DateTime(2026, 1, 1));
                 entity.HasData(new
                 {

@@ -23,5 +23,25 @@ namespace API.Clients
 
             return null;
         }
+
+        public async Task<(bool Success, string? Error)> RegisterAsync(
+            RegisterRequest request)
+        {
+            HttpResponseMessage response =
+                await _httpClient.PostAsJsonAsync(
+                    "auth/register",
+                    request);
+
+            if (response.IsSuccessStatusCode)
+                return (true, null);
+
+            string error = await response.Content.ReadAsStringAsync();
+
+            return (
+                false,
+                string.IsNullOrWhiteSpace(error)
+                    ? "No fue posible completar el registro."
+                    : error);
+        }
     }
 }

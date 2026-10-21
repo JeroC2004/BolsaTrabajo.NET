@@ -20,11 +20,12 @@
 
     <div class="mb-3">
         <label for="username" class="form-label">
-            Usuario
+            Nombre de usuario
         </label>
 
         <InputText id="username"
                    class="form-control"
+                   autocomplete="username"
                    @bind-Value="loginRequest.Username" />
     </div>
 
@@ -50,6 +51,16 @@
             class="btn btn-primary"
             disabled="@loading">
         @(loading ? "Ingresando..." : "Ingresar")
+    </button>
+
+    <p class="text-muted p-2">
+        ¿No tienes una cuenta? Registrese para la Bolsa de Trabajo.
+    </p>
+
+    <button type="button"
+            class="btn btn-secondary ms-2"
+            @onclick="IrARegistro">
+        Crear una cuenta
     </button>
 </EditForm>
 
@@ -104,5 +115,10 @@
         {
             loading = false;
         }
+    }
+
+    private void IrARegistro()
+    {
+        Navigation.NavigateTo("/registro");
     }
 }

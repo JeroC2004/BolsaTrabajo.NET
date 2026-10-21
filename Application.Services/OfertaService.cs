@@ -103,7 +103,9 @@ namespace Application.Services
             if (await empresaRepository.GetAsync(empresaId) == null)
                 throw new ArgumentException($"La empresa con Id {empresaId} no existe.");
 
-            if (await tipoOfertaRepository.GetAsync(tipoOfertaId) == null)
+            // Buscar el tipo de oferta usando GetAllAsync, ya que ITipoOfertaRepository no tiene GetAsync
+            var tipoOfertaExiste = (await tipoOfertaRepository.GetAllAsync()).Any(t => t.Id == tipoOfertaId);
+            if (!tipoOfertaExiste)
                 throw new ArgumentException($"El tipo de oferta con Id {tipoOfertaId} no existe.");
         }
 
