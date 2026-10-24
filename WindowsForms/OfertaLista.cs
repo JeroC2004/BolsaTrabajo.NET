@@ -9,6 +9,8 @@ namespace WindowsForms
         private List<OfertaDTO> ofertas = new();
 
         private readonly OfertaApiClient _ofertaClient;
+        private readonly PostulacionApiClient _postulacionClient;
+        private readonly Button postularmeButton = new();
 
         public OfertaLista()
         {
@@ -16,8 +18,59 @@ namespace WindowsForms
 
             var httpClient = ApiHttpClientFactory.Shared;
             _ofertaClient = new OfertaApiClient(httpClient);
+            _postulacionClient = new PostulacionApiClient(httpClient);
 
             ConfigurarColumnas();
+            AplicarPermisos();
+        }
+
+        // Solo Administrador y Empresa pueden dar de alta, modificar o eliminar ofertas.
+        private static bool PuedeGestionar => Sesion.EsAdministrador || Sesion.EsEmpresa;
+
+        private void AplicarPermisos()
+        {
+            agregarButton.Visible = PuedeGestionar;
+            actualizarButton.Visible = PuedeGestionar;
+            eliminarButton.Visible = PuedeGestionar;
+
+            // El alumno no gestiona ofertas: en su lugar se postula a la oferta seleccionada.
+            postularmeButton.Text = "Postularme";
+            postularmeButton.Location = agregarButton.Location;
+            postularmeButton.Size = agregarButton.Size;
+            postularmeButton.UseVisualStyleBackColor = true;
+            postularmeButton.Visible = Sesion.EsAlumno;
+            postularmeButton.Click += postularmeButton_Click;
+            Controls.Add(postularmeButton);
+        }
+
+        private async void postularmeButton_Click(object? sender, EventArgs e)
+        {
+            var seleccionada = ObtenerSeleccionada();
+            if (seleccionada == null)
+            {
+                MessageBox.Show("Seleccione una oferta de la lista.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+                await _postulacionClient.AddAsync(new PostulacionDTO { OfertaId = seleccionada.Id });
+                MessageBox.Show("Te postulaste correctamente. Podés ver el estado en \"Mis postulaciones\".", "Postulación enviada",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Su sesión expiró. Vuelva a iniciar sesión.", "Sesión expirada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "No se pudo postular", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
         }
 
         private void ConfigurarColumnas()
@@ -150,7 +203,7 @@ namespace WindowsForms
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0) actualizarButton_Click(sender, e);
+            if (e.RowIndex >= 0 && PuedeGestionar) actualizarButton_Click(sender, e);
         }
 
         private OfertaDTO? ObtenerSeleccionada() => dataGridView1.CurrentRow?.DataBoundItem as OfertaDTO;

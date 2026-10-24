@@ -77,6 +77,14 @@ namespace WindowsForms
 
                 var resultadoEmpresas = await _empresaClient.GetAllAsync();
                 empresas = resultadoEmpresas.ToList();
+
+                // Una empresa solo puede publicar ofertas a su nombre.
+                if (Sesion.EsEmpresa && Sesion.EmpresaId.HasValue)
+                {
+                    empresas = empresas.Where(emp => emp.Id == Sesion.EmpresaId.Value).ToList();
+                    empresaComboBox.Enabled = false;
+                }
+
                 empresaComboBox.DataSource = empresas;
                 empresaComboBox.DisplayMember = "RazonSocial";
                 empresaComboBox.ValueMember = "Id";

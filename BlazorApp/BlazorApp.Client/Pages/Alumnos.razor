@@ -3,7 +3,7 @@
 @using API.Clients
 @using DTOs
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+@attribute [Authorize(Roles = DTOs.Roles.AdministradorOEmpresa)]
 
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -28,10 +28,12 @@
         Mostrar todos
     </button>
 
-    <button class="btn btn-success"
-            @onclick="NuevoAlumno">
-        Nuevo alumno
-    </button>
+    <AuthorizeView Roles="Administrador">
+        <button class="btn btn-success"
+                @onclick="NuevoAlumno">
+            Nuevo alumno
+        </button>
+    </AuthorizeView>
 </div>
 
 @if (!string.IsNullOrWhiteSpace(errorMessage))
@@ -65,7 +67,9 @@ else
                 <th>Carrera</th>
                 <th>Año</th>
                 <th>Promedio</th>
-                <th>Acciones</th>
+                <AuthorizeView Roles="Administrador">
+                    <th>Acciones</th>
+                </AuthorizeView>
             </tr>
         </thead>
         <tbody>
@@ -80,16 +84,18 @@ else
                     <td>@alumno.CarreraNombre</td>
                     <td>@alumno.AnioCurso</td>
                     <td>@alumno.Promedio</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning me-1"
-                                @onclick="() => Editar(alumno.Id)">
-                            Editar
-                        </button>
-                        <button class="btn btn-sm btn-danger"
-                                @onclick="() => EliminarAsync(alumno.Id)">
-                            Eliminar
-                        </button>
-                    </td>
+                    <AuthorizeView Roles="Administrador">
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1"
+                                    @onclick="() => Editar(alumno.Id)">
+                                Editar
+                            </button>
+                            <button class="btn btn-sm btn-danger"
+                                    @onclick="() => EliminarAsync(alumno.Id)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </AuthorizeView>
                 </tr>
             }
         </tbody>

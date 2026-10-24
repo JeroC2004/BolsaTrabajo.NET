@@ -18,6 +18,17 @@ namespace WindowsForms
             _alumnoClient = new AlumnoApiClient(httpClient);
 
             ConfigurarColumnas();
+            AplicarPermisos();
+        }
+
+        // La empresa consulta los alumnos; solo el administrador los da de alta, modifica o elimina.
+        private static bool PuedeGestionar => Sesion.EsAdministrador;
+
+        private void AplicarPermisos()
+        {
+            agregarButton.Visible = PuedeGestionar;
+            actualizarButton.Visible = PuedeGestionar;
+            eliminarButton.Visible = PuedeGestionar;
         }
 
         private void ConfigurarColumnas()
@@ -139,7 +150,7 @@ namespace WindowsForms
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0) actualizarButton_Click(sender, e);
+            if (e.RowIndex >= 0 && PuedeGestionar) actualizarButton_Click(sender, e);
         }
 
         private AlumnoDTO? ObtenerSeleccionado() => dataGridView1.CurrentRow?.DataBoundItem as AlumnoDTO;

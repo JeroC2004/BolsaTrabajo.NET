@@ -5,6 +5,7 @@ using System.Text;
 using WebAPI;
 using Application.Services;
 using Data;
+using DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,12 +46,14 @@ builder.Services.AddScoped<IOfertaRepository, OfertaRepository>();
 builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<ITipoOfertaRepository, TipoOfertaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IPostulacionRepository, PostulacionRepository>();
 
 builder.Services.AddScoped<IAlumnoService, AlumnoService>();
 builder.Services.AddScoped<ICarreraService, CarreraService>();
 builder.Services.AddScoped<IOfertaService, OfertaService>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 builder.Services.AddScoped<ITipoOfertaService, TipoOfertaService>();
+builder.Services.AddScoped<IPostulacionService, PostulacionService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -74,7 +77,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(Policies.Administrador, p => p.RequireRole(Roles.Administrador));
+    options.AddPolicy(Policies.AdministradorOEmpresa, p => p.RequireRole(Roles.Administrador, Roles.Empresa));
+    options.AddPolicy(Policies.AdministradorOAlumno, p => p.RequireRole(Roles.Administrador, Roles.Alumno));
+});
 
 builder.Services.AddCors(options =>
 {
@@ -110,5 +118,23 @@ app.MapCarreraEndpoints();
 app.MapOfertaEndpoints();
 app.MapEmpresaEndpoints();
 app.MapTipoOfertaEndpoints();
+app.MapPostulacionEndpoints();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<BolsaTrabajoContext>();
+
+    // Aplica las migraciones pendientes (crea la base si no existe).
+    await db.Database.MigrateAsync();
+
+    try
+    {
+        await DbSeeder.SeedAsync(db);
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "No se pudieron cargar los datos de prueba.");
+    }
+}
 
 app.Run();

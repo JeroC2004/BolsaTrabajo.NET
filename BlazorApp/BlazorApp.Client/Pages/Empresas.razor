@@ -1,0 +1,141 @@
+﻿@page "/empresas"
+
+@using API.Clients
+@using DTOs
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = DTOs.Roles.Administrador)]
+
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject API.Clients.EmpresaApiClient Client
+
+<PageTitle>Empresas</PageTitle>
+
+<h1>Gestión de empresas</h1>
+
+<div class="mb-3 d-flex gap-2">
+    <button class="btn btn-success"
+            @onclick="Nuevo">
+        Nueva empresa
+    </button>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
+@if (loading)
+{
+    <div class="d-flex align-items-center mt-3">
+        <div class="spinner-border text-primary me-2" role="status"></div>
+        <span>Cargando...</span>
+    </div>
+}
+else if (items.Count == 0)
+{
+    <p>No hay registros cargados.</p>
+}
+else
+{
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Razón social</th>
+                <th>Rubro</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (EmpresaDTO item in items)
+            {
+                <tr>
+                    <td>@item.RazonSocial</td>
+                    <td>@item.Rubro</td>
+                    <td>@item.Descripcion</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1"
+                                @onclick="() => Editar(item.Id)">
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-danger"
+                                @onclick="() => EliminarAsync(item.Id)">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private readonly List<EmpresaDTO> items = new();
+    private string? errorMessage;
+    private bool loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarAsync();
+    }
+
+    private async Task CargarAsync()
+    {
+        loading = true;
+        errorMessage = null;
+
+        try
+        {
+            IEnumerable<EmpresaDTO> resultado = await Client.GetAllAsync();
+            items.Clear();
+            items.AddRange(resultado);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar los datos: {ex.Message}";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void Nuevo()
+    {
+        Navigation.NavigateTo("/empresas/nuevo");
+    }
+
+    private void Editar(int id)
+    {
+        Navigation.NavigateTo($"/empresas/editar/{id}");
+    }
+
+    private async Task EliminarAsync(int id)
+    {
+        bool confirmar = await JS.InvokeAsync<bool>("confirm", "¿Está seguro de eliminar la empresa seleccionada?");
+        if (!confirmar) return;
+
+        errorMessage = null;
+
+        try
+        {
+            await Client.DeleteAsync(id);
+            await CargarAsync();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+}

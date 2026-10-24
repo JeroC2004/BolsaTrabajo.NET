@@ -79,9 +79,6 @@ namespace Data.Migrations
 
                     b.HasIndex("CarreraId");
 
-                    b.HasIndex("Dni")
-                        .IsUnique();
-
                     b.HasIndex("Email")
                         .IsUnique();
 
@@ -260,6 +257,38 @@ namespace Data.Migrations
                     b.ToTable("Ofertas");
                 });
 
+            modelBuilder.Entity("Domain.Model.Postulacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AlumnoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("FechaPostulacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OfertaId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OfertaId");
+
+                    b.HasIndex("AlumnoId", "OfertaId")
+                        .IsUnique();
+
+                    b.ToTable("Postulaciones");
+                });
+
             modelBuilder.Entity("Domain.Model.RequisitoOferta", b =>
                 {
                     b.Property<int>("Id")
@@ -339,10 +368,16 @@ namespace Data.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("AlumnoId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<int?>("EmpresaId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
@@ -351,6 +386,11 @@ namespace Data.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Rol")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Salt")
                         .IsRequired()
@@ -364,25 +404,17 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AlumnoId");
+
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("EmpresaId");
 
                     b.HasIndex("Username")
                         .IsUnique();
 
                     b.ToTable("Usuarios");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Activo = true,
-                            Email = "admin@bolsatrabajo.com",
-                            FechaCreacion = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PasswordHash = "0WDIU6VcDofgFSmUIq7Y4Tt+R2xYv/OkzE1ExzsL124=",
-                            Salt = "2Bgx84tQLSMZxjgh2ePErVRnf+/XjycNJ8rd515E7j0=",
-                            Username = "admin"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Model.Alumno", b =>
@@ -415,6 +447,25 @@ namespace Data.Migrations
                     b.Navigation("TipoOferta");
                 });
 
+            modelBuilder.Entity("Domain.Model.Postulacion", b =>
+                {
+                    b.HasOne("Domain.Model.Alumno", "Alumno")
+                        .WithMany()
+                        .HasForeignKey("AlumnoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Model.Oferta", "Oferta")
+                        .WithMany()
+                        .HasForeignKey("OfertaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Alumno");
+
+                    b.Navigation("Oferta");
+                });
+
             modelBuilder.Entity("Domain.Model.RequisitoOferta", b =>
                 {
                     b.HasOne("Domain.Model.Oferta", "Oferta")
@@ -424,6 +475,19 @@ namespace Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Oferta");
+                });
+
+            modelBuilder.Entity("Domain.Model.Usuario", b =>
+                {
+                    b.HasOne("Domain.Model.Alumno", null)
+                        .WithMany()
+                        .HasForeignKey("AlumnoId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Domain.Model.Empresa", null)
+                        .WithMany()
+                        .HasForeignKey("EmpresaId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Domain.Model.Oferta", b =>

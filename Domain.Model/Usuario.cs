@@ -12,8 +12,12 @@ namespace Domain.Model
         public string Salt { get; private set; }
         public DateTime FechaCreacion { get; private set; }
         public bool Activo { get; private set; }
+        public RolUsuario Rol { get; private set; }
+        public int? AlumnoId { get; private set; }
+        public int? EmpresaId { get; private set; }
 
-        public Usuario(int id, string username, string email, string password, DateTime fechaCreacion, bool activo = true)
+        public Usuario(int id, string username, string email, string password, DateTime fechaCreacion, bool activo = true,
+                       RolUsuario rol = RolUsuario.Administrador, int? alumnoId = null, int? empresaId = null)
         {
             SetId(id);
             SetUsername(username);
@@ -21,6 +25,7 @@ namespace Domain.Model
             SetPassword(password);
             SetFechaCreacion(fechaCreacion);
             SetActivo(activo);
+            SetRol(rol, alumnoId, empresaId);
         }
 
         private Usuario() { }
@@ -76,6 +81,38 @@ namespace Domain.Model
         public void SetActivo(bool activo)
         {
             Activo = activo;
+        }
+
+        // Un usuario Alumno debe estar vinculado a un alumno y uno Empresa a una empresa;
+        // el administrador no se vincula con ninguno.
+        public void SetRol(RolUsuario rol, int? alumnoId = null, int? empresaId = null)
+        {
+            if (!Enum.IsDefined(typeof(RolUsuario), rol))
+                throw new ArgumentException("El rol indicado no es válido.", nameof(rol));
+
+            switch (rol)
+            {
+                case RolUsuario.Alumno:
+                    if (alumnoId == null || alumnoId <= 0)
+                        throw new ArgumentException("Un usuario con rol Alumno debe estar asociado a un alumno.", nameof(alumnoId));
+                    empresaId = null;
+                    break;
+
+                case RolUsuario.Empresa:
+                    if (empresaId == null || empresaId <= 0)
+                        throw new ArgumentException("Un usuario con rol Empresa debe estar asociado a una empresa.", nameof(empresaId));
+                    alumnoId = null;
+                    break;
+
+                default:
+                    alumnoId = null;
+                    empresaId = null;
+                    break;
+            }
+
+            Rol = rol;
+            AlumnoId = alumnoId;
+            EmpresaId = empresaId;
         }
 
         public bool ValidatePassword(string password)

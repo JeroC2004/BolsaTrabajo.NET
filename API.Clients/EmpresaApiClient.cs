@@ -26,5 +26,39 @@ namespace API.Clients
             string errorContent = await response.Content.ReadAsStringAsync();
             throw new Exception($"Error al obtener lista de empresas. Status: {response.StatusCode}, Detalle: {errorContent}");
         }
+
+        public async Task<EmpresaDTO> GetAsync(int id)
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync($"empresas/{id}");
+
+            if (response.IsSuccessStatusCode)
+                return (await response.Content.ReadFromJsonAsync<EmpresaDTO>())!;
+
+            throw await ApiErrors.CrearExcepcionAsync(response, "Error al obtener la empresa");
+        }
+
+        public async Task AddAsync(EmpresaDTO dto)
+        {
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync("empresas", dto);
+
+            if (!response.IsSuccessStatusCode)
+                throw await ApiErrors.CrearExcepcionAsync(response, "Error al crear la empresa");
+        }
+
+        public async Task UpdateAsync(EmpresaDTO dto)
+        {
+            HttpResponseMessage response = await _httpClient.PutAsJsonAsync("empresas", dto);
+
+            if (!response.IsSuccessStatusCode)
+                throw await ApiErrors.CrearExcepcionAsync(response, "Error al actualizar la empresa");
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            HttpResponseMessage response = await _httpClient.DeleteAsync($"empresas/{id}");
+
+            if (!response.IsSuccessStatusCode)
+                throw await ApiErrors.CrearExcepcionAsync(response, "Error al eliminar la empresa");
+        }
     }
 }

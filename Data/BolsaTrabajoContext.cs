@@ -14,6 +14,7 @@ namespace Data
         public DbSet<Oferta> Ofertas { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<RequisitoOferta> RequisitosOferta { get; set; }
+        public DbSet<Postulacion> Postulaciones { get; set; }
 
         public BolsaTrabajoContext(DbContextOptions<BolsaTrabajoContext> options) : base(options)
         {
@@ -90,7 +91,6 @@ namespace Data
 
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.HasIndex(e => e.Legajo).IsUnique();
-                entity.HasIndex(e => e.Dni).IsUnique();
 
 
                 entity.Property(e => e.CarreraId).IsRequired().HasField("_carreraId");
@@ -100,6 +100,27 @@ namespace Data
                     .WithMany()
                     .HasForeignKey(e => e.CarreraId)
                     .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Postulacion>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.FechaPostulacion).IsRequired();
+                entity.Property(e => e.Estado).IsRequired().HasConversion<string>().HasMaxLength(20);
+
+                // Un alumno no puede postularse dos veces a la misma oferta.
+                entity.HasIndex(e => new { e.AlumnoId, e.OfertaId }).IsUnique();
+
+                entity.HasOne(e => e.Alumno)
+                    .WithMany()
+                    .HasForeignKey(e => e.AlumnoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Oferta)
+                    .WithMany()
+                    .HasForeignKey(e => e.OfertaId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Oferta>(entity =>
@@ -149,17 +170,18 @@ namespace Data
                 entity.HasIndex(e => e.Email).IsUnique();
 
 
-                var admin = new Usuario(1, "admin", "admin@bolsatrabajo.com", "admin123", new DateTime(2026, 1, 1));
-                entity.HasData(new
-                {
-                    Id = admin.Id,
-                    Username = admin.Username,
-                    Email = admin.Email,
-                    PasswordHash = admin.PasswordHash,
-                    Salt = admin.Salt,
-                    FechaCreacion = admin.FechaCreacion,
-                    Activo = admin.Activo
-                });
+                entity.Property(e => e.Rol).IsRequired().HasConversion<string>().HasMaxLength(20);
+
+                // Vínculo opcional con el alumno o la empresa a la que pertenece el usuario.
+                entity.HasOne<Alumno>()
+                    .WithMany()
+                    .HasForeignKey(e => e.AlumnoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne<Empresa>()
+                    .WithMany()
+                    .HasForeignKey(e => e.EmpresaId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

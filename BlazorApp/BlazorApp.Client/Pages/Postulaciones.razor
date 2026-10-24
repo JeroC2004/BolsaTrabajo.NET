@@ -1,0 +1,259 @@
+﻿@page "/postulaciones"
+
+@using API.Clients
+@using DTOs
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject API.Clients.PostulacionApiClient PostulacionClient
+@inject API.Clients.OfertaApiClient OfertaClient
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>@Titulo</PageTitle>
+
+<h1>@Titulo</h1>
+
+<div class="mb-3 d-flex gap-2 align-items-center">
+    <AuthorizeView Roles="Administrador,Empresa">
+        <select class="form-select w-auto"
+                @bind="ofertaFiltro"
+                @bind:after="CargarAsync">
+            <option value="0">Todas las ofertas</option>
+            @foreach (OfertaDTO oferta in ofertas)
+            {
+                <option value="@oferta.Id">@oferta.Titulo</option>
+            }
+        </select>
+    </AuthorizeView>
+
+    <button class="btn btn-secondary"
+            @onclick="CargarAsync">
+        Actualizar
+    </button>
+
+    <AuthorizeView Roles="Administrador">
+        <button class="btn btn-success"
+                @onclick="Nueva">
+            Nueva postulación
+        </button>
+    </AuthorizeView>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
+@if (loading)
+{
+    <div class="d-flex align-items-center mt-3">
+        <div class="spinner-border text-primary me-2" role="status"></div>
+        <span>Cargando postulaciones...</span>
+    </div>
+}
+else if (postulaciones.Count == 0)
+{
+    <p>No hay postulaciones para mostrar.</p>
+}
+else
+{
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <AuthorizeView Roles="Administrador,Empresa">
+                    <th>Alumno</th>
+                    <th>Legajo</th>
+                    <th>Carrera</th>
+                    <th>Promedio</th>
+                    <th>Email</th>
+                </AuthorizeView>
+                <th>Oferta</th>
+                <AuthorizeView Roles="Administrador,Alumno">
+                    <th>Empresa</th>
+                </AuthorizeView>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (PostulacionDTO postulacion in postulaciones)
+            {
+                <tr>
+                    <td>@postulacion.FechaPostulacion.ToString("dd/MM/yyyy")</td>
+                    <AuthorizeView Roles="Administrador,Empresa">
+                        <td>@postulacion.AlumnoNombre</td>
+                        <td>@postulacion.AlumnoLegajo</td>
+                        <td>@postulacion.AlumnoCarrera</td>
+                        <td>@postulacion.AlumnoPromedio</td>
+                        <td>@postulacion.AlumnoEmail</td>
+                    </AuthorizeView>
+                    <td>@postulacion.OfertaTitulo</td>
+                    <AuthorizeView Roles="Administrador,Alumno">
+                        <td>@postulacion.EmpresaNombre</td>
+                    </AuthorizeView>
+                    <td>
+                        <span class="badge @ClaseEstado(postulacion.Estado)">
+                            @postulacion.Estado
+                        </span>
+                    </td>
+                    <td>
+                        <AuthorizeView Roles="Administrador,Empresa">
+                            <button class="btn btn-sm btn-success me-1"
+                                    disabled="@(postulacion.Estado == "Aceptada")"
+                                    @onclick="() => AceptarAsync(postulacion)">
+                                Aceptar
+                            </button>
+                            <button class="btn btn-sm btn-warning me-1"
+                                    disabled="@(postulacion.Estado == "Rechazada")"
+                                    @onclick="() => RechazarAsync(postulacion)">
+                                Rechazar
+                            </button>
+                        </AuthorizeView>
+                        <AuthorizeView Roles="Administrador,Alumno">
+                            <button class="btn btn-sm btn-danger"
+                                    @onclick="() => EliminarAsync(postulacion.Id)">
+                                @(esAlumno ? "Retirar" : "Eliminar")
+                            </button>
+                        </AuthorizeView>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private readonly List<PostulacionDTO> postulaciones = new();
+    private readonly List<OfertaDTO> ofertas = new();
+
+    private int ofertaFiltro;
+    private bool esAlumno;
+    private bool esEmpresa;
+    private string? errorMessage;
+    private bool loading;
+
+    private string Titulo => esAlumno
+        ? "Mis postulaciones"
+        : esEmpresa ? "Postulantes a mis ofertas" : "Postulaciones";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var estadoAuth = await AuthStateProvider.GetAuthenticationStateAsync();
+            esAlumno = estadoAuth.User.IsInRole(DTOs.Roles.Alumno);
+            esEmpresa = estadoAuth.User.IsInRole(DTOs.Roles.Empresa);
+
+            // El filtro por oferta lo usan la empresa (sus ofertas) y el administrador (todas).
+            if (!esAlumno)
+            {
+                IEnumerable<OfertaDTO> resultado = await OfertaClient.GetAllAsync();
+                ofertas.AddRange(resultado);
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar las ofertas: {ex.Message}";
+        }
+
+        await CargarAsync();
+    }
+
+    private async Task CargarAsync()
+    {
+        loading = true;
+        errorMessage = null;
+
+        try
+        {
+            int? filtro = ofertaFiltro == 0 ? null : ofertaFiltro;
+            IEnumerable<PostulacionDTO> resultado = await PostulacionClient.GetAllAsync(filtro);
+
+            postulaciones.Clear();
+            postulaciones.AddRange(resultado);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar las postulaciones: {ex.Message}";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private static string ClaseEstado(string estado) => estado switch
+    {
+        "Aceptada" => "bg-success",
+        "Rechazada" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    private void Nueva()
+    {
+        Navigation.NavigateTo("/postulaciones/nueva");
+    }
+
+    private Task AceptarAsync(PostulacionDTO postulacion) => CambiarEstadoAsync(postulacion, "Aceptada");
+
+    private Task RechazarAsync(PostulacionDTO postulacion) => CambiarEstadoAsync(postulacion, "Rechazada");
+
+    private async Task CambiarEstadoAsync(PostulacionDTO postulacion, string estado)
+    {
+        errorMessage = null;
+
+        try
+        {
+            await PostulacionClient.UpdateAsync(new PostulacionDTO { Id = postulacion.Id, Estado = estado });
+            await CargarAsync();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private async Task EliminarAsync(int id)
+    {
+        string pregunta = esAlumno
+            ? "¿Está seguro de retirar la postulación seleccionada?"
+            : "¿Está seguro de eliminar la postulación seleccionada?";
+
+        bool confirmar = await JS.InvokeAsync<bool>("confirm", pregunta);
+        if (!confirmar) return;
+
+        errorMessage = null;
+
+        try
+        {
+            await PostulacionClient.DeleteAsync(id);
+            await CargarAsync();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+}

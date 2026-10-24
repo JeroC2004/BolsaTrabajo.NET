@@ -1,0 +1,113 @@
+﻿@page "/carreras/nuevo"
+@page "/carreras/editar/{ItemId:int}"
+
+@using DTOs
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = DTOs.Roles.Administrador)]
+
+@inject NavigationManager Navigation
+@inject API.Clients.CarreraApiClient Client
+
+<PageTitle>@TituloPagina</PageTitle>
+
+<h3>@TituloPagina</h3>
+
+@if (cargando)
+{
+    <p>Cargando datos...</p>
+}
+else
+{
+    <EditForm Model="item" OnValidSubmit="GuardarAsync">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label>Nombre</label>
+            <InputText class="form-control" @bind-Value="item.NomCarrera" />
+        </div>
+
+        <div class="mb-3">
+            <label>Departamento</label>
+            <InputText class="form-control" @bind-Value="item.Departamento" />
+        </div>
+
+        <div class="mb-3">
+            <label>Duración (años)</label>
+            <InputNumber class="form-control" @bind-Value="item.Duracion" />
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <button type="submit" class="btn btn-primary" disabled="@guardando">
+            @(guardando ? "Guardando..." : "Guardar")
+        </button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="Cancelar">Cancelar</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int? ItemId { get; set; }
+
+    private CarreraDTO item = new();
+    private bool cargando = true;
+    private bool guardando = false;
+    private string? errorMessage;
+
+    private string TituloPagina => ItemId.HasValue ? "Editar Carrera" : "Nueva carrera";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (ItemId.HasValue)
+            {
+                item = await Client.GetAsync(ItemId.Value);
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar el formulario: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task GuardarAsync()
+    {
+        errorMessage = null;
+        guardando = true;
+
+        try
+        {
+            if (ItemId.HasValue)
+                await Client.UpdateAsync(item);
+            else
+                await Client.AddAsync(item);
+
+            Navigation.NavigateTo("/carreras");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            guardando = false;
+        }
+    }
+
+    private void Cancelar() => Navigation.NavigateTo("/carreras");
+}

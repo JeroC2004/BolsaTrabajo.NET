@@ -28,6 +28,58 @@
                 </div>
 
                 <div class="nav-item px-3">
+                    <NavLink class="nav-link"
+                             href="postulaciones">
+                        <AuthorizeView Roles="Alumno" Context="postulacionContext">
+                            <Authorized>Mis postulaciones</Authorized>
+                            <NotAuthorized>Postulaciones</NotAuthorized>
+                        </AuthorizeView>
+                    </NavLink>
+                </div>
+
+                <AuthorizeView Roles="Administrador,Empresa" Context="gestionContext">
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link"
+                                 href="alumnos">
+                            Alumnos
+                        </NavLink>
+                    </div>
+                </AuthorizeView>
+
+                <AuthorizeView Roles="Administrador" Context="adminContext">
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link"
+                                 href="empresas">
+                            Empresas
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link"
+                                 href="carreras">
+                            Carreras
+                        </NavLink>
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link"
+                                 href="tiposoferta">
+                            Tipos de oferta
+                        </NavLink>
+                    </div>
+                </AuthorizeView>
+
+                <AuthorizeView Roles="Alumno" Context="alumnoContext">
+                    @{
+                        string rutaPerfil = $"alumnos/editar/{alumnoContext.User.FindFirst(AuthClaims.AlumnoId)?.Value}";
+                    }
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link"
+                                 href="@rutaPerfil">
+                            Mi perfil
+                        </NavLink>
+                    </div>
+                </AuthorizeView>
+
+                <div class="nav-item px-3">
                     <button class="btn btn-link nav-link"
                             @onclick="CerrarSesionAsync">
                         Cerrar sesión

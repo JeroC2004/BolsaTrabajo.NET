@@ -3,11 +3,12 @@
 
 @using DTOs
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+@attribute [Authorize(Roles = DTOs.Roles.AdministradorOAlumno)]
 
 @inject NavigationManager Navigation
 @inject API.Clients.AlumnoApiClient AlumnoClient
 @inject API.Clients.CarreraApiClient CarreraClient
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>@TituloPagina</PageTitle>
 
@@ -100,6 +101,10 @@ else
     private bool cargando = true;
     private bool guardando = false;
     private string? errorMessage;
+    private bool esAlumno;
+
+    // El alumno vuelve a la lista de ofertas porque no tiene acceso al listado de alumnos.
+    private string RutaVolver => esAlumno ? "/ofertas" : "/alumnos";
 
     private string TituloPagina => AlumnoId.HasValue ? "Editar Alumno" : "Nuevo Alumno";
 
@@ -107,6 +112,16 @@ else
     {
         try
         {
+            var estadoAuth = await AuthStateProvider.GetAuthenticationStateAsync();
+            esAlumno = estadoAuth.User.IsInRole(DTOs.Roles.Alumno);
+
+            // Solo el administrador da de alta alumnos; el alumno edita únicamente su perfil.
+            if (esAlumno && !AlumnoId.HasValue)
+            {
+                Navigation.NavigateTo("/ofertas");
+                return;
+            }
+
             var result = await CarreraClient.GetAllAsync();
             carreras = result.ToList();
 
@@ -140,7 +155,7 @@ else
             else
                 await AlumnoClient.AddAsync(alumno);
 
-            Navigation.NavigateTo("/alumnos");
+            Navigation.NavigateTo(RutaVolver);
         }
         catch (UnauthorizedAccessException)
         {
@@ -156,5 +171,5 @@ else
         }
     }
 
-    private void Cancelar() => Navigation.NavigateTo("/alumnos");
+    private void Cancelar() => Navigation.NavigateTo(RutaVolver);
 }

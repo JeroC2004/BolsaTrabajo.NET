@@ -4,12 +4,13 @@
 @using DTOs
 @using Domain.Model
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+@attribute [Authorize(Roles = DTOs.Roles.AdministradorOEmpresa)]
 
 @inject NavigationManager Navigation
 @inject API.Clients.OfertaApiClient OfertaClient
 @inject API.Clients.EmpresaApiClient EmpresaClient
 @inject API.Clients.TipoOfertaApiClient TipoOfertaClient
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>@TituloPagina</PageTitle>
 
@@ -31,7 +32,7 @@ else
             </div>
             <div class="col-md-3 mb-3">
                 <label>Empresa</label>
-                <InputSelect class="form-select" @bind-Value="oferta.EmpresaId">
+                <InputSelect class="form-select" @bind-Value="oferta.EmpresaId" disabled="@esEmpresa">
                     <option value="0">Seleccione...</option>
                     @foreach (var emp in empresas)
                     {
@@ -170,6 +171,8 @@ else
     private bool cargando = true;
     private bool guardando = false;
     private string? errorMessage;
+    private bool esEmpresa;
+    private int? empresaIdPropia;
 
     private string TituloPagina => OfertaId.HasValue ? "Editar Oferta" : "Nueva Oferta";
 
@@ -184,6 +187,15 @@ else
             empresas = (await empTask).ToList();
             tiposOferta = (await tipoTask).ToList();
 
+            // Una empresa solo puede publicar ofertas a su nombre.
+            var estadoAuth = await AuthStateProvider.GetAuthenticationStateAsync();
+            esEmpresa = estadoAuth.User.IsInRole(DTOs.Roles.Empresa);
+            if (esEmpresa && int.TryParse(estadoAuth.User.FindFirst(AuthClaims.EmpresaId)?.Value, out int idEmpresa))
+            {
+                empresaIdPropia = idEmpresa;
+                empresas = empresas.Where(emp => emp.Id == idEmpresa).ToList();
+            }
+
             if (OfertaId.HasValue)
             {
                 oferta = await OfertaClient.GetAsync(OfertaId.Value);
@@ -193,6 +205,8 @@ else
             {
                 oferta.FechaDesde = DateTime.Today;
                 oferta.FechaHasta = DateTime.Today.AddMonths(3);
+                if (empresaIdPropia.HasValue)
+                    oferta.EmpresaId = empresaIdPropia.Value;
             }
         }
         finally

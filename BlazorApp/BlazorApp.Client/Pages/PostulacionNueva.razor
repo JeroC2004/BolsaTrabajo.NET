@@ -1,0 +1,115 @@
+﻿@page "/postulaciones/nueva"
+
+@using DTOs
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = DTOs.Roles.Administrador)]
+
+@inject NavigationManager Navigation
+@inject API.Clients.PostulacionApiClient PostulacionClient
+@inject API.Clients.AlumnoApiClient AlumnoClient
+@inject API.Clients.OfertaApiClient OfertaClient
+
+<PageTitle>Nueva postulación</PageTitle>
+
+<h3>Nueva postulación</h3>
+
+@if (cargando)
+{
+    <p>Cargando datos...</p>
+}
+else
+{
+    <EditForm Model="postulacion" OnValidSubmit="GuardarAsync">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label>Alumno</label>
+            <InputSelect class="form-select" @bind-Value="postulacion.AlumnoId">
+                <option value="0">Seleccione un alumno</option>
+                @foreach (AlumnoDTO alumno in alumnos)
+                {
+                    <option value="@alumno.Id">@alumno.ApeAlumno, @alumno.NomAlumno (@alumno.Legajo)</option>
+                }
+            </InputSelect>
+        </div>
+
+        <div class="mb-3">
+            <label>Oferta</label>
+            <InputSelect class="form-select" @bind-Value="postulacion.OfertaId">
+                <option value="0">Seleccione una oferta</option>
+                @foreach (OfertaDTO oferta in ofertas)
+                {
+                    <option value="@oferta.Id">@oferta.Titulo - @oferta.EmpresaNombre</option>
+                }
+            </InputSelect>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+
+        <button type="submit" class="btn btn-primary" disabled="@guardando">
+            @(guardando ? "Guardando..." : "Guardar")
+        </button>
+        <button type="button" class="btn btn-secondary ms-2" @onclick="Cancelar">Cancelar</button>
+    </EditForm>
+}
+
+@code {
+    private PostulacionDTO postulacion = new();
+    private List<AlumnoDTO> alumnos = new();
+    private List<OfertaDTO> ofertas = new();
+    private bool cargando = true;
+    private bool guardando = false;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            alumnos = (await AlumnoClient.GetAllAsync()).OrderBy(a => a.ApeAlumno).ToList();
+
+            // Solo se puede postular a ofertas activas.
+            ofertas = (await OfertaClient.GetAllAsync()).Where(o => o.Estado == "Activa").ToList();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar el formulario: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task GuardarAsync()
+    {
+        errorMessage = null;
+        guardando = true;
+
+        try
+        {
+            await PostulacionClient.AddAsync(postulacion);
+            Navigation.NavigateTo("/postulaciones");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            guardando = false;
+        }
+    }
+
+    private void Cancelar() => Navigation.NavigateTo("/postulaciones");
+}

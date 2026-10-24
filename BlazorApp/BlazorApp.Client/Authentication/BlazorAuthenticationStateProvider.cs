@@ -1,3 +1,4 @@
+using API.Clients;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -24,12 +25,25 @@ public sealed class BlazorAuthenticationStateProvider
             return Anonymous();
         }
 
+        // Nombre, rol, alumnoId y empresaId se leen del propio JWT. El cliente solo los usa para
+        // mostrar u ocultar opciones; la autorización real la valida la API.
+        var claims = JwtClaimsReader.ReadClaims(token).ToList();
+
+        if (JwtClaimsReader.IsExpired(claims))
+        {
+            return Anonymous();
+        }
+
+        if (!claims.Any(c => c.Type == ClaimTypes.Name))
+        {
+            claims.Add(new Claim(ClaimTypes.Name, username));
+        }
+
         var identity = new ClaimsIdentity(
-            new[]
-            {
-                new Claim(ClaimTypes.Name, username)
-            },
-            authenticationType: "Bearer");
+            claims,
+            authenticationType: "Bearer",
+            nameType: ClaimTypes.Name,
+            roleType: ClaimTypes.Role);
 
         return new AuthenticationState(new ClaimsPrincipal(identity));
     }

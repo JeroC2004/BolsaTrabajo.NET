@@ -6,7 +6,15 @@
             <AuthorizeRouteView RouteData="routeData"
                                 DefaultLayout="typeof(Layout.MainLayout)">
                 <NotAuthorized>
-                    <RedirectToLogin />
+                    @if (context.User.Identity?.IsAuthenticated == true)
+                    {
+                        <h1>Acceso denegado</h1>
+                        <p>Su perfil no tiene permisos para ver esta página.</p>
+                    }
+                    else
+                    {
+                        <RedirectToLogin />
+                    }
                 </NotAuthorized>
             </AuthorizeRouteView>
 

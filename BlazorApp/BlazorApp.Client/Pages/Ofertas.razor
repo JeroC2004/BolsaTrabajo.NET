@@ -10,6 +10,7 @@
 @inject IJSRuntime JS
 @* 1. INYECTAMOS EL CLIENTE AQUÍ *@
 @inject API.Clients.OfertaApiClient OfertaClient
+@inject API.Clients.PostulacionApiClient PostulacionClient
 
 <PageTitle>Ofertas</PageTitle>
 
@@ -30,16 +31,25 @@
         Mostrar todas
     </button>
 
-    <button class="btn btn-success"
-            @onclick="NuevaOferta">
-        Nueva oferta
-    </button>
+    <AuthorizeView Roles="Administrador,Empresa">
+        <button class="btn btn-success"
+                @onclick="NuevaOferta">
+            Nueva oferta
+        </button>
+    </AuthorizeView>
 </div>
 
 @if (!string.IsNullOrWhiteSpace(errorMessage))
 {
     <div class="alert alert-danger">
         @errorMessage
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(successMessage))
+{
+    <div class="alert alert-success">
+        @successMessage
     </div>
 }
 
@@ -66,7 +76,12 @@ else
                 <th>Estado</th>
                 <th>Desde</th>
                 <th>Hasta</th>
-                <th>Acciones</th>
+                <AuthorizeView Roles="Administrador,Empresa">
+                    <th>Acciones</th>
+                </AuthorizeView>
+                <AuthorizeView Roles="Alumno">
+                    <th>Postulación</th>
+                </AuthorizeView>
             </tr>
         </thead>
 
@@ -86,17 +101,28 @@ else
                     </td>
                     <td>@oferta.FechaDesde.ToString("dd/MM/yyyy")</td>
                     <td>@oferta.FechaHasta.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning me-1"
-                                @onclick="() => Editar(oferta.Id)">
-                            Editar
-                        </button>
+                    <AuthorizeView Roles="Administrador,Empresa">
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1"
+                                    @onclick="() => Editar(oferta.Id)">
+                                Editar
+                            </button>
 
-                        <button class="btn btn-sm btn-danger"
-                                @onclick="() => EliminarAsync(oferta.Id)">
-                            Eliminar
-                        </button>
-                    </td>
+                            <button class="btn btn-sm btn-danger"
+                                    @onclick="() => EliminarAsync(oferta.Id)">
+                                Eliminar
+                            </button>
+                        </td>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Alumno">
+                        <td>
+                            <button class="btn btn-sm btn-primary"
+                                    disabled="@(oferta.Estado != "Activa")"
+                                    @onclick="() => PostularseAsync(oferta.Id)">
+                                Postularme
+                            </button>
+                        </td>
+                    </AuthorizeView>
                 </tr>
             }
         </tbody>
@@ -108,6 +134,7 @@ else
 
     private string criterio = string.Empty;
     private string? errorMessage;
+    private string? successMessage;
     private bool loading;
 
     protected override async Task OnInitializedAsync()
@@ -171,6 +198,26 @@ else
         finally
         {
             loading = false;
+        }
+    }
+
+    private async Task PostularseAsync(int ofertaId)
+    {
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            await PostulacionClient.AddAsync(new PostulacionDTO { OfertaId = ofertaId });
+            successMessage = "Te postulaste correctamente. Podés seguir el estado en \"Mis postulaciones\".";
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
         }
     }
 

@@ -1,0 +1,137 @@
+﻿@page "/tiposoferta"
+
+@using API.Clients
+@using DTOs
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = DTOs.Roles.Administrador)]
+
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject API.Clients.TipoOfertaApiClient Client
+
+<PageTitle>Tipos de oferta</PageTitle>
+
+<h1>Gestión de tipos de oferta</h1>
+
+<div class="mb-3 d-flex gap-2">
+    <button class="btn btn-success"
+            @onclick="Nuevo">
+        Nuevo tipo de oferta
+    </button>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
+@if (loading)
+{
+    <div class="d-flex align-items-center mt-3">
+        <div class="spinner-border text-primary me-2" role="status"></div>
+        <span>Cargando...</span>
+    </div>
+}
+else if (items.Count == 0)
+{
+    <p>No hay registros cargados.</p>
+}
+else
+{
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (TipoOfertaDTO item in items)
+            {
+                <tr>
+                    <td>@item.Nombre</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning me-1"
+                                @onclick="() => Editar(item.Id)">
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-danger"
+                                @onclick="() => EliminarAsync(item.Id)">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private readonly List<TipoOfertaDTO> items = new();
+    private string? errorMessage;
+    private bool loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarAsync();
+    }
+
+    private async Task CargarAsync()
+    {
+        loading = true;
+        errorMessage = null;
+
+        try
+        {
+            IEnumerable<TipoOfertaDTO> resultado = await Client.GetAllAsync();
+            items.Clear();
+            items.AddRange(resultado);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar los datos: {ex.Message}";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private void Nuevo()
+    {
+        Navigation.NavigateTo("/tiposoferta/nuevo");
+    }
+
+    private void Editar(int id)
+    {
+        Navigation.NavigateTo($"/tiposoferta/editar/{id}");
+    }
+
+    private async Task EliminarAsync(int id)
+    {
+        bool confirmar = await JS.InvokeAsync<bool>("confirm", "¿Está seguro de eliminar el tipo de oferta seleccionado?");
+        if (!confirmar) return;
+
+        errorMessage = null;
+
+        try
+        {
+            await Client.DeleteAsync(id);
+            await CargarAsync();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+}
