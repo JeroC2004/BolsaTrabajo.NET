@@ -1,0 +1,130 @@
+﻿@page "/reportes/ofertas"
+
+@using API.Clients
+@using BlazorApp.Client.Shared
+@using DTOs
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = DTOs.Roles.AdministradorOEmpresa)]
+
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject API.Clients.ReporteApiClient ReporteClient
+
+<PageTitle>Reporte de ofertas</PageTitle>
+
+<style>
+    @@media print {
+        .sidebar, .top-row {
+            display: none !important;
+        }
+    }
+</style>
+
+<h1>Reporte: ofertas por tipo y estado</h1>
+
+<div class="mb-3 d-print-none">
+    <button class="btn btn-primary" @onclick="GenerarAsync">Generar</button>
+    <button class="btn btn-outline-secondary" @onclick="ImprimirAsync">Imprimir</button>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
+@if (loading)
+{
+    <div class="d-flex align-items-center mt-3">
+        <div class="spinner-border text-primary me-2" role="status"></div>
+        <span>Generando reporte...</span>
+    </div>
+}
+else if (filas.Count == 0)
+{
+    <p>No hay datos para mostrar.</p>
+}
+else
+{
+    <GraficoBarras Titulo="Ofertas por tipo" Etiquetas="etiquetas" Series="series" />
+
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Tipo de oferta</th>
+                <th class="text-end">Activas</th>
+                <th class="text-end">No activas</th>
+                <th class="text-end">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (ReporteOfertasTipoDTO fila in filas)
+            {
+                <tr>
+                    <td>@fila.TipoOferta</td>
+                    <td class="text-end">@fila.Activas</td>
+                    <td class="text-end">@fila.NoActivas</td>
+                    <td class="text-end">@fila.Total</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="fw-bold">
+                <td>Total</td>
+                <td class="text-end">@filas.Sum(f => f.Activas)</td>
+                <td class="text-end">@filas.Sum(f => f.NoActivas)</td>
+                <td class="text-end">@filas.Sum(f => f.Total)</td>
+            </tr>
+        </tfoot>
+    </table>
+}
+
+@code {
+    private List<ReporteOfertasTipoDTO> filas = new();
+    private List<string> etiquetas = new();
+    private List<SerieGrafico> series = new();
+    private string? errorMessage;
+    private bool loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GenerarAsync();
+    }
+
+    private async Task GenerarAsync()
+    {
+        loading = true;
+        errorMessage = null;
+
+        try
+        {
+            IEnumerable<ReporteOfertasTipoDTO> resultado = await ReporteClient.GetOfertasPorTipoAsync();
+            filas = resultado.ToList();
+
+            etiquetas = filas.Select(f => f.TipoOferta).ToList();
+            series = new List<SerieGrafico>
+            {
+                new() { Nombre = "Activas", Color = "#198754", Valores = filas.Select(f => (double)f.Activas).ToList() },
+                new() { Nombre = "No activas", Color = "#adb5bd", Valores = filas.Select(f => (double)f.NoActivas).ToList() }
+            };
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task ImprimirAsync()
+    {
+        await JS.InvokeVoidAsync("print");
+    }
+}

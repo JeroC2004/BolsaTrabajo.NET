@@ -11,6 +11,9 @@ namespace WindowsForms
         private Form? carreraListaForm;
         private Form? tipoOfertaListaForm;
         private Form? postulacionListaForm;
+        private Form? reportePostulacionesForm;
+        private Form? reporteOfertasForm;
+        private ToolStripMenuItem? reportesMenuItem;
         private ToolStripMenuItem? postulacionesMenuItem;
         private ToolStripMenuItem? administracionMenuItem;
 
@@ -19,6 +22,7 @@ namespace WindowsForms
             InitializeComponent();
             CrearMenuAdministracion();
             CrearMenuPostulaciones();
+            CrearMenuReportes();
         }
 
         private async void Home_Load(object sender, EventArgs e)
@@ -39,6 +43,10 @@ namespace WindowsForms
             // El alumno ve sus propias postulaciones; la empresa, las de sus ofertas; el administrador, todas.
             if (postulacionesMenuItem != null)
                 postulacionesMenuItem.Text = Sesion.EsAlumno ? "Mis postulaciones" : "Postulaciones";
+
+            // Los reportes son para quienes gestionan ofertas: la empresa ve solo los suyos.
+            if (reportesMenuItem != null)
+                reportesMenuItem.Visible = Sesion.EsAdministrador || Sesion.EsEmpresa;
         }
 
         private void alumnosToolStripMenuItem_Click(object sender, EventArgs e)
@@ -75,6 +83,76 @@ namespace WindowsForms
 
             int posicion = menuStrip1.Items.IndexOf(ofertasToolStripMenuItem) + 1;
             menuStrip1.Items.Insert(posicion, postulacionesMenuItem);
+        }
+
+        private void CrearMenuReportes()
+        {
+            reportesMenuItem = new ToolStripMenuItem("Reportes") { Visible = false };
+
+            reportesMenuItem.DropDownItems.Add("Postulaciones por oferta", null,
+                (s, e) => AbrirVentanaHija<Form>(reportePostulacionesForm, f => reportePostulacionesForm = f, CrearReportePostulaciones));
+            reportesMenuItem.DropDownItems.Add("Ofertas por tipo y estado", null,
+                (s, e) => AbrirVentanaHija<Form>(reporteOfertasForm, f => reporteOfertasForm = f, CrearReporteOfertas));
+
+            int posicion = menuStrip1.Items.IndexOf(postulacionesMenuItem!) + 1;
+            menuStrip1.Items.Insert(posicion, reportesMenuItem);
+        }
+
+        private static Form CrearReportePostulaciones()
+        {
+            var client = new ReporteApiClient(ApiHttpClientFactory.Shared);
+
+            return new ReporteForm<ReportePostulacionesOfertaDTO>(
+                "Reporte de postulaciones por oferta",
+                "Postulaciones por oferta",
+                new[]
+                {
+                    ("Titulo", "Oferta", 260),
+                    ("Empresa", "Empresa", 170),
+                    ("EstadoOferta", "Estado de la oferta", 120),
+                    ("Total", "Total", 60),
+                    ("Pendientes", "Pendientes", 80),
+                    ("Aceptadas", "Aceptadas", 80),
+                    ("Rechazadas", "Rechazadas", 90)
+                },
+                true,
+                (desde, hasta) => client.GetPostulacionesPorOfertaAsync(desde, hasta),
+                filas => (
+                    filas.Select(f => f.Titulo).ToList(),
+                    new List<SerieGrafico>
+                    {
+                        new("Pendientes", Color.Gray, filas.Select(f => (double)f.Pendientes).ToList()),
+                        new("Aceptadas", Color.SeaGreen, filas.Select(f => (double)f.Aceptadas).ToList()),
+                        new("Rechazadas", Color.Firebrick, filas.Select(f => (double)f.Rechazadas).ToList())
+                    }),
+                filas => $"Ofertas: {filas.Count}   |   Postulaciones: {filas.Sum(f => f.Total)} " +
+                         $"(pendientes {filas.Sum(f => f.Pendientes)}, aceptadas {filas.Sum(f => f.Aceptadas)}, rechazadas {filas.Sum(f => f.Rechazadas)})");
+        }
+
+        private static Form CrearReporteOfertas()
+        {
+            var client = new ReporteApiClient(ApiHttpClientFactory.Shared);
+
+            return new ReporteForm<ReporteOfertasTipoDTO>(
+                "Reporte de ofertas por tipo y estado",
+                "Ofertas por tipo",
+                new[]
+                {
+                    ("TipoOferta", "Tipo de oferta", 300),
+                    ("Activas", "Activas", 90),
+                    ("NoActivas", "No activas", 90),
+                    ("Total", "Total", 90)
+                },
+                false,
+                (desde, hasta) => client.GetOfertasPorTipoAsync(),
+                filas => (
+                    filas.Select(f => f.TipoOferta).ToList(),
+                    new List<SerieGrafico>
+                    {
+                        new("Activas", Color.SeaGreen, filas.Select(f => (double)f.Activas).ToList()),
+                        new("No activas", Color.DarkGray, filas.Select(f => (double)f.NoActivas).ToList())
+                    }),
+                filas => $"Ofertas: {filas.Sum(f => f.Total)}   |   Activas: {filas.Sum(f => f.Activas)}   |   No activas: {filas.Sum(f => f.NoActivas)}");
         }
 
         private static Form CrearListaPostulaciones()

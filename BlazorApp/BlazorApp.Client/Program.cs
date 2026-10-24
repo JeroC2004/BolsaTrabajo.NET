@@ -29,6 +29,9 @@ builder.Services.AddHttpClient<TipoOfertaApiClient>(client => client.BaseAddress
 builder.Services.AddHttpClient<PostulacionApiClient>(client => client.BaseAddress = apiUrl)
     .AddHttpMessageHandler<BearerTokenHandler>();
 
+builder.Services.AddHttpClient<ReporteApiClient>(client => client.BaseAddress = apiUrl)
+    .AddHttpMessageHandler<BearerTokenHandler>();
+
 builder.Services.AddHttpClient<AuthApiClient>(client => client.BaseAddress = apiUrl);
 
 builder.Services.AddScoped<IAuthService, BlazorAuthService>();

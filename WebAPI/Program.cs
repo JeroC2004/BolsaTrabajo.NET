@@ -47,6 +47,7 @@ builder.Services.AddScoped<IEmpresaRepository, EmpresaRepository>();
 builder.Services.AddScoped<ITipoOfertaRepository, TipoOfertaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IPostulacionRepository, PostulacionRepository>();
+builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
 
 builder.Services.AddScoped<IAlumnoService, AlumnoService>();
 builder.Services.AddScoped<ICarreraService, CarreraService>();
@@ -54,6 +55,7 @@ builder.Services.AddScoped<IOfertaService, OfertaService>();
 builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 builder.Services.AddScoped<ITipoOfertaService, TipoOfertaService>();
 builder.Services.AddScoped<IPostulacionService, PostulacionService>();
+builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -119,12 +121,13 @@ app.MapOfertaEndpoints();
 app.MapEmpresaEndpoints();
 app.MapTipoOfertaEndpoints();
 app.MapPostulacionEndpoints();
+app.MapReporteEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<BolsaTrabajoContext>();
 
-    // Aplica las migraciones pendientes (crea la base si no existe).
+  
     await db.Database.MigrateAsync();
 
     try

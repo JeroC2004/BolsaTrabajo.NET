@@ -1,0 +1,165 @@
+﻿@page "/reportes/postulaciones"
+
+@using API.Clients
+@using BlazorApp.Client.Shared
+@using DTOs
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = DTOs.Roles.AdministradorOEmpresa)]
+
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject API.Clients.ReporteApiClient ReporteClient
+
+<PageTitle>Reporte de postulaciones</PageTitle>
+
+<style>
+    @@media print {
+        .sidebar, .top-row {
+            display: none !important;
+        }
+    }
+</style>
+
+<h1>Reporte: postulaciones por oferta</h1>
+
+<div class="row g-2 align-items-end mb-3 d-print-none">
+    <div class="col-auto">
+        <label class="form-label">Desde</label>
+        <input type="date" class="form-control" @bind="desde" />
+    </div>
+    <div class="col-auto">
+        <label class="form-label">Hasta</label>
+        <input type="date" class="form-control" @bind="hasta" />
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary" @onclick="GenerarAsync">Generar</button>
+        <button class="btn btn-outline-secondary" @onclick="ImprimirAsync">Imprimir</button>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="alert alert-danger">
+        @errorMessage
+    </div>
+}
+
+@if (loading)
+{
+    <div class="d-flex align-items-center mt-3">
+        <div class="spinner-border text-primary me-2" role="status"></div>
+        <span>Generando reporte...</span>
+    </div>
+}
+else if (filas.Count == 0)
+{
+    <p>No hay ofertas para mostrar.</p>
+}
+else
+{
+    <p class="text-muted">@DescripcionRango</p>
+
+    <GraficoBarras Titulo="Postulaciones por oferta" Etiquetas="etiquetas" Series="series" />
+
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Oferta</th>
+                <th>Empresa</th>
+                <th>Estado de la oferta</th>
+                <th class="text-end">Total</th>
+                <th class="text-end">Pendientes</th>
+                <th class="text-end">Aceptadas</th>
+                <th class="text-end">Rechazadas</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (ReportePostulacionesOfertaDTO fila in filas)
+            {
+                <tr>
+                    <td>@fila.Titulo</td>
+                    <td>@fila.Empresa</td>
+                    <td>@fila.EstadoOferta</td>
+                    <td class="text-end">@fila.Total</td>
+                    <td class="text-end">@fila.Pendientes</td>
+                    <td class="text-end">@fila.Aceptadas</td>
+                    <td class="text-end">@fila.Rechazadas</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="fw-bold">
+                <td colspan="3">Total (@filas.Count ofertas)</td>
+                <td class="text-end">@filas.Sum(f => f.Total)</td>
+                <td class="text-end">@filas.Sum(f => f.Pendientes)</td>
+                <td class="text-end">@filas.Sum(f => f.Aceptadas)</td>
+                <td class="text-end">@filas.Sum(f => f.Rechazadas)</td>
+            </tr>
+        </tfoot>
+    </table>
+}
+
+@code {
+    private DateTime? desde;
+    private DateTime? hasta;
+    private List<ReportePostulacionesOfertaDTO> filas = new();
+    private List<string> etiquetas = new();
+    private List<SerieGrafico> series = new();
+    private string? errorMessage;
+    private bool loading;
+
+    private string DescripcionRango
+    {
+        get
+        {
+            if (!desde.HasValue && !hasta.HasValue)
+                return "Todas las postulaciones registradas.";
+
+            string inicio = desde.HasValue ? desde.Value.ToString("dd/MM/yyyy") : "el inicio";
+            string fin = hasta.HasValue ? hasta.Value.ToString("dd/MM/yyyy") : "hoy";
+            return $"Postulaciones entre {inicio} y {fin}.";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GenerarAsync();
+    }
+
+    private async Task GenerarAsync()
+    {
+        loading = true;
+        errorMessage = null;
+
+        try
+        {
+            IEnumerable<ReportePostulacionesOfertaDTO> resultado = await ReporteClient.GetPostulacionesPorOfertaAsync(desde, hasta);
+            filas = resultado.ToList();
+
+            etiquetas = filas.Select(f => f.Titulo).ToList();
+            series = new List<SerieGrafico>
+            {
+                new() { Nombre = "Pendientes", Color = "#6c757d", Valores = filas.Select(f => (double)f.Pendientes).ToList() },
+                new() { Nombre = "Aceptadas", Color = "#198754", Valores = filas.Select(f => (double)f.Aceptadas).ToList() },
+                new() { Nombre = "Rechazadas", Color = "#dc3545", Valores = filas.Select(f => (double)f.Rechazadas).ToList() }
+            };
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task ImprimirAsync()
+    {
+        await JS.InvokeVoidAsync("print");
+    }
+}

@@ -1,0 +1,66 @@
+﻿@using System.Globalization
+
+@* Gráfico de barras horizontales apiladas hecho solo con HTML y CSS (sin librerías externas). *@
+
+<div class="mb-3">
+    @if (!string.IsNullOrWhiteSpace(Titulo))
+    {
+        <h5>@Titulo</h5>
+    }
+
+    @if (Etiquetas.Count == 0 || Maximo <= 0)
+    {
+        <p class="text-muted">No hay datos para graficar.</p>
+    }
+    else
+    {
+        <div class="mb-2">
+            @foreach (SerieGrafico serie in Series)
+            {
+                <span class="me-3">
+                    <span class="d-inline-block rounded me-1" style="width:12px;height:12px;background:@(serie.Color)"></span>@serie.Nombre
+                </span>
+            }
+        </div>
+
+        @for (int i = 0; i < Etiquetas.Count; i++)
+        {
+            int indice = i;
+
+            <div class="d-flex align-items-center mb-1">
+                <div class="text-truncate text-end pe-2" style="width:240px" title="@Etiquetas[indice]">@Etiquetas[indice]</div>
+                <div class="flex-grow-1 bg-light rounded d-flex" style="height:22px">
+                    @foreach (SerieGrafico serie in Series)
+                    {
+                        double valor = ValorEn(serie, indice);
+
+                        if (valor > 0)
+                        {
+                            <div style="width:@(Ancho(valor))%;background:@(serie.Color)" title="@serie.Nombre: @valor"></div>
+                        }
+                    }
+                </div>
+                <div class="ps-2" style="width:48px">@Total(indice)</div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public string? Titulo { get; set; }
+    [Parameter] public List<string> Etiquetas { get; set; } = new();
+    [Parameter] public List<SerieGrafico> Series { get; set; } = new();
+
+    private double Maximo => Etiquetas.Count == 0
+        ? 0
+        : Enumerable.Range(0, Etiquetas.Count).Max(indice => Total(indice));
+
+    private double Total(int indice) => Series.Sum(serie => ValorEn(serie, indice));
+
+    private static double ValorEn(SerieGrafico serie, int indice) =>
+        indice < serie.Valores.Count ? serie.Valores[indice] : 0;
+
+    // El ancho es relativo a la barra más larga, que ocupa todo el espacio disponible.
+    private string Ancho(double valor) =>
+        (valor * 100 / Maximo).ToString("0.##", CultureInfo.InvariantCulture);
+}
