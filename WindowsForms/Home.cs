@@ -178,7 +178,7 @@ namespace WindowsForms
                 postulacion => new PostulacionDetalleForm(postulacion),
                 id => client.DeleteAsync(id),
                 permiteAgregar: Sesion.EsAdministrador,
-                permiteModificar: Sesion.EsAdministrador || Sesion.EsEmpresa,
+                permiteModificar: Sesion.EsEmpresa,
                 permiteEliminar: Sesion.EsAdministrador || Sesion.EsAlumno);
         }
 

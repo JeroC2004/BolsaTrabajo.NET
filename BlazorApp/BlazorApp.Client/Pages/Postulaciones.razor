@@ -102,7 +102,7 @@ else
                         </span>
                     </td>
                     <td>
-                        <AuthorizeView Roles="Administrador,Empresa">
+                        <AuthorizeView Roles="Empresa">
                             <button class="btn btn-sm btn-success me-1"
                                     disabled="@(postulacion.Estado == "Aceptada")"
                                     @onclick="() => AceptarAsync(postulacion)">

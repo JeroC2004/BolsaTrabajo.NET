@@ -77,7 +77,7 @@ namespace WebAPI
 
             app.MapPut("/postulaciones", async (PostulacionDTO dto, IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
-                // La empresa solo puede cambiar el estado de las postulaciones a sus ofertas.
+                // Solo la empresa acepta o rechaza, y únicamente las postulaciones a sus propias ofertas.
                 if (user.EsEmpresa())
                 {
                     var existente = await postulacionService.GetAsync(dto.Id);
@@ -105,7 +105,7 @@ namespace WebAPI
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi()
-            .RequireAuthorization(Policies.AdministradorOEmpresa);
+            .RequireAuthorization(Policies.Empresa);
 
             app.MapDelete("/postulaciones/{id}", async (int id, IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
