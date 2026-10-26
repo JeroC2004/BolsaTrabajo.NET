@@ -1,0 +1,208 @@
+﻿@page "/curriculum"
+
+@using DTOs
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = DTOs.Roles.Alumno)]
+
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject API.Clients.CurriculumApiClient CurriculumClient
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Mi currículum</PageTitle>
+
+<h3>Mi currículum</h3>
+
+<p class="text-muted">
+    Cargá tu CV en formato PDF (hasta 5 MB). Las empresas a las que te postules podrán descargarlo.
+</p>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (!string.IsNullOrEmpty(mensaje))
+{
+    <div class="alert alert-success">@mensaje</div>
+}
+
+@if (cargando)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            @if (info == null)
+            {
+                <p class="mb-0">Todavía no cargaste tu currículum.</p>
+            }
+            else
+            {
+                <p class="mb-1"><strong>Archivo:</strong> @info.NombreArchivo</p>
+                <p class="mb-1"><strong>Tamaño:</strong> @((info.Tamanio / 1024.0).ToString("0.#")) KB</p>
+                <p class="mb-3"><strong>Cargado el:</strong> @info.FechaCarga.ToString("dd/MM/yyyy HH:mm")</p>
+
+                <button class="btn btn-outline-primary me-2" @onclick="DescargarAsync" disabled="@ocupado">
+                    Descargar
+                </button>
+                <button class="btn btn-outline-danger" @onclick="EliminarAsync" disabled="@ocupado">
+                    Eliminar
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">@(info == null ? "Seleccioná tu CV (PDF)" : "Reemplazar por otro archivo (PDF)")</label>
+        <InputFile class="form-control" accept=".pdf,application/pdf" OnChange="SeleccionarArchivoAsync" disabled="@ocupado" />
+    </div>
+
+    @if (ocupado)
+    {
+        <div class="d-flex align-items-center">
+            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+            <span>Procesando...</span>
+        </div>
+    }
+}
+
+@code {
+    private const long TamanioMaximoBytes = 5 * 1024 * 1024; // mismo límite que valida la API
+
+    private CurriculumDTO? info;
+    private int alumnoId;
+    private bool cargando = true;
+    private bool ocupado;
+    private string? errorMessage;
+    private string? mensaje;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var estadoAuth = await AuthStateProvider.GetAuthenticationStateAsync();
+            int.TryParse(estadoAuth.User.FindFirst(AuthClaims.AlumnoId)?.Value, out alumnoId);
+
+            if (alumnoId <= 0)
+            {
+                errorMessage = "Su usuario no está asociado a un alumno.";
+                return;
+            }
+
+            info = await CurriculumClient.GetInfoAsync(alumnoId);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar el currículum: {ex.Message}";
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task SeleccionarArchivoAsync(InputFileChangeEventArgs e)
+    {
+        errorMessage = null;
+        mensaje = null;
+
+        IBrowserFile archivo = e.File;
+
+        // Validación a nivel UI (la API y el dominio vuelven a validar).
+        if (!archivo.Name.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+        {
+            errorMessage = "El currículum debe ser un archivo PDF.";
+            return;
+        }
+
+        if (archivo.Size == 0 || archivo.Size > TamanioMaximoBytes)
+        {
+            errorMessage = "El archivo debe pesar entre 1 byte y 5 MB.";
+            return;
+        }
+
+        ocupado = true;
+        try
+        {
+            using var memoria = new MemoryStream();
+            await archivo.OpenReadStream(TamanioMaximoBytes).CopyToAsync(memoria);
+
+            info = await CurriculumClient.SubirAsync(alumnoId, archivo.Name, memoria.ToArray());
+            mensaje = "Currículum cargado correctamente.";
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            ocupado = false;
+        }
+    }
+
+    private async Task DescargarAsync()
+    {
+        errorMessage = null;
+        mensaje = null;
+        ocupado = true;
+
+        try
+        {
+            var archivo = await CurriculumClient.DescargarAsync(alumnoId);
+            await JS.InvokeVoidAsync("descargarArchivo", archivo.NombreArchivo, "application/pdf",
+                Convert.ToBase64String(archivo.Contenido));
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            ocupado = false;
+        }
+    }
+
+    private async Task EliminarAsync()
+    {
+        bool confirmar = await JS.InvokeAsync<bool>("confirm", "¿Está seguro de eliminar su currículum?");
+        if (!confirmar) return;
+
+        errorMessage = null;
+        mensaje = null;
+        ocupado = true;
+
+        try
+        {
+            await CurriculumClient.EliminarAsync(alumnoId);
+            info = null;
+            mensaje = "Currículum eliminado.";
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            ocupado = false;
+        }
+    }
+}

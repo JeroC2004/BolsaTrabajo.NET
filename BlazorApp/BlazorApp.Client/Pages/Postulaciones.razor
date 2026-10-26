@@ -9,6 +9,7 @@
 @inject IJSRuntime JS
 @inject API.Clients.PostulacionApiClient PostulacionClient
 @inject API.Clients.OfertaApiClient OfertaClient
+@inject API.Clients.CurriculumApiClient CurriculumClient
 @inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>@Titulo</PageTitle>
@@ -71,6 +72,7 @@ else
                     <th>Carrera</th>
                     <th>Promedio</th>
                     <th>Email</th>
+                    <th>CV</th>
                 </AuthorizeView>
                 <th>Oferta</th>
                 <AuthorizeView Roles="Administrador,Alumno">
@@ -91,6 +93,7 @@ else
                         <td>@postulacion.AlumnoCarrera</td>
                         <td>@postulacion.AlumnoPromedio</td>
                         <td>@postulacion.AlumnoEmail</td>
+                        <td>@(postulacion.AlumnoTieneCv ? "Sí" : "No")</td>
                     </AuthorizeView>
                     <td>@postulacion.OfertaTitulo</td>
                     <AuthorizeView Roles="Administrador,Alumno">
@@ -102,24 +105,34 @@ else
                         </span>
                     </td>
                     <td>
-                        <AuthorizeView Roles="Empresa">
-                            <button class="btn btn-sm btn-success me-1"
-                                    disabled="@(postulacion.Estado == "Aceptada")"
-                                    @onclick="() => AceptarAsync(postulacion)">
-                                Aceptar
-                            </button>
-                            <button class="btn btn-sm btn-warning me-1"
-                                    disabled="@(postulacion.Estado == "Rechazada")"
-                                    @onclick="() => RechazarAsync(postulacion)">
-                                Rechazar
-                            </button>
-                        </AuthorizeView>
-                        <AuthorizeView Roles="Administrador,Alumno">
-                            <button class="btn btn-sm btn-danger"
-                                    @onclick="() => EliminarAsync(postulacion.Id)">
-                                @(esAlumno ? "Retirar" : "Eliminar")
-                            </button>
-                        </AuthorizeView>
+                        <div class="d-flex flex-wrap gap-2">
+                            <AuthorizeView Roles="Administrador,Empresa" Context="cvContext">
+                                <button class="btn btn-sm btn-outline-primary"
+                                        disabled="@(!postulacion.AlumnoTieneCv)"
+                                        title="@(postulacion.AlumnoTieneCv ? "Descargar el CV del postulante" : "El alumno no cargó su CV")"
+                                        @onclick="() => DescargarCvAsync(postulacion)">
+                                    Descargar CV
+                                </button>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Empresa">
+                                <button class="btn btn-sm btn-success"
+                                        disabled="@(postulacion.Estado == "Aceptada")"
+                                        @onclick="() => AceptarAsync(postulacion)">
+                                    Aceptar
+                                </button>
+                                <button class="btn btn-sm btn-warning"
+                                        disabled="@(postulacion.Estado == "Rechazada")"
+                                        @onclick="() => RechazarAsync(postulacion)">
+                                    Rechazar
+                                </button>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Administrador,Alumno">
+                                <button class="btn btn-sm btn-danger"
+                                        @onclick="() => EliminarAsync(postulacion.Id)">
+                                    @(esAlumno ? "Retirar" : "Eliminar")
+                                </button>
+                            </AuthorizeView>
+                        </div>
                     </td>
                 </tr>
             }
@@ -220,6 +233,26 @@ else
         {
             await PostulacionClient.UpdateAsync(new PostulacionDTO { Id = postulacion.Id, Estado = estado });
             await CargarAsync();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private async Task DescargarCvAsync(PostulacionDTO postulacion)
+    {
+        errorMessage = null;
+
+        try
+        {
+            CurriculumArchivoDTO archivo = await CurriculumClient.DescargarAsync(postulacion.AlumnoId);
+            await JS.InvokeVoidAsync("descargarArchivo", archivo.NombreArchivo, "application/pdf",
+                Convert.ToBase64String(archivo.Contenido));
         }
         catch (UnauthorizedAccessException)
         {

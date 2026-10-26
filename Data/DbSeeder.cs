@@ -267,6 +267,54 @@ namespace Data
             await transaccion.CommitAsync();
         }
 
+        // ------------------------------------------------------------------------------------
+        // CV de prueba: un PDF sencillo para cada alumno de demostración. Se cargan una sola vez
+        // (si ya hay algún CV en la base no se toca nada) para no pisar CV reales ni volver a
+        // crear uno que un alumno haya borrado a propósito.
+        // ------------------------------------------------------------------------------------
+        public static async Task SeedCurriculumsDePruebaAsync(BolsaTrabajoContext context)
+        {
+            if (await context.Curriculums.AnyAsync())
+                return;
+
+            var legajosDemo = AlumnosDemo.Select(a => a.Legajo).Concat(new[] { "52001", "52002" }).ToList();
+
+            var alumnos = await context.Alumnos
+                .Include(a => a.Carrera)
+                .Where(a => legajosDemo.Contains(a.Legajo))
+                .ToListAsync();
+
+            foreach (var alumno in alumnos)
+            {
+                byte[] pdf = PdfDemo.Crear(
+                    $"{alumno.NomAlumno} {alumno.ApeAlumno} - Curriculum Vitae",
+                    new[]
+                    {
+                        $"Legajo: {alumno.Legajo}",
+                        $"Email: {alumno.Email}",
+                        $"Carrera: {alumno.Carrera?.NomCarrera}  (anio de cursado: {alumno.AnioCurso})",
+                        $"Materias aprobadas: {alumno.CantMatAp}   Promedio: {alumno.Promedio:0.0}",
+                        "",
+                        "Perfil",
+                        "Estudiante universitario con interes en sumar experiencia profesional",
+                        "a traves de pasantias y primeros empleos.",
+                        "",
+                        "Habilidades",
+                        "Trabajo en equipo, resolucion de problemas, comunicacion.",
+                        "",
+                        "Idiomas",
+                        "Espanol (nativo), Ingles (intermedio).",
+                        "",
+                        "CV generado automaticamente como dato de prueba."
+                    });
+
+                string nombreArchivo = $"CV_{alumno.ApeAlumno}_{alumno.NomAlumno}.pdf".Replace(' ', '_');
+                context.Curriculums.Add(new CurriculumVitae(0, alumno.Id, nombreArchivo, pdf, DateTime.Now));
+            }
+
+            await context.SaveChangesAsync();
+        }
+
         private static async Task AsegurarUsuarioEmpresaAsync(BolsaTrabajoContext context, int empresaId, string username, string email)
         {
             if (!await context.Empresas.AnyAsync(e => e.Id == empresaId))

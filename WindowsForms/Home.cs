@@ -15,6 +15,7 @@ namespace WindowsForms
         private Form? reporteOfertasForm;
         private ToolStripMenuItem? reportesMenuItem;
         private ToolStripMenuItem? postulacionesMenuItem;
+        private ToolStripMenuItem? curriculumMenuItem;
         private ToolStripMenuItem? administracionMenuItem;
 
         public Home()
@@ -22,6 +23,7 @@ namespace WindowsForms
             InitializeComponent();
             CrearMenuAdministracion();
             CrearMenuPostulaciones();
+            CrearMenuCurriculum();
             CrearMenuReportes();
         }
 
@@ -43,6 +45,10 @@ namespace WindowsForms
             // El alumno ve sus propias postulaciones; la empresa, las de sus ofertas; el administrador, todas.
             if (postulacionesMenuItem != null)
                 postulacionesMenuItem.Text = Sesion.EsAlumno ? "Mis postulaciones" : "Postulaciones";
+
+            // Solo el alumno carga su propio CV.
+            if (curriculumMenuItem != null)
+                curriculumMenuItem.Visible = Sesion.EsAlumno && Sesion.AlumnoId.HasValue;
 
             // Los reportes son para quienes gestionan ofertas: la empresa ve solo los suyos.
             if (reportesMenuItem != null)
@@ -83,6 +89,22 @@ namespace WindowsForms
 
             int posicion = menuStrip1.Items.IndexOf(ofertasToolStripMenuItem) + 1;
             menuStrip1.Items.Insert(posicion, postulacionesMenuItem);
+        }
+
+        private void CrearMenuCurriculum()
+        {
+            curriculumMenuItem = new ToolStripMenuItem("Mi CV") { Visible = false };
+            curriculumMenuItem.Click += (s, e) =>
+            {
+                if (!Sesion.AlumnoId.HasValue)
+                    return;
+
+                using var formulario = new CurriculumForm(Sesion.AlumnoId.Value);
+                formulario.ShowDialog(this);
+            };
+
+            int posicion = menuStrip1.Items.IndexOf(postulacionesMenuItem!) + 1;
+            menuStrip1.Items.Insert(posicion, curriculumMenuItem);
         }
 
         private void CrearMenuReportes()
@@ -158,28 +180,51 @@ namespace WindowsForms
         private static Form CrearListaPostulaciones()
         {
             var client = new PostulacionApiClient(ApiHttpClientFactory.Shared);
+            var curriculumClient = new CurriculumApiClient(ApiHttpClientFactory.Shared);
+
+            // La empresa y el administrador ven si el postulante tiene CV y pueden descargarlo.
+            bool puedeVerCv = Sesion.EsAdministrador || Sesion.EsEmpresa;
+
+            var columnas = new List<(string Propiedad, string Encabezado, int Ancho)>
+            {
+                ("FechaPostulacion", "Fecha", 90),
+                ("AlumnoNombre", "Alumno", 190),
+                ("AlumnoLegajo", "Legajo", 70),
+                ("AlumnoCarrera", "Carrera", 200),
+                ("AlumnoPromedio", "Prom.", 60)
+            };
+            if (puedeVerCv)
+                columnas.Add(("AlumnoTieneCv", "CV", 40));
+            columnas.Add(("OfertaTitulo", "Oferta", 220));
+            columnas.Add(("EmpresaNombre", "Empresa", 160));
+            columnas.Add(("Estado", "Estado", 90));
+
+            var accionesExtra = new List<(string Texto, Func<PostulacionDTO, Task> Accion)>();
+            if (puedeVerCv)
+            {
+                accionesExtra.Add(("Descargar CV", async postulacion =>
+                {
+                    if (!postulacion.AlumnoTieneCv)
+                        throw new InvalidOperationException("El alumno todavía no cargó su currículum.");
+
+                    string nombre = $"CV_{postulacion.AlumnoNombre}.pdf".Replace(", ", "_").Replace(' ', '_');
+                    await CurriculumDescarga.DescargarAsync(Form.ActiveForm, curriculumClient, postulacion.AlumnoId, nombre);
+                }
+                ));
+            }
 
             return new ListaCatalogoForm<PostulacionDTO>(
                 Sesion.EsAlumno ? "Mis postulaciones" : "Postulaciones",
                 "la postulación",
-                new[]
-                {
-                    ("FechaPostulacion", "Fecha", 90),
-                    ("AlumnoNombre", "Alumno", 190),
-                    ("AlumnoLegajo", "Legajo", 70),
-                    ("AlumnoCarrera", "Carrera", 200),
-                    ("AlumnoPromedio", "Prom.", 60),
-                    ("OfertaTitulo", "Oferta", 220),
-                    ("EmpresaNombre", "Empresa", 160),
-                    ("Estado", "Estado", 90)
-                },
+                columnas,
                 () => client.GetAllAsync(),
                 postulacion => postulacion.Id,
                 postulacion => new PostulacionDetalleForm(postulacion),
                 id => client.DeleteAsync(id),
                 permiteAgregar: Sesion.EsAdministrador,
                 permiteModificar: Sesion.EsEmpresa,
-                permiteEliminar: Sesion.EsAdministrador || Sesion.EsAlumno);
+                permiteEliminar: Sesion.EsAdministrador || Sesion.EsAlumno,
+                accionesExtra: accionesExtra);
         }
 
         private static Form CrearListaEmpresas()

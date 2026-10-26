@@ -48,6 +48,7 @@ builder.Services.AddScoped<ITipoOfertaRepository, TipoOfertaRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IPostulacionRepository, PostulacionRepository>();
 builder.Services.AddScoped<IReporteRepository, ReporteRepository>();
+builder.Services.AddScoped<ICurriculumRepository, CurriculumRepository>();
 
 builder.Services.AddScoped<IAlumnoService, AlumnoService>();
 builder.Services.AddScoped<ICarreraService, CarreraService>();
@@ -56,6 +57,7 @@ builder.Services.AddScoped<IEmpresaService, EmpresaService>();
 builder.Services.AddScoped<ITipoOfertaService, TipoOfertaService>();
 builder.Services.AddScoped<IPostulacionService, PostulacionService>();
 builder.Services.AddScoped<IReporteService, ReporteService>();
+builder.Services.AddScoped<ICurriculumService, CurriculumService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
@@ -92,7 +94,9 @@ builder.Services.AddCors(options =>
     {
         policy.AllowAnyOrigin()
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              // Necesario para que Blazor (navegador) pueda leer el nombre del archivo descargado.
+              .WithExposedHeaders("Content-Disposition");
     });
 });
 
@@ -122,6 +126,7 @@ app.MapEmpresaEndpoints();
 app.MapTipoOfertaEndpoints();
 app.MapPostulacionEndpoints();
 app.MapReporteEndpoints();
+app.MapCurriculumEndpoints();
 
 using (var scope = app.Services.CreateScope())
 {
@@ -136,7 +141,10 @@ using (var scope = app.Services.CreateScope())
 
         // Datos de prueba (alumnos, ofertas, postulaciones). Se desactivan con "DatosDePrueba": false en appsettings.json.
         if (app.Configuration.GetValue("DatosDePrueba", true))
+        {
             await DbSeeder.SeedDatosDePruebaAsync(db);
+            await DbSeeder.SeedCurriculumsDePruebaAsync(db);
+        }
     }
     catch (Exception ex)
     {

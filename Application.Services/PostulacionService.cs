@@ -9,27 +9,37 @@ namespace Application.Services
         private readonly IPostulacionRepository postulacionRepository;
         private readonly IAlumnoRepository alumnoRepository;
         private readonly IOfertaRepository ofertaRepository;
+        private readonly ICurriculumRepository curriculumRepository;
 
         public PostulacionService(
             IPostulacionRepository postulacionRepository,
             IAlumnoRepository alumnoRepository,
-            IOfertaRepository ofertaRepository)
+            IOfertaRepository ofertaRepository,
+            ICurriculumRepository curriculumRepository)
         {
             this.postulacionRepository = postulacionRepository;
             this.alumnoRepository = alumnoRepository;
             this.ofertaRepository = ofertaRepository;
+            this.curriculumRepository = curriculumRepository;
         }
 
         public async Task<IEnumerable<PostulacionDTO>> GetAllAsync(int? alumnoId = null, int? empresaId = null, int? ofertaId = null)
         {
-            var postulaciones = await postulacionRepository.GetAllAsync(alumnoId, empresaId, ofertaId);
-            return postulaciones.Select(MapToDTO).ToList();
+            var postulaciones = (await postulacionRepository.GetAllAsync(alumnoId, empresaId, ofertaId)).ToList();
+
+            // Una sola consulta para saber qué alumnos tienen CV cargado.
+            var conCv = await curriculumRepository.GetAlumnoIdsConCurriculumAsync(postulaciones.Select(p => p.AlumnoId));
+
+            return postulaciones.Select(p => MapToDTO(p, conCv.Contains(p.AlumnoId))).ToList();
         }
 
         public async Task<PostulacionDTO?> GetAsync(int id)
         {
             var postulacion = await postulacionRepository.GetAsync(id);
-            return postulacion == null ? null : MapToDTO(postulacion);
+            if (postulacion == null)
+                return null;
+
+            return MapToDTO(postulacion, await TieneCvAsync(postulacion.AlumnoId));
         }
 
         public async Task<PostulacionDTO> AddAsync(PostulacionDTO dto)
@@ -53,7 +63,7 @@ namespace Application.Services
             await postulacionRepository.AddAsync(postulacion);
 
             var creada = await postulacionRepository.GetAsync(postulacion.Id);
-            return MapToDTO(creada ?? postulacion);
+            return MapToDTO(creada ?? postulacion, await TieneCvAsync(dto.AlumnoId));
         }
 
         // Lo único que se puede modificar de una postulación es su estado.
@@ -73,7 +83,13 @@ namespace Application.Services
             return await postulacionRepository.DeleteAsync(id);
         }
 
-        private static PostulacionDTO MapToDTO(Postulacion p)
+        private async Task<bool> TieneCvAsync(int alumnoId)
+        {
+            var conCv = await curriculumRepository.GetAlumnoIdsConCurriculumAsync(new[] { alumnoId });
+            return conCv.Contains(alumnoId);
+        }
+
+        private static PostulacionDTO MapToDTO(Postulacion p, bool alumnoTieneCv)
         {
             return new PostulacionDTO
             {
@@ -84,6 +100,7 @@ namespace Application.Services
                 AlumnoEmail = p.Alumno?.Email,
                 AlumnoCarrera = p.Alumno?.Carrera?.NomCarrera,
                 AlumnoPromedio = p.Alumno?.Promedio ?? 0,
+                AlumnoTieneCv = alumnoTieneCv,
                 OfertaId = p.OfertaId,
                 OfertaTitulo = p.Oferta?.Titulo,
                 EmpresaId = p.Oferta?.EmpresaId ?? 0,

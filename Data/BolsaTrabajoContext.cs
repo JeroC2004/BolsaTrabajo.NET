@@ -15,6 +15,7 @@ namespace Data
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<RequisitoOferta> RequisitosOferta { get; set; }
         public DbSet<Postulacion> Postulaciones { get; set; }
+        public DbSet<CurriculumVitae> Curriculums { get; set; }
 
         public BolsaTrabajoContext(DbContextOptions<BolsaTrabajoContext> options) : base(options)
         {
@@ -120,6 +121,24 @@ namespace Data
                 entity.HasOne(e => e.Oferta)
                     .WithMany()
                     .HasForeignKey(e => e.OfertaId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<CurriculumVitae>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+                entity.Property(e => e.NombreArchivo).IsRequired().HasMaxLength(CurriculumVitae.LongitudMaximaNombre);
+                entity.Property(e => e.Contenido).IsRequired(); // varbinary(max)
+                entity.Property(e => e.Tamanio).IsRequired();
+                entity.Property(e => e.FechaCarga).IsRequired();
+
+                // Un único CV por alumno; si se borra el alumno, se borra su CV.
+                entity.HasIndex(e => e.AlumnoId).IsUnique();
+
+                entity.HasOne<Alumno>()
+                    .WithMany()
+                    .HasForeignKey(e => e.AlumnoId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 

@@ -1,6 +1,6 @@
 ﻿namespace WindowsForms
 {
-    
+
     internal sealed class ListaCatalogoForm<TDto> : Form where TDto : class
     {
         private readonly DataGridView grilla = new();
@@ -21,7 +21,8 @@
             Func<int, Task> eliminar,
             bool permiteAgregar = true,
             bool permiteModificar = true,
-            bool permiteEliminar = true)
+            bool permiteEliminar = true,
+            IEnumerable<(string Texto, Func<TDto, Task> Accion)>? accionesExtra = null)
         {
             this.permiteModificar = permiteModificar;
             this.nombreEntidad = nombreEntidad;
@@ -47,6 +48,14 @@
                 panelBotones.Controls.Add(CrearBoton("Modificar", modificarButton_Click));
             if (permiteEliminar)
                 panelBotones.Controls.Add(CrearBoton("Eliminar", eliminarButton_Click));
+
+            // Botones propios de cada listado (por ejemplo, descargar el CV de un postulante).
+            if (accionesExtra != null)
+            {
+                foreach (var (texto, accion) in accionesExtra)
+                    panelBotones.Controls.Add(CrearBoton(texto, async (s, e) => await EjecutarAccionAsync(accion)));
+            }
+
             panelBotones.Controls.Add(CrearBoton("Actualizar", actualizarButton_Click));
 
             // Primero la grilla (Fill) y después el panel (Top) para que el panel quede arriba.
@@ -89,6 +98,11 @@
                 if (e.Value is DateTime fecha)
                 {
                     e.Value = fecha.ToString("dd/MM/yyyy");
+                    e.FormattingApplied = true;
+                }
+                else if (e.Value is bool valor)
+                {
+                    e.Value = valor ? "Sí" : "No";
                     e.FormattingApplied = true;
                 }
             };
@@ -175,6 +189,34 @@
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "No se pudo eliminar", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private async Task EjecutarAccionAsync(Func<TDto, Task> accion)
+        {
+            TDto? seleccionado = ObtenerSeleccionado();
+            if (seleccionado == null)
+            {
+                MessageBox.Show($"Seleccione un registro de la lista ({nombreEntidad}).", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            try
+            {
+                Cursor = Cursors.WaitCursor;
+                await accion(seleccionado);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Su sesión expiró. Vuelva a iniciar sesión.", "Sesión expirada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
             {

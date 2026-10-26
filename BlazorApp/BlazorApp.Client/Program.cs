@@ -32,6 +32,9 @@ builder.Services.AddHttpClient<PostulacionApiClient>(client => client.BaseAddres
 builder.Services.AddHttpClient<ReporteApiClient>(client => client.BaseAddress = apiUrl)
     .AddHttpMessageHandler<BearerTokenHandler>();
 
+builder.Services.AddHttpClient<CurriculumApiClient>(client => client.BaseAddress = apiUrl)
+    .AddHttpMessageHandler<BearerTokenHandler>();
+
 builder.Services.AddHttpClient<AuthApiClient>(client => client.BaseAddress = apiUrl);
 
 builder.Services.AddScoped<IAuthService, BlazorAuthService>();

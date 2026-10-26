@@ -10,6 +10,7 @@
         public string? AlumnoEmail { get; set; }
         public string? AlumnoCarrera { get; set; }
         public float AlumnoPromedio { get; set; }
+        public bool AlumnoTieneCv { get; set; }
 
         public int OfertaId { get; set; }
         public string? OfertaTitulo { get; set; }
