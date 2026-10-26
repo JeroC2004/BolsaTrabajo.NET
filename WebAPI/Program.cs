@@ -83,9 +83,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy(Policies.Administrador, p => p.RequireRole(Roles.Administrador));
-    options.AddPolicy(Policies.AdministradorOEmpresa, p => p.RequireRole(Roles.Administrador, Roles.Empresa));
-    options.AddPolicy(Policies.AdministradorOAlumno, p => p.RequireRole(Roles.Administrador, Roles.Alumno));
+    options.AddPolicy(Policies.Administrador,
+        p => p.RequireRole(Roles.Administrador));
+
+    options.AddPolicy(Policies.Empresa,
+        p => p.RequireRole(Roles.Empresa));
+
+    options.AddPolicy(Policies.AdministradorOEmpresa,
+        p => p.RequireRole(Roles.Administrador, Roles.Empresa));
+
+    options.AddPolicy(Policies.AdministradorOAlumno,
+        p => p.RequireRole(Roles.Administrador, Roles.Alumno));
 });
 
 builder.Services.AddCors(options =>
