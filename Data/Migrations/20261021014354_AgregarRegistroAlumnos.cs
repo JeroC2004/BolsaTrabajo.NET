@@ -4,10 +4,10 @@
 
 namespace Data.Migrations
 {
-    /// <inheritdoc />
+
     public partial class AgregarRegistroAlumnos : Migration
     {
-        /// <inheritdoc />
+
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.UpdateData(
@@ -24,7 +24,6 @@ namespace Data.Migrations
                 unique: true);
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(

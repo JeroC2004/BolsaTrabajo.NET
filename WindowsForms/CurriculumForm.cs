@@ -3,10 +3,9 @@ using DTOs;
 
 namespace WindowsForms
 {
-    /// <summary>Pantalla "Mi CV" del alumno: cargar, reemplazar, descargar y eliminar su currículum en PDF.</summary>
     internal sealed class CurriculumForm : Form
     {
-        private const int TamanioMaximoBytes = 5 * 1024 * 1024; // mismo límite que valida la API
+        private const int TamanioMaximoBytes = 5 * 1024 * 1024;
 
         private readonly CurriculumApiClient client = new(ApiHttpClientFactory.Shared);
         private readonly int alumnoId;
@@ -91,7 +90,6 @@ namespace WindowsForms
             if (dialogo.ShowDialog(this) != DialogResult.OK)
                 return;
 
-            // Validación a nivel UI (la API y el dominio vuelven a validar).
             var archivo = new FileInfo(dialogo.FileName);
 
             if (!archivo.Extension.Equals(".pdf", StringComparison.OrdinalIgnoreCase))

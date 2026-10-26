@@ -49,7 +49,6 @@
             if (permiteEliminar)
                 panelBotones.Controls.Add(CrearBoton("Eliminar", eliminarButton_Click));
 
-            // Botones propios de cada listado (por ejemplo, descargar el CV de un postulante).
             if (accionesExtra != null)
             {
                 foreach (var (texto, accion) in accionesExtra)
@@ -58,7 +57,6 @@
 
             panelBotones.Controls.Add(CrearBoton("Actualizar", actualizarButton_Click));
 
-            // Primero la grilla (Fill) y después el panel (Top) para que el panel quede arriba.
             Controls.Add(grilla);
             Controls.Add(panelBotones);
 
@@ -92,7 +90,6 @@
                     modificarButton_Click(s, e);
             };
 
-            // Las fechas se muestran como dd/MM/yyyy.
             grilla.CellFormatting += (s, e) =>
             {
                 if (e.Value is DateTime fecha)

@@ -164,7 +164,7 @@
                     </div>
                 </div>
 
-                
+
 
                 @if (!string.IsNullOrWhiteSpace(errorMessage))
                 {
@@ -192,34 +192,13 @@
 @code {
     private readonly RegisterRequest registro = new();
 
-    private readonly List<CarreraDTO> carreras =
-    [
-        new()
-        {
-            Id = 1,
-            NomCarrera = "Ingeniería en Sistemas de Información"
-        },
-        new()
-        {
-            Id = 2,
-            NomCarrera = "Ingeniería Mecánica"
-        },
-        new()
-        {
-            Id = 3,
-            NomCarrera = "Ingeniería Química"
-        },
-        new()
-        {
-            Id = 4,
-            NomCarrera = "Ingeniería Industrial"
-        },
-        new()
-        {
-            Id = 5,
-            NomCarrera = "Ingeniería Civil"
-        }
-    ];
+    private List<CarreraDTO> carreras = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { carreras = (await AuthClient.GetCarrerasRegistroAsync()).ToList(); }
+        catch { errorMessage = "No se pudieron cargar las carreras. Volvé a abrir el registro."; }
+    }
 
     private bool guardando;
     private string? errorMessage;

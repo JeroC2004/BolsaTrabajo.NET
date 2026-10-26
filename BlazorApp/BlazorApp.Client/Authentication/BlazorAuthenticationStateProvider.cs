@@ -25,8 +25,6 @@ public sealed class BlazorAuthenticationStateProvider
             return Anonymous();
         }
 
-        // Nombre, rol, alumnoId y empresaId se leen del propio JWT. El cliente solo los usa para
-        // mostrar u ocultar opciones; la autorización real la valida la API.
         var claims = JwtClaimsReader.ReadClaims(token).ToList();
 
         if (JwtClaimsReader.IsExpired(claims))

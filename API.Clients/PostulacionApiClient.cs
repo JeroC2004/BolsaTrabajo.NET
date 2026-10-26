@@ -41,7 +41,6 @@ namespace API.Clients
                 throw await ApiErrors.CrearExcepcionAsync(response, "Error al crear la postulación");
         }
 
-        // Solo se modifica el estado (Pendiente, Aceptada o Rechazada).
         public async Task UpdateAsync(PostulacionDTO postulacion)
         {
             HttpResponseMessage response = await _httpClient.PutAsJsonAsync("postulaciones", postulacion);

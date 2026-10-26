@@ -60,7 +60,6 @@
     private static double ValorEn(SerieGrafico serie, int indice) =>
         indice < serie.Valores.Count ? serie.Valores[indice] : 0;
 
-    // El ancho es relativo a la barra más larga, que ocupa todo el espacio disponible.
     private string Ancho(double valor) =>
         (valor * 100 / Maximo).ToString("0.##", CultureInfo.InvariantCulture);
 }

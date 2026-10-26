@@ -90,7 +90,6 @@ namespace WindowsForms
             panelFiltros.Controls.Add(generarButton);
             panelFiltros.Controls.Add(exportarButton);
 
-            // Primero el contenido (Fill) y después los filtros (Top) para que queden arriba.
             Controls.Add(tabla);
             Controls.Add(panelFiltros);
 
@@ -100,7 +99,6 @@ namespace WindowsForms
         private static Label CrearEtiqueta(string texto) =>
             new() { Text = texto, AutoSize = true, Margin = new Padding(8, 6, 2, 0) };
 
-        // Con la casilla desmarcada no se filtra por esa fecha.
         private static void ConfigurarSelectorFecha(DateTimePicker picker)
         {
             picker.Format = DateTimePickerFormat.Short;
@@ -192,7 +190,6 @@ namespace WindowsForms
                     csv.AppendLine(string.Join(";", columnas.Select(c => Escapar(ObtenerValor(fila, c.Propiedad)))));
                 }
 
-                // UTF-8 con BOM para que Excel respete los acentos.
                 File.WriteAllText(dialogo.FileName, csv.ToString(), new UTF8Encoding(true));
 
                 MessageBox.Show("Reporte exportado correctamente.", "Exportar", MessageBoxButtons.OK, MessageBoxIcon.Information);

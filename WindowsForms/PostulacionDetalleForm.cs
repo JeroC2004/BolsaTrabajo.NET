@@ -34,12 +34,11 @@ namespace WindowsForms
 
             if (existente == null)
             {
-                // Toda postulación nueva nace Pendiente.
                 estadoCombo.Enabled = false;
             }
             else
             {
-                // Al modificar solo se cambia el estado.
+
                 alumnoCombo.Enabled = false;
                 ofertaCombo.Enabled = false;
                 estadoCombo.SelectedItem = existente.Estado;
@@ -56,7 +55,6 @@ namespace WindowsForms
                     .Select(a => new Opcion(a.Id, $"{a.ApeAlumno}, {a.NomAlumno} ({a.Legajo})"))
                     .ToList();
 
-                // Solo se puede postular a ofertas activas.
                 var ofertas = await ofertaClient.GetAllAsync();
                 ofertaCombo.DataSource = ofertas
                     .Where(o => o.Estado == "Activa")

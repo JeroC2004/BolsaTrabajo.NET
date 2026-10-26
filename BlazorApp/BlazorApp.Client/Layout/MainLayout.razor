@@ -127,7 +127,6 @@
 </div>
 
 @code {
-    // El rol viaja en el token que devuelve la API al iniciar sesión.
     private static string ObtenerRol(ClaimsPrincipal usuario) =>
         usuario.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
 

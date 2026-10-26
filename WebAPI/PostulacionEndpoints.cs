@@ -6,7 +6,6 @@ namespace WebAPI
 {
     public static class PostulacionEndpoints
     {
-        // Cada perfil solo ve lo suyo: el alumno sus postulaciones, la empresa las de sus ofertas.
         private static bool PuedeVer(PostulacionDTO postulacion, ClaimsPrincipal user)
         {
             if (user.EsAlumno())
@@ -54,7 +53,6 @@ namespace WebAPI
 
             app.MapPost("/postulaciones", async (PostulacionDTO dto, IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
-                // El alumno solo puede postularse él mismo.
                 if (user.EsAlumno())
                     dto.AlumnoId = user.GetAlumnoId() ?? 0;
 
@@ -77,7 +75,6 @@ namespace WebAPI
 
             app.MapPut("/postulaciones", async (PostulacionDTO dto, IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
-                // Solo la empresa acepta o rechaza, y únicamente las postulaciones a sus propias ofertas.
                 if (user.EsEmpresa())
                 {
                     var existente = await postulacionService.GetAsync(dto.Id);
@@ -109,7 +106,6 @@ namespace WebAPI
 
             app.MapDelete("/postulaciones/{id}", async (int id, IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
-                // El alumno solo puede retirar sus propias postulaciones.
                 if (user.EsAlumno())
                 {
                     var existente = await postulacionService.GetAsync(id);

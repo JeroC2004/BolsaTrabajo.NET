@@ -187,7 +187,6 @@ else
             empresas = (await empTask).ToList();
             tiposOferta = (await tipoTask).ToList();
 
-            // Una empresa solo puede publicar ofertas a su nombre.
             var estadoAuth = await AuthStateProvider.GetAuthenticationStateAsync();
             esEmpresa = estadoAuth.User.IsInRole(DTOs.Roles.Empresa);
             if (esEmpresa && int.TryParse(estadoAuth.User.FindFirst(AuthClaims.EmpresaId)?.Value, out int idEmpresa))

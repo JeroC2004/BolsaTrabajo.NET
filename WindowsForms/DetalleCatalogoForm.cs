@@ -30,8 +30,6 @@
             Shown += async (s, e) => await CargarInicialAsync();
         }
 
-        // Los formularios que necesitan datos del servidor (por ejemplo para llenar listas)
-        // los cargan acá, una vez que la ventana ya está visible.
         protected virtual Task OnCargarAsync() => Task.CompletedTask;
 
         private async Task CargarInicialAsync()
@@ -103,7 +101,6 @@
             return numerico;
         }
 
-        // Cada catálogo guarda con su cliente de la API. Si algo falla debe lanzar una excepción.
         protected abstract Task GuardarAsync();
 
         private void AgregarFila(string etiqueta, Control control)
@@ -140,7 +137,6 @@
                 guardarButton.AutoSize = true;
                 guardarButton.Click += guardarButton_Click;
 
-                // Con RightToLeft el primero que se agrega queda más a la derecha.
                 panelBotones.Controls.Add(cancelarButton);
                 panelBotones.Controls.Add(guardarButton);
 

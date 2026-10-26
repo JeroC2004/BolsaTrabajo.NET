@@ -70,7 +70,6 @@ else
         {
             alumnos = (await AlumnoClient.GetAllAsync()).OrderBy(a => a.ApeAlumno).ToList();
 
-            // Solo se puede postular a ofertas activas.
             ofertas = (await OfertaClient.GetAllAsync()).Where(o => o.Estado == "Activa").ToList();
         }
         catch (UnauthorizedAccessException)

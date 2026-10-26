@@ -14,7 +14,6 @@ namespace API.Clients
             _httpClient = httpClient;
         }
 
-        // Devuelve null si el alumno todavía no cargó su CV.
         public async Task<CurriculumDTO?> GetInfoAsync(int alumnoId)
         {
             HttpResponseMessage response = await _httpClient.GetAsync($"alumnos/{alumnoId}/cv/info");
@@ -45,7 +44,6 @@ namespace API.Clients
             };
         }
 
-        // Alta o reemplazo del CV (multipart/form-data, campo "archivo").
         public async Task<CurriculumDTO?> SubirAsync(int alumnoId, string nombreArchivo, byte[] contenido)
         {
             var archivo = new ByteArrayContent(contenido);

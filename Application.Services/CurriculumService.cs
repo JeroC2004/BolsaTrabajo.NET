@@ -35,7 +35,6 @@ namespace Application.Services
             if (await alumnoRepository.GetAsync(alumnoId) == null)
                 throw new ArgumentException("El alumno indicado no existe.");
 
-            // La entidad valida extensión, tamaño y que el contenido sea realmente un PDF.
             var cv = new CurriculumVitae(0, alumnoId, nombreArchivo, contenido, DateTime.Now);
 
             await curriculumRepository.GuardarAsync(cv);

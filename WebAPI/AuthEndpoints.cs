@@ -7,6 +7,10 @@ namespace WebAPI
     {
         public static void MapAuthEndpoints(this WebApplication app)
         {
+            app.MapGet("/auth/carreras", async (ICarreraService service) =>
+                Results.Ok(await service.GetAllAsync()))
+                .WithTags("Auth").AllowAnonymous();
+
             app.MapPost(
                 "/auth/login",
                 async (

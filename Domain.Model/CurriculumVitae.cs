@@ -1,8 +1,6 @@
 ﻿namespace Domain.Model
 {
-    /// <summary>
-    /// CV en PDF de un alumno. Cada alumno tiene como máximo uno; al cargar otro se reemplaza.
-    /// </summary>
+
     public class CurriculumVitae
     {
         public const int TamanioMaximoBytes = 5 * 1024 * 1024; // 5 MB
@@ -40,7 +38,6 @@
             AlumnoId = alumnoId;
         }
 
-        // Valida todo antes de asignar, para no dejar el objeto a medias si algo falla.
         public void Reemplazar(string nombreArchivo, byte[] contenido, DateTime fechaCarga)
         {
             string nombre = ValidarNombre(nombreArchivo);
@@ -60,7 +57,6 @@
             if (string.IsNullOrWhiteSpace(nombreArchivo))
                 throw new ArgumentException("El nombre del archivo no puede ser nulo o vacío.", nameof(nombreArchivo));
 
-            // Se descarta cualquier ruta que venga del cliente: solo interesa el nombre.
             string nombre = Path.GetFileName(nombreArchivo.Replace('\\', '/')).Trim();
 
             if (!nombre.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
@@ -80,12 +76,10 @@
             if (contenido.Length > TamanioMaximoBytes)
                 throw new ArgumentException($"El archivo supera el tamaño máximo de {TamanioMaximoBytes / (1024 * 1024)} MB.", nameof(contenido));
 
-            // No alcanza con mirar la extensión: se verifica que realmente sea un PDF.
             if (!contenido.AsSpan().StartsWith(FirmaPdf))
                 throw new ArgumentException("El archivo no es un PDF válido.", nameof(contenido));
         }
     }
 
-    /// <summary>Datos del CV sin el contenido binario, para listar o consultar sin cargar el archivo.</summary>
     public record CurriculumResumen(int AlumnoId, string NombreArchivo, int Tamanio, DateTime FechaCarga);
 }

@@ -1,5 +1,7 @@
 ﻿using Domain.Model;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Data
 {
@@ -12,7 +14,6 @@ namespace Data
             this.context = context;
         }
 
-        // Una fila por oferta (aunque no tenga postulaciones) con el total y el detalle por estado.
         public async Task<IEnumerable<OfertaPostulacionesResumen>> GetPostulacionesPorOfertaAsync(
             int? empresaId, DateTime? desde, DateTime? hasta)
         {
@@ -27,7 +28,7 @@ namespace Data
             if (hasta.HasValue)
             {
                 DateTime fechaHasta = hasta.Value.Date;
-                postulaciones = postulaciones.Where(p => p.FechaPostulacion <= fechaHasta);
+                postulaciones = postulaciones.Where(p => p.FechaPostulacion.Date <= fechaHasta);
             }
 
             IQueryable<Oferta> ofertas = context.Ofertas;
@@ -50,23 +51,32 @@ namespace Data
                 .ToListAsync();
         }
 
-        // Una fila por tipo de oferta con el total de ofertas y cuántas están activas.
         public async Task<IEnumerable<TipoOfertaResumen>> GetOfertasPorTipoAsync(int? empresaId)
         {
-            IQueryable<Oferta> ofertas = context.Ofertas;
+            const string sql = @"
+                SELECT t.Nombre, COUNT(o.Id) AS Total,
+                       COALESCE(SUM(CASE WHEN o.Estado = @estado THEN 1 ELSE 0 END), 0) AS Activas
+                FROM TiposOferta AS t
+                LEFT JOIN Ofertas AS o ON o.TipoOfertaId = t.Id
+                    AND (@empresaId IS NULL OR o.EmpresaId = @empresaId)
+                GROUP BY t.Id, t.Nombre
+                ORDER BY t.Nombre;";
 
-            if (empresaId.HasValue)
-                ofertas = ofertas.Where(o => o.EmpresaId == empresaId.Value);
-
-            return await context.TiposOferta
-                .OrderBy(t => t.Nombre)
-                .Select(t => new TipoOfertaResumen
+            await using var connection = new SqlConnection(context.Database.GetConnectionString());
+            await connection.OpenAsync();
+            using var command = new SqlCommand(sql, connection);
+            command.Parameters.Add("@empresaId", SqlDbType.Int).Value = (object?)empresaId ?? DBNull.Value;
+            command.Parameters.Add("@estado", SqlDbType.NVarChar, 20).Value = nameof(EstadoOferta.Activa);
+            await using SqlDataReader reader = await command.ExecuteReaderAsync();
+            var filas = new List<TipoOfertaResumen>();
+            while (await reader.ReadAsync())
+                filas.Add(new TipoOfertaResumen
                 {
-                    Nombre = t.Nombre,
-                    Total = ofertas.Count(o => o.TipoOfertaId == t.Id),
-                    Activas = ofertas.Count(o => o.TipoOfertaId == t.Id && o.Estado == EstadoOferta.Activa)
-                })
-                .ToListAsync();
+                    Nombre = reader.GetString(0),
+                    Total = reader.GetInt32(1),
+                    Activas = reader.GetInt32(2)
+                });
+            return filas;
         }
     }
 }

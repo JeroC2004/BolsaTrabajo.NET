@@ -77,7 +77,10 @@ namespace Application.Services
 
         public async Task<IEnumerable<OfertaDTO>> GetByCriteriaAsync(OfertaCriteriaDTO criteriaDTO)
         {
-            var criteria = new OfertaCriteria(criteriaDTO.Texto);
+            var criteria = new OfertaCriteria(criteriaDTO.Texto, criteriaDTO.TipoOfertaId,
+                string.IsNullOrWhiteSpace(criteriaDTO.Estado) ? null : ParseEstado(criteriaDTO.Estado),
+                string.IsNullOrWhiteSpace(criteriaDTO.TipoVinculo) ? null : ParseTipoVinculo(criteriaDTO.TipoVinculo),
+                criteriaDTO.Desde, criteriaDTO.Hasta);
             var ofertas = await ofertaRepository.GetByCriteriaAsync(criteria);
             return ofertas.Select(MapToDTO).ToList();
         }
@@ -96,14 +99,11 @@ namespace Application.Services
             return result;
         }
 
-        // Evita que una empresa o un tipo de oferta inexistentes lleguen a la base y terminen
-        // en un error de clave foránea (500): se informan como dato inválido (400).
         private async Task ValidarReferenciasAsync(int empresaId, int tipoOfertaId)
         {
             if (await empresaRepository.GetAsync(empresaId) == null)
                 throw new ArgumentException($"La empresa con Id {empresaId} no existe.");
 
-            // Buscar el tipo de oferta usando GetAllAsync, ya que ITipoOfertaRepository no tiene GetAsync
             var tipoOfertaExiste = (await tipoOfertaRepository.GetAllAsync()).Any(t => t.Id == tipoOfertaId);
             if (!tipoOfertaExiste)
                 throw new ArgumentException($"El tipo de oferta con Id {tipoOfertaId} no existe.");
@@ -121,8 +121,7 @@ namespace Application.Services
 
                 return new RequisitoOferta
                 {
-                    // En el alta todas las líneas son nuevas (Id = 0). En la modificación el Id
-                    // permite que el repositorio distinga líneas existentes de líneas nuevas.
+
                     Id = conservarIds ? r.Id : 0,
                     Descripcion = r.Descripcion.Trim(),
                     EsExcluyente = r.EsExcluyente

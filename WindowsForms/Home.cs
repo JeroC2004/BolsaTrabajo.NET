@@ -35,22 +35,17 @@ namespace WindowsForms
             var username = await authService.GetUsernameAsync();
             usuarioConectadoLabel.Text = $"Conectado como: {username} ({Sesion.Rol})";
 
-            // Solo Administrador y Empresa pueden consultar el listado de alumnos.
             alumnosToolStripMenuItem.Visible = Sesion.EsAdministrador || Sesion.EsEmpresa;
 
-            // Los catálogos (empresas, carreras y tipos de oferta) los administra solo el administrador.
             if (administracionMenuItem != null)
                 administracionMenuItem.Visible = Sesion.EsAdministrador;
 
-            // El alumno ve sus propias postulaciones; la empresa, las de sus ofertas; el administrador, todas.
             if (postulacionesMenuItem != null)
                 postulacionesMenuItem.Text = Sesion.EsAlumno ? "Mis postulaciones" : "Postulaciones";
 
-            // Solo el alumno carga su propio CV.
             if (curriculumMenuItem != null)
                 curriculumMenuItem.Visible = Sesion.EsAlumno && Sesion.AlumnoId.HasValue;
 
-            // Los reportes son para quienes gestionan ofertas: la empresa ve solo los suyos.
             if (reportesMenuItem != null)
                 reportesMenuItem.Visible = Sesion.EsAdministrador || Sesion.EsEmpresa;
         }
@@ -182,7 +177,6 @@ namespace WindowsForms
             var client = new PostulacionApiClient(ApiHttpClientFactory.Shared);
             var curriculumClient = new CurriculumApiClient(ApiHttpClientFactory.Shared);
 
-            // La empresa y el administrador ven si el postulante tiene CV y pueden descargarlo.
             bool puedeVerCv = Sesion.EsAdministrador || Sesion.EsEmpresa;
 
             var columnas = new List<(string Propiedad, string Encabezado, int Ancho)>

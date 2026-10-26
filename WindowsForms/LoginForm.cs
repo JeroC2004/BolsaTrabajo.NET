@@ -8,6 +8,25 @@ namespace WindowsForms
         public LoginForm()
         {
             InitializeComponent();
+            ClientSize = new Size(ClientSize.Width, ClientSize.Height + 55);
+            var registro = new Button
+            {
+                Text = "Registrarme como alumno",
+                Dock = DockStyle.Bottom,
+                Height = 45,
+                TabIndex = 7
+            };
+            registro.Click += (_, _) =>
+            {
+                using var form = new RegistroForm();
+                if (form.ShowDialog(this) == DialogResult.OK)
+                {
+                    usernameTextBox.Text = form.UsernameRegistrado;
+                    passwordTextBox.Clear();
+                    passwordTextBox.Focus();
+                }
+            };
+            Controls.Add(registro);
         }
 
         private async void loginButton_Click(object sender, EventArgs e)

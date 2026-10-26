@@ -20,7 +20,6 @@ namespace Application.Services
 
             var filas = await reporteRepository.GetPostulacionesPorOfertaAsync(empresaId, desde, hasta);
 
-            // Primero las ofertas con más postulaciones.
             return filas
                 .OrderByDescending(f => f.Total)
                 .ThenBy(f => f.Titulo)

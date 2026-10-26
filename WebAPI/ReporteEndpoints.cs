@@ -7,7 +7,6 @@ namespace WebAPI
     {
         public static void MapReporteEndpoints(this WebApplication app)
         {
-            // La empresa solo ve los datos de sus propias ofertas; el administrador ve todo.
             app.MapGet("/reportes/postulaciones-por-oferta",
                 async (DateTime? desde, DateTime? hasta, IReporteService reporteService, ClaimsPrincipal user) =>
                 {

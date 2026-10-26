@@ -3,11 +3,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Data
 {
-    /// <summary>
-    /// Datos de prueba que no pueden viajar en las migraciones: usuarios con contraseña hasheada
-    /// (sal aleatoria) y alumnos vinculados a un usuario. Es idempotente: se puede ejecutar en
-    /// cada arranque de la API sin duplicar nada.
-    /// </summary>
     public static class DbSeeder
     {
         private const string PasswordEmpresa = "empresa123";
@@ -15,14 +10,11 @@ namespace Data
 
         public static async Task SeedAsync(BolsaTrabajoContext context)
         {
-            // Un usuario creado antes de que existieran los roles queda con la columna Rol vacía.
-            // El único que existía era el administrador, así que se le asigna ese rol.
             await context.Database.ExecuteSqlRawAsync(
                 "UPDATE Usuarios SET Rol = 'Administrador' WHERE Rol IS NULL OR Rol = ''");
 
             await AsegurarUsuarioAsync(context, "admin", "admin@bolsatrabajo.com", "admin123", RolUsuario.Administrador);
 
-            // Las empresas (Ids 1 a 3) se cargan por migración.
             await AsegurarUsuarioEmpresaAsync(context, 1, "techcorp", "rrhh@techcorp.com");
             await AsegurarUsuarioEmpresaAsync(context, 2, "datasoft", "rrhh@datasoft.com");
             await AsegurarUsuarioEmpresaAsync(context, 3, "nubecloud", "rrhh@nubecloud.com");
@@ -33,12 +25,6 @@ namespace Data
                 "mateo.gomez@alumnos.utn.edu.ar", "41234567", "2023", 3, 20, 7.5f, 1, "mateo");
         }
 
-        // ------------------------------------------------------------------------------------
-        // Datos de prueba: alumnos de distintas carreras, ofertas de las tres empresas en
-        // distintos estados (con requisitos) y postulaciones en los tres estados repartidas en
-        // el tiempo. Se cargan una sola vez, en una transacción: si la primera oferta de prueba
-        // ya existe, no se vuelve a cargar nada.
-        // ------------------------------------------------------------------------------------
         private const string PrimeraOfertaDemo = "Pasante Desarrollador .NET";
 
         private sealed record AlumnoDemo(string Legajo, string Nombre, string Apellido, string Email, string Dni,
@@ -49,7 +35,6 @@ namespace Data
 
         private sealed record PostulacionDemo(string Legajo, string Oferta, int DiasAtras, EstadoPostulacion Estado);
 
-        // Los alumnos 52001 (lucia) y 52002 (mateo) los carga SeedAsync.
         private static readonly AlumnoDemo[] AlumnosDemo =
         {
             new("52003", "Sofía", "Martínez", "sofia.martinez@alumnos.utn.edu.ar", "40876543", 5, 36, 8.9f, 1, "sofia"),
@@ -62,10 +47,8 @@ namespace Data
             new("52010", "Agustín", "Suárez", "agustin.suarez@alumnos.utn.edu.ar", "41321098", 3, 18, 6.5f, 5, "agustin"),
         };
 
-        // Las fechas son relativas a hoy (negativo: pasado), así las ofertas activas siguen vigentes.
         private static readonly OfertaDemo[] OfertasDemo =
         {
-            // TechCorp S.A.
             new("a", PrimeraOfertaDemo, TipoVinculo.Pasantia, -20, 40,
                 "Pasantía en el equipo de desarrollo de productos web. Se trabaja con metodologías ágiles junto a desarrolladores senior.",
                 EstadoOferta.Activa, 1, 1, new[]
@@ -97,7 +80,6 @@ namespace Data
                     ("Disponibilidad horaria por la tarde", true)
                 }),
 
-            // DataSoft Rosario S.A.
             new("e", "Primer empleo: Analista de Datos", TipoVinculo.PrimerEmpleo, -15, 45,
                 "Armado de tableros e indicadores para clientes de distintos rubros. Ideal para quien busca su primera experiencia laboral.",
                 EstadoOferta.Activa, 2, 2, new[]
@@ -129,7 +111,6 @@ namespace Data
                     ("Conocimientos de Excel avanzado", false)
                 }),
 
-            // NubeCloud Argentina
             new("i", "Pasante DevOps", TipoVinculo.Pasantia, -18, 50,
                 "Automatización de despliegues y monitoreo de infraestructura en la nube.",
                 EstadoOferta.Activa, 3, 1, new[]
@@ -160,7 +141,6 @@ namespace Data
                 }),
         };
 
-        // Siempre posteriores al inicio de la oferta (DiasAtras no supera el inicio de la oferta).
         private static readonly PostulacionDemo[] PostulacionesDemo =
         {
             new("52001", "a", 8, EstadoPostulacion.Pendiente),
@@ -213,14 +193,13 @@ namespace Data
             await using var transaccion = await context.Database.BeginTransactionAsync();
             DateTime hoy = DateTime.Today;
 
-            // 1) Alumnos (cada uno con su usuario).
+
             foreach (var a in AlumnosDemo)
             {
                 await AsegurarAlumnoConUsuarioAsync(context, a.Legajo, a.Nombre, a.Apellido, a.Email, a.Dni,
                     "2023", a.Anio, a.Materias, a.Promedio, a.CarreraId, a.Usuario);
             }
 
-            // 2) Ofertas con sus requisitos (cabecera y líneas se guardan juntas).
             var ofertas = new Dictionary<string, Oferta>();
             foreach (var d in OfertasDemo)
             {
@@ -240,7 +219,6 @@ namespace Data
             }
             await context.SaveChangesAsync();
 
-            // 3) Postulaciones.
             string[] legajos = PostulacionesDemo.Select(p => p.Legajo).Distinct().ToArray();
             var alumnos = await context.Alumnos
                 .Where(a => legajos.Contains(a.Legajo))
@@ -267,11 +245,6 @@ namespace Data
             await transaccion.CommitAsync();
         }
 
-        // ------------------------------------------------------------------------------------
-        // CV de prueba: un PDF sencillo para cada alumno de demostración. Se cargan una sola vez
-        // (si ya hay algún CV en la base no se toca nada) para no pisar CV reales ni volver a
-        // crear uno que un alumno haya borrado a propósito.
-        // ------------------------------------------------------------------------------------
         public static async Task SeedCurriculumsDePruebaAsync(BolsaTrabajoContext context)
         {
             if (await context.Curriculums.AnyAsync())

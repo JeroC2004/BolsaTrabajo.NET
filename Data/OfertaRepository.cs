@@ -57,8 +57,7 @@ namespace Data
             if (existing == null)
                 return false;
 
-            existing.SetFechaHasta(oferta.FechaHasta);
-            existing.SetFechaDesde(oferta.FechaDesde);
+            existing.SetFechas(oferta.FechaDesde, oferta.FechaHasta);
             existing.SetTitulo(oferta.Titulo);
             existing.SetTipoVinculo(oferta.TipoVinculo);
             existing.SetDetalle(oferta.Detalle);
@@ -68,14 +67,10 @@ namespace Data
 
             SincronizarRequisitos(existing, oferta.Requisitos);
 
-            // Cabecera y requisitos se guardan juntos en un único SaveChanges (una transacción).
             await context.SaveChangesAsync();
             return true;
         }
 
-        // Deja en 'existing' exactamente los requisitos recibidos: actualiza las líneas que
-        // siguen (mismo Id), agrega las nuevas (Id = 0 o Id que no pertenece a esta oferta)
-        // y elimina las que ya no vienen.
         private void SincronizarRequisitos(Oferta existing, ICollection<RequisitoOferta> recibidos)
         {
             var actuales = existing.Requisitos.ToDictionary(r => r.Id);
@@ -105,17 +100,25 @@ namespace Data
 
         public async Task<IEnumerable<Oferta>> GetByCriteriaAsync(OfertaCriteria criteria)
         {
-            string searchTerm = criteria.Texto.ToLower();
-
-            return await context.Ofertas
-                .Include(o => o.Empresa)
-                .Include(o => o.TipoOferta)
-                .Include(o => o.Requisitos)
-                .Where(o =>
-                    o.Titulo.ToLower().Contains(searchTerm) ||
-                    o.Detalle.ToLower().Contains(searchTerm))
-                .OrderByDescending(o => o.FechaDesde)
-                .ToListAsync();
+            var query = context.Ofertas.AsNoTracking()
+                .Include(o => o.Empresa).Include(o => o.TipoOferta).Include(o => o.Requisitos)
+                .AsQueryable();
+            if (!string.IsNullOrWhiteSpace(criteria.Texto))
+            {
+                string texto = criteria.Texto.ToLower();
+                query = query.Where(o => o.Titulo.ToLower().Contains(texto) || o.Detalle.ToLower().Contains(texto));
+            }
+            if (criteria.TipoOfertaId.HasValue)
+                query = query.Where(o => o.TipoOfertaId == criteria.TipoOfertaId.Value);
+            if (criteria.Estado.HasValue)
+                query = query.Where(o => o.Estado == criteria.Estado.Value);
+            if (criteria.TipoVinculo.HasValue)
+                query = query.Where(o => o.TipoVinculo == criteria.TipoVinculo.Value);
+            if (criteria.Desde.HasValue)
+                query = query.Where(o => o.FechaDesde >= criteria.Desde.Value);
+            if (criteria.Hasta.HasValue)
+                query = query.Where(o => o.FechaDesde.Date <= criteria.Hasta.Value);
+            return await query.OrderByDescending(o => o.FechaDesde).ThenBy(o => o.Id).ToListAsync();
         }
     }
 }

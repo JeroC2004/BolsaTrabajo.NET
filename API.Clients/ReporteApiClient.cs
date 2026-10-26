@@ -13,7 +13,6 @@ namespace API.Clients
             _httpClient = httpClient;
         }
 
-        // Una fila por oferta con sus postulaciones. desde y hasta filtran por fecha de postulación.
         public async Task<IEnumerable<ReportePostulacionesOfertaDTO>> GetPostulacionesPorOfertaAsync(
             DateTime? desde = null, DateTime? hasta = null)
         {
@@ -38,7 +37,6 @@ namespace API.Clients
             throw await ApiErrors.CrearExcepcionAsync(response, "Error al obtener el reporte de postulaciones");
         }
 
-        // Una fila por tipo de oferta con la cantidad de ofertas activas y no activas.
         public async Task<IEnumerable<ReporteOfertasTipoDTO>> GetOfertasPorTipoAsync()
         {
             HttpResponseMessage response = await _httpClient.GetAsync("reportes/ofertas-por-tipo");

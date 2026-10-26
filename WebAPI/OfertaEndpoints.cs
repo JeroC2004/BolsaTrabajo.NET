@@ -6,7 +6,6 @@ namespace WebAPI
 {
     public static class OfertaEndpoints
     {
-        // Cada perfil ve lo que le corresponde: la empresa solo sus ofertas y el alumno las activas.
         private static IEnumerable<OfertaDTO> FiltrarPorRol(IEnumerable<OfertaDTO> ofertas, ClaimsPrincipal user)
         {
             if (user.EsEmpresa())
@@ -30,6 +29,8 @@ namespace WebAPI
                     return Results.NotFound();
                 if (user.EsEmpresa() && dto.EmpresaId != user.GetEmpresaId())
                     return Results.Forbid();
+                if (user.EsAlumno() && dto.Estado != nameof(Domain.Model.EstadoOferta.Activa))
+                    return Results.Forbid();
                 return Results.Ok(dto);
             })
             .WithName("GetOferta")
@@ -52,7 +53,6 @@ namespace WebAPI
 
             app.MapPost("/ofertas", async (OfertaDTO dto, IOfertaService ofertaService, ClaimsPrincipal user) =>
             {
-                // Una empresa solo puede publicar ofertas a su nombre.
                 if (user.EsEmpresa())
                     dto.EmpresaId = user.GetEmpresaId() ?? 0;
 
@@ -75,7 +75,6 @@ namespace WebAPI
 
             app.MapPut("/ofertas", async (OfertaDTO dto, IOfertaService ofertaService, ClaimsPrincipal user) =>
             {
-                // Una empresa solo puede modificar sus propias ofertas.
                 if (user.EsEmpresa())
                 {
                     var existente = await ofertaService.GetAsync(dto.Id);
@@ -108,7 +107,6 @@ namespace WebAPI
 
             app.MapDelete("/ofertas/{id}", async (int id, IOfertaService ofertaService, ClaimsPrincipal user) =>
             {
-                // Una empresa solo puede eliminar sus propias ofertas.
                 if (user.EsEmpresa())
                 {
                     var existente = await ofertaService.GetAsync(id);
@@ -130,15 +128,25 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.AdministradorOEmpresa);
 
-            app.MapGet("/ofertas/criteria", async (string texto, IOfertaService ofertaService, ClaimsPrincipal user) =>
+            app.MapGet("/ofertas/criteria", async (IOfertaService ofertaService, ClaimsPrincipal user,
+                string? texto = null, int? tipoOfertaId = null, string? estado = null,
+                string? tipoVinculo = null, DateTime? desde = null, DateTime? hasta = null) =>
             {
                 try
                 {
-                    var criteria = new OfertaCriteriaDTO { Texto = texto };
+                    var criteria = new OfertaCriteriaDTO
+                    {
+                        Texto = texto ?? string.Empty,
+                        TipoOfertaId = tipoOfertaId,
+                        Estado = estado,
+                        TipoVinculo = tipoVinculo,
+                        Desde = desde,
+                        Hasta = hasta
+                    };
                     var ofertas = await ofertaService.GetByCriteriaAsync(criteria);
                     return Results.Ok(FiltrarPorRol(ofertas, user).ToList());
                 }
-                catch (Exception ex)
+                catch (ArgumentException ex)
                 {
                     return Results.BadRequest(new { error = ex.Message });
                 }

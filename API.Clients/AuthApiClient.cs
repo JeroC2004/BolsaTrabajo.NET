@@ -12,6 +12,13 @@ namespace API.Clients
             _httpClient = httpClient;
         }
 
+        public async Task<IEnumerable<CarreraDTO>> GetCarrerasRegistroAsync()
+        {
+            using var response = await _httpClient.GetAsync("auth/carreras");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<CarreraDTO>>() ?? new List<CarreraDTO>();
+        }
+
         public async Task<LoginResponse?> LoginAsync(LoginRequest request)
         {
             var response = await _httpClient.PostAsJsonAsync("auth/login", request);

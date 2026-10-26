@@ -27,7 +27,6 @@ namespace Application.Services
         {
             var postulaciones = (await postulacionRepository.GetAllAsync(alumnoId, empresaId, ofertaId)).ToList();
 
-            // Una sola consulta para saber qué alumnos tienen CV cargado.
             var conCv = await curriculumRepository.GetAlumnoIdsConCurriculumAsync(postulaciones.Select(p => p.AlumnoId));
 
             return postulaciones.Select(p => MapToDTO(p, conCv.Contains(p.AlumnoId))).ToList();
@@ -44,7 +43,6 @@ namespace Application.Services
 
         public async Task<PostulacionDTO> AddAsync(PostulacionDTO dto)
         {
-            // Toda postulación nace Pendiente, sin importar el estado que llegue en el DTO.
             var postulacion = new Postulacion(0, dto.AlumnoId, dto.OfertaId, DateTime.Today, EstadoPostulacion.Pendiente);
 
             if (await alumnoRepository.GetAsync(dto.AlumnoId) == null)
@@ -66,7 +64,6 @@ namespace Application.Services
             return MapToDTO(creada ?? postulacion, await TieneCvAsync(dto.AlumnoId));
         }
 
-        // Lo único que se puede modificar de una postulación es su estado.
         public async Task<bool> UpdateAsync(PostulacionDTO dto)
         {
             if (!Enum.TryParse(dto.Estado, true, out EstadoPostulacion estado)

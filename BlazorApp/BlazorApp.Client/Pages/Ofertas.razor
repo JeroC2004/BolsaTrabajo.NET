@@ -9,6 +9,7 @@
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
 @* 1. INYECTAMOS EL CLIENTE AQUÍ *@
+@inject API.Clients.TipoOfertaApiClient TipoClient
 @inject API.Clients.OfertaApiClient OfertaClient
 @inject API.Clients.PostulacionApiClient PostulacionClient
 
@@ -27,7 +28,7 @@
     </button>
 
     <button class="btn btn-secondary"
-            @onclick="CargarAsync">
+            @onclick="LimpiarAsync">
         Mostrar todas
     </button>
 
@@ -37,6 +38,47 @@
             Nueva oferta
         </button>
     </AuthorizeView>
+</div>
+
+<div class="row g-2 mb-3">
+    <div class="col-md-3">
+        <label for="f-tipo">Tipo de oferta</label>
+        <select id="f-tipo" class="form-select" @bind="filtro.TipoOfertaId">
+            <option value="">Todos</option>
+            @foreach (var tipo in tipos)
+            {
+                <option value="@tipo.Id">@tipo.Nombre</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label for="f-estado">Estado</label>
+        <select id="f-estado" class="form-select" @bind="filtro.Estado">
+            <option value="">Todos los permitidos</option>
+            @foreach (var estado in estados)
+            {
+                <option value="@estado">@estado</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label for="f-vinculo">Vínculo</label>
+        <select id="f-vinculo" class="form-select" @bind="filtro.TipoVinculo">
+            <option value="">Todos</option>
+            @foreach (var vinculo in vinculos)
+            {
+                <option value="@vinculo">@vinculo</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label for="f-desde">Publicada desde</label>
+        <input id="f-desde" type="date" class="form-control" @bind="filtro.Desde" />
+    </div>
+    <div class="col-md-2">
+        <label for="f-hasta">Publicada hasta</label>
+        <input id="f-hasta" type="date" class="form-control" @bind="filtro.Hasta" />
+    </div>
 </div>
 
 @if (!string.IsNullOrWhiteSpace(errorMessage))
@@ -133,6 +175,17 @@ else
     private readonly List<OfertaDTO> ofertas = new();
 
     private string criterio = string.Empty;
+    private OfertaCriteriaDTO filtro = new();
+    private List<TipoOfertaDTO> tipos = new();
+    private readonly string[] estados = { "Activa", "Pausada", "Cerrada", "Finalizada" };
+    private readonly string[] vinculos = { "Pasantia", "PrimerEmpleo", "PracticaProfesional", "EmpleoFullTime", "EmpleoPartTime" };
+
+    private async Task LimpiarAsync()
+    {
+        criterio = string.Empty;
+        filtro = new();
+        await CargarAsync();
+    }
     private string? errorMessage;
     private string? successMessage;
     private bool loading;
@@ -140,6 +193,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         await CargarAsync();
+        try { tipos = (await TipoClient.GetAllAsync()).ToList(); }
+        catch (Exception ex) { errorMessage = $"No se pudieron cargar los tipos: {ex.Message}"; }
     }
 
     private async Task CargarAsync()
@@ -170,9 +225,9 @@ else
 
     private async Task BuscarAsync()
     {
-        if (string.IsNullOrWhiteSpace(criterio))
+        if (filtro.Desde.HasValue && filtro.Hasta.HasValue && filtro.Desde.Value.Date > filtro.Hasta.Value.Date)
         {
-            await CargarAsync();
+            errorMessage = "La fecha desde no puede superar a la fecha hasta.";
             return;
         }
 
@@ -182,7 +237,8 @@ else
         try
         {
 
-            IEnumerable<OfertaDTO> resultado = await OfertaClient.GetByCriteriaAsync(criterio);
+            filtro.Texto = criterio;
+            IEnumerable<OfertaDTO> resultado = await OfertaClient.GetByCriteriaAsync(filtro);
 
             ofertas.Clear();
             ofertas.AddRange(resultado);

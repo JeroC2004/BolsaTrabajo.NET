@@ -110,7 +110,6 @@ namespace Data
                 entity.Property(e => e.FechaPostulacion).IsRequired();
                 entity.Property(e => e.Estado).IsRequired().HasConversion<string>().HasMaxLength(20);
 
-                // Un alumno no puede postularse dos veces a la misma oferta.
                 entity.HasIndex(e => new { e.AlumnoId, e.OfertaId }).IsUnique();
 
                 entity.HasOne(e => e.Alumno)
@@ -133,7 +132,6 @@ namespace Data
                 entity.Property(e => e.Tamanio).IsRequired();
                 entity.Property(e => e.FechaCarga).IsRequired();
 
-                // Un único CV por alumno; si se borra el alumno, se borra su CV.
                 entity.HasIndex(e => e.AlumnoId).IsUnique();
 
                 entity.HasOne<Alumno>()
@@ -191,7 +189,6 @@ namespace Data
 
                 entity.Property(e => e.Rol).IsRequired().HasConversion<string>().HasMaxLength(20);
 
-                // Vínculo opcional con el alumno o la empresa a la que pertenece el usuario.
                 entity.HasOne<Alumno>()
                     .WithMany()
                     .HasForeignKey(e => e.AlumnoId)

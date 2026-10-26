@@ -103,7 +103,6 @@ else
     private string? errorMessage;
     private bool esAlumno;
 
-    // El alumno vuelve a la lista de ofertas porque no tiene acceso al listado de alumnos.
     private string RutaVolver => esAlumno ? "/ofertas" : "/alumnos";
 
     private string TituloPagina => AlumnoId.HasValue ? "Editar Alumno" : "Nuevo Alumno";
@@ -115,7 +114,6 @@ else
             var estadoAuth = await AuthStateProvider.GetAuthenticationStateAsync();
             esAlumno = estadoAuth.User.IsInRole(DTOs.Roles.Alumno);
 
-            // Solo el administrador da de alta alumnos; el alumno edita únicamente su perfil.
             if (esAlumno && !AlumnoId.HasValue)
             {
                 Navigation.NavigateTo("/ofertas");

@@ -7,8 +7,6 @@ namespace WebAPI
 {
     public static class CurriculumEndpoints
     {
-        // Ver o descargar el CV: el administrador siempre; el alumno solo el suyo; la empresa
-        // únicamente el de alumnos que se postularon a alguna de sus ofertas.
         private static async Task<bool> PuedeVerAsync(int alumnoId, ClaimsPrincipal user, IPostulacionService postulacionService)
         {
             if (user.EsAdministrador())
@@ -30,7 +28,6 @@ namespace WebAPI
             return false;
         }
 
-        // Cargar o borrar el CV: el administrador o el propio alumno.
         private static bool PuedeModificar(int alumnoId, ClaimsPrincipal user)
         {
             return user.EsAdministrador() || (user.EsAlumno() && user.GetAlumnoId() == alumnoId);
@@ -76,8 +73,6 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
-            // multipart/form-data con el campo "archivo". Se autentica con JWT (no con cookies),
-            // por eso no aplica la protección antiforgery.
             app.MapPut("/alumnos/{id}/cv", async (int id, IFormFile archivo, ICurriculumService curriculumService,
                 ClaimsPrincipal user) =>
             {
@@ -87,7 +82,6 @@ namespace WebAPI
                 if (archivo.Length == 0)
                     return Results.BadRequest(new { error = "El archivo está vacío." });
 
-                // Se corta antes de copiar el archivo a memoria.
                 if (archivo.Length > CurriculumVitae.TamanioMaximoBytes)
                     return Results.BadRequest(new { error = $"El archivo supera el tamaño máximo de {CurriculumVitae.TamanioMaximoBytes / (1024 * 1024)} MB." });
 

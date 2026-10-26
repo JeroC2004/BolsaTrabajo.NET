@@ -21,7 +21,6 @@ namespace WindowsForms
             AplicarPermisos();
         }
 
-        // La empresa consulta los alumnos; solo el administrador los da de alta, modifica o elimina.
         private static bool PuedeGestionar => Sesion.EsAdministrador;
 
         private void AplicarPermisos()

@@ -10,7 +10,6 @@ namespace WebAPI
         {
             app.MapGet("/alumnos/{id}", async (int id, IAlumnoService alumnoService, ClaimsPrincipal user) =>
             {
-                // Un alumno solo puede consultar su propio perfil.
                 if (user.EsAlumno() && user.GetAlumnoId() != id)
                     return Results.Forbid();
 
@@ -60,7 +59,6 @@ namespace WebAPI
 
             app.MapPut("/alumnos", async (AlumnoDTO dto, IAlumnoService alumnoService, ClaimsPrincipal user) =>
             {
-                // Un alumno solo puede modificar su propio perfil.
                 if (user.EsAlumno() && user.GetAlumnoId() != dto.Id)
                     return Results.Forbid();
 

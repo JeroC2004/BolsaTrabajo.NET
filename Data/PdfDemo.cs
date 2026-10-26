@@ -2,10 +2,6 @@
 
 namespace Data
 {
-    /// <summary>
-    /// Genera un PDF mínimo de una página (texto en Helvetica) para los CV de los datos de prueba,
-    /// sin depender de ninguna librería externa.
-    /// </summary>
     internal static class PdfDemo
     {
         public static byte[] Crear(string titulo, IEnumerable<string> lineas)
@@ -28,8 +24,6 @@ namespace Data
                 $"<< /Length {contenido.Length} >>\nstream\n{contenido}\nendstream"
             };
 
-            // Todo el documento usa caracteres de 1 byte (Latin1), así que la posición en el
-            // texto coincide con el desplazamiento en bytes que exige la tabla xref.
             var pdf = new StringBuilder("%PDF-1.4\n");
             var posiciones = new List<int>();
 

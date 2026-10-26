@@ -57,9 +57,7 @@ namespace Domain.Model
             SetId(id);
             SetTitulo(titulo);
             SetTipoVinculo(tipoVinculo);
-            FechaDesde = fechaDesde;
-            SetFechaHasta(fechaHasta);
-            SetFechaDesde(fechaDesde);
+            SetFechas(fechaDesde, fechaHasta);
             SetDetalle(detalle);
             SetEstado(estado);
             SetEmpresaId(empresaId);
@@ -88,6 +86,14 @@ namespace Domain.Model
                 throw new ArgumentException("El tipo de vínculo no es válido.", nameof(tipoVinculo));
             TipoVinculo = tipoVinculo;
         }
+        public void SetFechas(DateTime desde, DateTime hasta)
+        {
+            if (desde == default || hasta == default || desde > hasta)
+                throw new ArgumentException("El período de la oferta debe tener fechas válidas y desde no puede superar hasta.");
+            FechaDesde = desde;
+            FechaHasta = hasta;
+        }
+
         public void SetFechaDesde(DateTime fechaDesde)
         {
             if (fechaDesde == default)

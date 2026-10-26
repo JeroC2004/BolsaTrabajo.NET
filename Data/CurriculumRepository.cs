@@ -14,7 +14,6 @@ namespace Data
 
         public async Task<CurriculumResumen?> GetResumenAsync(int alumnoId)
         {
-            // La proyección evita leer la columna varbinary(max).
             return await context.Curriculums
                 .AsNoTracking()
                 .Where(c => c.AlumnoId == alumnoId)

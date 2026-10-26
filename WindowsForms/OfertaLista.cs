@@ -7,6 +7,12 @@ namespace WindowsForms
     public partial class OfertaLista : Form
     {
         private List<OfertaDTO> ofertas = new();
+        private readonly ComboBox tipoFiltro = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
+        private readonly ComboBox estadoFiltro = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 160 };
+        private readonly ComboBox vinculoFiltro = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
+        private readonly DateTimePicker desdeFiltro = new() { ShowCheckBox = true, Checked = false, Format = DateTimePickerFormat.Short, Width = 145 };
+        private readonly DateTimePicker hastaFiltro = new() { ShowCheckBox = true, Checked = false, Format = DateTimePickerFormat.Short, Width = 145 };
+
 
         private readonly OfertaApiClient _ofertaClient;
         private readonly PostulacionApiClient _postulacionClient;
@@ -22,9 +28,39 @@ namespace WindowsForms
 
             ConfigurarColumnas();
             AplicarPermisos();
+            ConfigurarFiltros();
         }
 
-        // Solo Administrador y Empresa pueden dar de alta, modificar o eliminar ofertas.
+        private void ConfigurarFiltros()
+        {
+            estadoFiltro.Items.Add("Todos los estados");
+            estadoFiltro.Items.AddRange(Sesion.EsAlumno ? new object[] { "Activa" } : Enum.GetNames<Domain.Model.EstadoOferta>().Cast<object>().ToArray());
+            vinculoFiltro.Items.Add("Todos los vínculos");
+            vinculoFiltro.Items.AddRange(Enum.GetNames<Domain.Model.TipoVinculo>().Cast<object>().ToArray());
+            estadoFiltro.SelectedIndex = vinculoFiltro.SelectedIndex = 0;
+            tipoFiltro.DisplayMember = nameof(TipoOfertaDTO.Nombre);
+            tipoFiltro.ValueMember = nameof(TipoOfertaDTO.Id);
+            var barra = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, Padding = new Padding(8) };
+            foreach (var control in new Control[] { agregarButton, actualizarButton, eliminarButton, postularmeButton, buscarTextBox, buscarButton, refrescarButton })
+                barra.Controls.Add(control);
+            var filtros = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, Padding = new Padding(8) };
+            void Filtro(string nombre, Control control)
+            {
+                filtros.Controls.Add(new Label { Text = nombre, AutoSize = true, Margin = new Padding(4, 8, 4, 4) });
+                filtros.Controls.Add(control);
+            }
+            Filtro("Tipo", tipoFiltro); Filtro("Estado", estadoFiltro); Filtro("Vínculo", vinculoFiltro);
+            Filtro("Publicada desde", desdeFiltro); Filtro("hasta", hastaFiltro);
+            var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3 };
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            dataGridView1.Dock = DockStyle.Fill;
+            layout.Controls.Add(barra, 0, 0); layout.Controls.Add(filtros, 0, 1); layout.Controls.Add(dataGridView1, 0, 2);
+            Controls.Add(layout);
+        }
+
         private static bool PuedeGestionar => Sesion.EsAdministrador || Sesion.EsEmpresa;
 
         private void AplicarPermisos()
@@ -33,7 +69,6 @@ namespace WindowsForms
             actualizarButton.Visible = PuedeGestionar;
             eliminarButton.Visible = PuedeGestionar;
 
-            // El alumno no gestiona ofertas: en su lugar se postula a la oferta seleccionada.
             postularmeButton.Text = "Postularme";
             postularmeButton.Location = agregarButton.Location;
             postularmeButton.Size = agregarButton.Size;
@@ -98,7 +133,17 @@ namespace WindowsForms
             });
         }
 
-        private async void OfertaLista_Load(object sender, EventArgs e) => await CargarOfertasAsync();
+        private async void OfertaLista_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                var tipos = (await new TipoOfertaApiClient(ApiHttpClientFactory.Shared).GetAllAsync()).ToList();
+                tipos.Insert(0, new TipoOfertaDTO { Id = 0, Nombre = "Todos los tipos" });
+                tipoFiltro.DataSource = tipos;
+            }
+            catch (Exception ex) { MessageBox.Show(this, "No se pudieron cargar los tipos: " + ex.Message); }
+            await CargarOfertasAsync();
+        }
 
         private async Task CargarOfertasAsync()
         {
@@ -130,9 +175,18 @@ namespace WindowsForms
             try
             {
                 Cursor = Cursors.WaitCursor;
-                if (string.IsNullOrWhiteSpace(buscarTextBox.Text)) { await CargarOfertasAsync(); return; }
-
-                var resultado = await _ofertaClient.GetByCriteriaAsync(buscarTextBox.Text);
+                if (desdeFiltro.Checked && hastaFiltro.Checked && desdeFiltro.Value.Date > hastaFiltro.Value.Date)
+                    throw new ArgumentException("La fecha desde no puede superar a la fecha hasta.");
+                var criteria = new OfertaCriteriaDTO
+                {
+                    Texto = buscarTextBox.Text,
+                    TipoOfertaId = tipoFiltro.SelectedValue is int id && id > 0 ? id : null,
+                    Estado = estadoFiltro.SelectedIndex > 0 ? estadoFiltro.Text : null,
+                    TipoVinculo = vinculoFiltro.SelectedIndex > 0 ? vinculoFiltro.Text : null,
+                    Desde = desdeFiltro.Checked ? desdeFiltro.Value.Date : null,
+                    Hasta = hastaFiltro.Checked ? hastaFiltro.Value.Date : null
+                };
+                var resultado = await _ofertaClient.GetByCriteriaAsync(criteria);
                 ofertas = resultado.ToList();
                 dataGridView1.DataSource = null;
                 dataGridView1.DataSource = ofertas;
@@ -150,6 +204,9 @@ namespace WindowsForms
         private async void refrescarButton_Click(object sender, EventArgs e)
         {
             buscarTextBox.Clear();
+            if (tipoFiltro.Items.Count > 0) tipoFiltro.SelectedIndex = 0;
+            estadoFiltro.SelectedIndex = vinculoFiltro.SelectedIndex = 0;
+            desdeFiltro.Checked = hastaFiltro.Checked = false;
             await CargarOfertasAsync();
         }
 

@@ -162,7 +162,6 @@ else
             esAlumno = estadoAuth.User.IsInRole(DTOs.Roles.Alumno);
             esEmpresa = estadoAuth.User.IsInRole(DTOs.Roles.Empresa);
 
-            // El filtro por oferta lo usan la empresa (sus ofertas) y el administrador (todas).
             if (!esAlumno)
             {
                 IEnumerable<OfertaDTO> resultado = await OfertaClient.GetAllAsync();

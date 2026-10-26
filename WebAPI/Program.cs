@@ -95,7 +95,6 @@ builder.Services.AddCors(options =>
         policy.AllowAnyOrigin()
               .AllowAnyHeader()
               .AllowAnyMethod()
-              // Necesario para que Blazor (navegador) pueda leer el nombre del archivo descargado.
               .WithExposedHeaders("Content-Disposition");
     });
 });
@@ -132,14 +131,12 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<BolsaTrabajoContext>();
 
-    // Aplica las migraciones pendientes (crea la base si no existe).
     await db.Database.MigrateAsync();
 
     try
     {
         await DbSeeder.SeedAsync(db);
 
-        // Datos de prueba (alumnos, ofertas, postulaciones). Se desactivan con "DatosDePrueba": false en appsettings.json.
         if (app.Configuration.GetValue("DatosDePrueba", true))
         {
             await DbSeeder.SeedDatosDePruebaAsync(db);

@@ -82,9 +82,6 @@ namespace Domain.Model
         {
             Activo = activo;
         }
-
-        // Un usuario Alumno debe estar vinculado a un alumno y uno Empresa a una empresa;
-        // el administrador no se vincula con ninguno.
         public void SetRol(RolUsuario rol, int? alumnoId = null, int? empresaId = null)
         {
             if (!Enum.IsDefined(typeof(RolUsuario), rol))

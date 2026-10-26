@@ -15,16 +15,20 @@ namespace DTOs
         public string Username { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El nombre es obligatorio.")]
+        [StringLength(100)]
         public string NomAlumno { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El apellido es obligatorio.")]
+        [StringLength(100)]
         public string ApeAlumno { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El email es obligatorio.")]
         [EmailAddress(ErrorMessage = "El email no tiene un formato válido.")]
+        [StringLength(150)]
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El legajo es obligatorio.")]
+        [StringLength(50)]
         public string Legajo { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El DNI es obligatorio.")]
@@ -33,6 +37,7 @@ namespace DTOs
         public string Dni { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El plan es obligatorio.")]
+        [StringLength(20)]
         public string Plan { get; set; } = string.Empty;
 
         [Range(1, 5,
@@ -47,13 +52,13 @@ namespace DTOs
             ErrorMessage = "El promedio debe estar entre 0 y 10.")]
         public float Promedio { get; set; }
 
-        [Range(1, 5,
+        [Range(1, int.MaxValue,
             ErrorMessage = "Debe seleccionar una carrera válida.")]
         public int CarreraId { get; set; }
 
         [Required(ErrorMessage = "La contraseña es obligatoria.")]
-        [MinLength(5,
-            ErrorMessage = "La contraseña debe tener al menos 5 caracteres.")]
+        [MinLength(6,
+            ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
         public string Password { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Debe confirmar la contraseña.")]

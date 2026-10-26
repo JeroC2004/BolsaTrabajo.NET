@@ -40,18 +40,27 @@ namespace API.Clients
             throw new Exception($"Error al obtener lista de ofertas. Status: {response.StatusCode}, Detalle: {errorContent}");
         }
 
-        public async Task<IEnumerable<OfertaDTO>> GetByCriteriaAsync(string texto)
+        public Task<IEnumerable<OfertaDTO>> GetByCriteriaAsync(string texto) =>
+            GetByCriteriaAsync(new OfertaCriteriaDTO { Texto = texto });
+
+        public async Task<IEnumerable<OfertaDTO>> GetByCriteriaAsync(OfertaCriteriaDTO criteria)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"ofertas/criteria?texto={Uri.EscapeDataString(texto)}");
-
-            if (response.IsSuccessStatusCode)
-                return (await response.Content.ReadFromJsonAsync<IEnumerable<OfertaDTO>>()) ?? new List<OfertaDTO>();
-
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
-                throw new UnauthorizedAccessException();
-
-            string errorContent = await response.Content.ReadAsStringAsync();
-            throw new Exception($"Error al buscar ofertas. Status: {response.StatusCode}, Detalle: {errorContent}");
+            var parameters = new List<string>();
+            void Add(string key, string? value)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    parameters.Add(key + "=" + Uri.EscapeDataString(value));
+            }
+            Add("texto", criteria.Texto);
+            Add("tipoOfertaId", criteria.TipoOfertaId?.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Add("estado", criteria.Estado);
+            Add("tipoVinculo", criteria.TipoVinculo);
+            Add("desde", criteria.Desde?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture));
+            Add("hasta", criteria.Hasta?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture));
+            using var response = await _httpClient.GetAsync("ofertas/criteria?" + string.Join("&", parameters));
+            if (!response.IsSuccessStatusCode)
+                throw await ApiErrors.CrearExcepcionAsync(response, "Error al buscar ofertas");
+            return await response.Content.ReadFromJsonAsync<List<OfertaDTO>>() ?? new List<OfertaDTO>();
         }
 
         public async Task AddAsync(OfertaDTO oferta)

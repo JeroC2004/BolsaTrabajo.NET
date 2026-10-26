@@ -2,7 +2,6 @@ using API.Clients;
 
 namespace WindowsForms
 {
-    /// <summary>Descarga el CV de un alumno y lo guarda donde el usuario elija.</summary>
     internal static class CurriculumDescarga
     {
         public static async Task DescargarAsync(IWin32Window? propietario, CurriculumApiClient client, int alumnoId, string? nombreSugerido = null)
