@@ -30,7 +30,7 @@ namespace Application.Services
             Empresa empresa = CrearEmpresa(0, dto);
 
             if (await empresaRepository.NameExistsAsync(empresa.RazonSocial))
-                throw new ArgumentException("Ya existe una empresa con esa raz髇 social.");
+                throw new ArgumentException("Ya existe una empresa con esa raz贸n social.");
 
             await empresaRepository.AddAsync(empresa);
             return MapToDTO(empresa);
@@ -41,7 +41,7 @@ namespace Application.Services
             Empresa empresa = CrearEmpresa(dto.Id, dto);
 
             if (await empresaRepository.NameExistsAsync(empresa.RazonSocial, empresa.Id))
-                throw new ArgumentException("Ya existe otra empresa con esa raz髇 social.");
+                throw new ArgumentException("Ya existe otra empresa con esa raz贸n social.");
 
             return await empresaRepository.UpdateAsync(empresa);
         }
@@ -58,8 +58,8 @@ namespace Application.Services
         {
             return new Empresa(
                 id,
-                Limpiar(dto.RazonSocial, 150, "La raz髇 social"),
-                Limpiar(dto.Descripcion, 500, "La descripci髇"),
+                Limpiar(dto.RazonSocial, 150, "La raz贸n social"),
+                Limpiar(dto.Descripcion, 500, "La descripci贸n"),
                 Limpiar(dto.Rubro, 100, "El rubro"));
         }
 

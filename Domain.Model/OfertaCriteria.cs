@@ -13,11 +13,11 @@ namespace Domain.Model
             TipoVinculo? tipoVinculo = null, DateTime? desde = null, DateTime? hasta = null)
         {
             if (tipoOfertaId.HasValue && tipoOfertaId.Value <= 0)
-                throw new ArgumentException("El tipo de oferta debe ser válido.");
+                throw new ArgumentException("El tipo de oferta debe ser vÃ¡lido.");
             if (estado.HasValue && !Enum.IsDefined(typeof(EstadoOferta), estado.Value))
-                throw new ArgumentException("El estado no es válido.");
+                throw new ArgumentException("El estado no es vÃ¡lido.");
             if (tipoVinculo.HasValue && !Enum.IsDefined(typeof(TipoVinculo), tipoVinculo.Value))
-                throw new ArgumentException("El vínculo no es válido.");
+                throw new ArgumentException("El vÃ­nculo no es vÃ¡lido.");
             if (desde.HasValue && hasta.HasValue && desde.Value.Date > hasta.Value.Date)
                 throw new ArgumentException("La fecha desde no puede superar a la fecha hasta.");
             Texto = texto?.Trim() ?? string.Empty;

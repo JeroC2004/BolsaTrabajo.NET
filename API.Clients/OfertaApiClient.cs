@@ -22,8 +22,10 @@ namespace API.Clients
             if (response.StatusCode == HttpStatusCode.Unauthorized)
                 throw new UnauthorizedAccessException();
 
-            string errorContent = await response.Content.ReadAsStringAsync();
-            throw new Exception($"Error al obtener oferta con Id {id}. Status: {response.StatusCode}, Detalle: {errorContent}");
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                throw new KeyNotFoundException("La oferta no existe o ya no está disponible.");
+
+            throw await ApiErrors.CrearExcepcionAsync(response, "No se pudo cargar la oferta");
         }
 
         public async Task<IEnumerable<OfertaDTO>> GetAllAsync()

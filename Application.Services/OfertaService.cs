@@ -33,7 +33,7 @@ namespace Application.Services
 
             await ofertaRepository.AddAsync(oferta);
 
-            return await GetAsync(oferta.Id) ?? throw new InvalidOperationException("No se pudo recuperar la oferta reciÈn creada.");
+            return await GetAsync(oferta.Id) ?? throw new InvalidOperationException("No se pudo recuperar la oferta reci√©n creada.");
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -88,14 +88,14 @@ namespace Application.Services
         private static TipoVinculo ParseTipoVinculo(string value)
         {
             if (!Enum.TryParse<TipoVinculo>(value, ignoreCase: true, out var result))
-                throw new ArgumentException($"El tipo de vÌnculo '{value}' no es v·lido. Valores permitidos: {string.Join(", ", Enum.GetNames(typeof(TipoVinculo)))}.");
+                throw new ArgumentException($"El tipo de v√≠nculo '{value}' no es v√°lido. Valores permitidos: {string.Join(", ", Enum.GetNames(typeof(TipoVinculo)))}.");
             return result;
         }
 
         private static EstadoOferta ParseEstado(string value)
         {
             if (!Enum.TryParse<EstadoOferta>(value, ignoreCase: true, out var result))
-                throw new ArgumentException($"El estado '{value}' no es v·lido. Valores permitidos: {string.Join(", ", Enum.GetNames(typeof(EstadoOferta)))}.");
+                throw new ArgumentException($"El estado '{value}' no es v√°lido. Valores permitidos: {string.Join(", ", Enum.GetNames(typeof(EstadoOferta)))}.");
             return result;
         }
 
@@ -117,7 +117,7 @@ namespace Application.Services
             return requisitos.Select(r =>
             {
                 if (string.IsNullOrWhiteSpace(r.Descripcion))
-                    throw new ArgumentException("La descripciÛn de un requisito no puede ser nula o vacÌa.");
+                    throw new ArgumentException("La descripci√≥n de un requisito no puede ser nula o vac√≠a.");
 
                 return new RequisitoOferta
                 {

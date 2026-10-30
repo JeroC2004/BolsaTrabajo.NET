@@ -15,8 +15,7 @@ namespace WindowsForms
 
 
         private readonly OfertaApiClient _ofertaClient;
-        private readonly PostulacionApiClient _postulacionClient;
-        private readonly Button postularmeButton = new();
+        private readonly Button verDetalleButton = new();
 
         public OfertaLista()
         {
@@ -24,7 +23,6 @@ namespace WindowsForms
 
             var httpClient = ApiHttpClientFactory.Shared;
             _ofertaClient = new OfertaApiClient(httpClient);
-            _postulacionClient = new PostulacionApiClient(httpClient);
 
             ConfigurarColumnas();
             AplicarPermisos();
@@ -41,7 +39,7 @@ namespace WindowsForms
             tipoFiltro.DisplayMember = nameof(TipoOfertaDTO.Nombre);
             tipoFiltro.ValueMember = nameof(TipoOfertaDTO.Id);
             var barra = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, Padding = new Padding(8) };
-            foreach (var control in new Control[] { agregarButton, actualizarButton, eliminarButton, postularmeButton, buscarTextBox, buscarButton, refrescarButton })
+            foreach (var control in new Control[] { verDetalleButton, agregarButton, actualizarButton, eliminarButton, buscarTextBox, buscarButton, refrescarButton })
                 barra.Controls.Add(control);
             var filtros = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, Padding = new Padding(8) };
             void Filtro(string nombre, Control control)
@@ -69,16 +67,13 @@ namespace WindowsForms
             actualizarButton.Visible = PuedeGestionar;
             eliminarButton.Visible = PuedeGestionar;
 
-            postularmeButton.Text = "Postularme";
-            postularmeButton.Location = agregarButton.Location;
-            postularmeButton.Size = agregarButton.Size;
-            postularmeButton.UseVisualStyleBackColor = true;
-            postularmeButton.Visible = Sesion.EsAlumno;
-            postularmeButton.Click += postularmeButton_Click;
-            Controls.Add(postularmeButton);
+            verDetalleButton.Text = "Ver detalle";
+            verDetalleButton.AutoSize = true;
+            verDetalleButton.UseVisualStyleBackColor = true;
+            verDetalleButton.Click += verDetalleButton_Click;
         }
 
-        private async void postularmeButton_Click(object? sender, EventArgs e)
+        private void verDetalleButton_Click(object? sender, EventArgs e)
         {
             var seleccionada = ObtenerSeleccionada();
             if (seleccionada == null)
@@ -87,25 +82,8 @@ namespace WindowsForms
                 return;
             }
 
-            try
-            {
-                Cursor = Cursors.WaitCursor;
-                await _postulacionClient.AddAsync(new PostulacionDTO { OfertaId = seleccionada.Id });
-                MessageBox.Show("Te postulaste correctamente. Podés ver el estado en \"Mis postulaciones\".", "Postulación enviada",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                MessageBox.Show("Su sesión expiró. Vuelva a iniciar sesión.", "Sesión expirada", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "No se pudo postular", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-            finally
-            {
-                Cursor = Cursors.Default;
-            }
+            using var consulta = new OfertaConsulta(seleccionada.Id);
+            consulta.ShowDialog(this);
         }
 
         private void ConfigurarColumnas()
@@ -260,7 +238,7 @@ namespace WindowsForms
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && PuedeGestionar) actualizarButton_Click(sender, e);
+            if (e.RowIndex >= 0) verDetalleButton_Click(sender, e);
         }
 
         private OfertaDTO? ObtenerSeleccionada() => dataGridView1.CurrentRow?.DataBoundItem as OfertaDTO;

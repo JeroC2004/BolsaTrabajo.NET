@@ -61,11 +61,7 @@ namespace API.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                if (response.StatusCode == HttpStatusCode.Unauthorized)
-                    throw new UnauthorizedAccessException();
-
-                string errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Error al crear alumno. Status: {response.StatusCode}, Detalle: {errorContent}");
+                throw await ApiErrors.CrearExcepcionAsync(response, "Error al crear alumno");
             }
         }
 
@@ -75,11 +71,7 @@ namespace API.Clients
 
             if (!response.IsSuccessStatusCode)
             {
-                if (response.StatusCode == HttpStatusCode.Unauthorized)
-                    throw new UnauthorizedAccessException();
-
-                string errorContent = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Error al actualizar alumno con Id {alumno.Id}. Status: {response.StatusCode}, Detalle: {errorContent}");
+                throw await ApiErrors.CrearExcepcionAsync(response, "Error al actualizar alumno");
             }
         }
 

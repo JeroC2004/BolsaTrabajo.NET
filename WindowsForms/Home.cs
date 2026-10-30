@@ -29,6 +29,22 @@ namespace WindowsForms
 
         private async void Home_Load(object sender, EventArgs e)
         {
+            var authService = AuthServiceProvider.Instance;
+            if (!await authService.IsAuthenticatedAsync())
+            {
+                using var login = new LoginForm();
+                if (login.ShowDialog(this) != DialogResult.OK)
+                {
+                    Close();
+                    return;
+                }
+            }
+
+            await ActualizarSesionAsync();
+        }
+
+        private async Task ActualizarSesionAsync()
+        {
             await Sesion.CargarAsync();
 
             var authService = AuthServiceProvider.Instance;
@@ -296,7 +312,11 @@ namespace WindowsForms
                 var authService = AuthServiceProvider.Instance;
                 await authService.LogoutAsync();
 
-                Close();
+                using var login = new LoginForm();
+                if (login.ShowDialog(this) == DialogResult.OK)
+                    await ActualizarSesionAsync();
+                else
+                    Close();
             }
         }
     }

@@ -97,6 +97,8 @@ namespace Domain.Model
         {
             if (string.IsNullOrWhiteSpace(legajo))
                 throw new ArgumentException("El legajo no puede ser nulo o vacío.", nameof(legajo));
+            if (!Regex.IsMatch(legajo, @"^[0-9]+$"))
+                throw new ArgumentException("El legajo debe contener solo números.", nameof(legajo));
             Legajo = legajo;
         }
 
@@ -161,5 +163,6 @@ namespace Domain.Model
                 throw new ArgumentException("La fecha de alta no puede ser nula.", nameof(fechaAlta));
             FechaAlta = fechaAlta;
         }
+
     }
 }

@@ -9,9 +9,9 @@
 @inject NavigationManager Navigation
 @inject BlazorApp.Client.Authentication.BlazorAuthenticationStateProvider AuthenticationProvider
 
-<PageTitle>Iniciar sesi髇</PageTitle>
+<PageTitle>Iniciar sesi贸n</PageTitle>
 
-<h1>Iniciar sesi髇</h1>
+<h1>Iniciar sesi贸n</h1>
 
 <EditForm Model="loginRequest"
           OnValidSubmit="IniciarSesionAsync">
@@ -31,7 +31,7 @@
 
     <div class="mb-3">
         <label for="password" class="form-label">
-            Contrase馻
+            Contrase帽a
         </label>
 
         <InputText id="password"
@@ -54,7 +54,7 @@
     </button>
 
     <p class="text-muted p-2">
-        縉o tienes una cuenta? Registrese para la Bolsa de Trabajo.
+        驴No tienes una cuenta? Registrese para la Bolsa de Trabajo.
     </p>
 
     <button type="button"
@@ -83,7 +83,7 @@
 
             if (!authenticated)
             {
-                errorMessage = "Usuario o contrase馻 incorrectos.";
+                errorMessage = "Usuario o contrase帽a incorrectos.";
                 return;
             }
 
@@ -93,7 +93,7 @@
             if (string.IsNullOrWhiteSpace(token) ||
                 string.IsNullOrWhiteSpace(username))
             {
-                errorMessage = "La sesi髇 no pudo inicializarse correctamente.";
+                errorMessage = "La sesi贸n no pudo inicializarse correctamente.";
                 return;
             }
 
@@ -109,7 +109,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error al iniciar sesi髇: {ex.Message}";
+            errorMessage = $"Error al iniciar sesi贸n: {ex.Message}";
         }
         finally
         {

@@ -1,4 +1,4 @@
-﻿using API.Clients;
+using API.Clients;
 using DTOs;
 
 namespace WindowsForms
@@ -38,6 +38,9 @@ namespace WindowsForms
             carrera.NomCarrera = nombreTextBox.Text.Trim();
             carrera.Departamento = departamentoTextBox.Text.Trim();
             carrera.Duracion = (int)duracionNumeric.Value;
+
+            System.ComponentModel.DataAnnotations.Validator.ValidateObject(
+                carrera, new System.ComponentModel.DataAnnotations.ValidationContext(carrera), validateAllProperties: true);
 
             if (carrera.Id == 0)
                 await client.AddAsync(carrera);

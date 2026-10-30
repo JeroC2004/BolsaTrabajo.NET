@@ -8,10 +8,9 @@
 
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
-@* 1. INYECTAMOS EL CLIENTE AQUÕ *@
+@* 1. INYECTAMOS EL CLIENTE AQU√ç *@
 @inject API.Clients.TipoOfertaApiClient TipoClient
 @inject API.Clients.OfertaApiClient OfertaClient
-@inject API.Clients.PostulacionApiClient PostulacionClient
 
 <PageTitle>Ofertas</PageTitle>
 
@@ -62,7 +61,7 @@
         </select>
     </div>
     <div class="col-md-3">
-        <label for="f-vinculo">VÌnculo</label>
+        <label for="f-vinculo">V√≠nculo</label>
         <select id="f-vinculo" class="form-select" @bind="filtro.TipoVinculo">
             <option value="">Todos</option>
             @foreach (var vinculo in vinculos)
@@ -88,13 +87,6 @@
     </div>
 }
 
-@if (!string.IsNullOrWhiteSpace(successMessage))
-{
-    <div class="alert alert-success">
-        @successMessage
-    </div>
-}
-
 @if (loading)
 {
     <div class="d-flex align-items-center mt-3">
@@ -111,19 +103,14 @@ else
     <table class="table table-striped mt-3">
         <thead>
             <tr>
-                <th>TÌtulo</th>
+                <th>T√≠tulo</th>
                 <th>Empresa</th>
                 <th>Tipo de oferta</th>
-                <th>VÌnculo</th>
+                <th>V√≠nculo</th>
                 <th>Estado</th>
                 <th>Desde</th>
                 <th>Hasta</th>
-                <AuthorizeView Roles="Administrador,Empresa">
-                    <th>Acciones</th>
-                </AuthorizeView>
-                <AuthorizeView Roles="Alumno">
-                    <th>PostulaciÛn</th>
-                </AuthorizeView>
+                <th>Acciones</th>
             </tr>
         </thead>
 
@@ -136,15 +123,16 @@ else
                     <td>@oferta.TipoOfertaNombre</td>
                     <td>@oferta.TipoVinculo</td>
                     <td>
-                        @* PequeÒo detalle visual para el estado *@
+                        @* Peque√±o detalle visual para el estado *@
                         <span class="badge @(oferta.Estado == "Activa" ? "bg-success" : "bg-secondary")">
                             @oferta.Estado
                         </span>
                     </td>
                     <td>@oferta.FechaDesde.ToString("dd/MM/yyyy")</td>
                     <td>@oferta.FechaHasta.ToString("dd/MM/yyyy")</td>
-                    <AuthorizeView Roles="Administrador,Empresa">
-                        <td>
+                    <td>
+                        <a class="btn btn-sm btn-outline-primary me-1" href="@($"ofertas/{oferta.Id}")">Ver detalle</a>
+                        <AuthorizeView Roles="Administrador,Empresa">
                             <button class="btn btn-sm btn-warning me-1"
                                     @onclick="() => Editar(oferta.Id)">
                                 Editar
@@ -154,17 +142,8 @@ else
                                     @onclick="() => EliminarAsync(oferta.Id)">
                                 Eliminar
                             </button>
-                        </td>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Alumno">
-                        <td>
-                            <button class="btn btn-sm btn-primary"
-                                    disabled="@(oferta.Estado != "Activa")"
-                                    @onclick="() => PostularseAsync(oferta.Id)">
-                                Postularme
-                            </button>
-                        </td>
-                    </AuthorizeView>
+                        </AuthorizeView>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -187,7 +166,6 @@ else
         await CargarAsync();
     }
     private string? errorMessage;
-    private string? successMessage;
     private bool loading;
 
     protected override async Task OnInitializedAsync()
@@ -257,26 +235,6 @@ else
         }
     }
 
-    private async Task PostularseAsync(int ofertaId)
-    {
-        errorMessage = null;
-        successMessage = null;
-
-        try
-        {
-            await PostulacionClient.AddAsync(new PostulacionDTO { OfertaId = ofertaId });
-            successMessage = "Te postulaste correctamente. PodÈs seguir el estado en \"Mis postulaciones\".";
-        }
-        catch (UnauthorizedAccessException)
-        {
-            Navigation.NavigateTo("/login");
-        }
-        catch (Exception ex)
-        {
-            errorMessage = ex.Message;
-        }
-    }
-
     private void NuevaOferta()
     {
         Navigation.NavigateTo("/ofertas/nueva");
@@ -291,7 +249,7 @@ else
     {
         bool confirmar = await JS.InvokeAsync<bool>(
             "confirm",
-            "øEst· seguro de eliminar la oferta seleccionada?");
+            "¬øEst√° seguro de eliminar la oferta seleccionada?");
 
         if (!confirmar)
             return;

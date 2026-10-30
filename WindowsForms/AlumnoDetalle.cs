@@ -1,4 +1,4 @@
-﻿using API.Auth.WindowsForms;
+using API.Auth.WindowsForms;
 using API.Clients;
 using DTOs;
 using System.Windows.Forms;
@@ -155,9 +155,9 @@ namespace WindowsForms
                 isValid = false;
             }
 
-            if (string.IsNullOrWhiteSpace(legajoTextBox.Text))
+            if (!System.Text.RegularExpressions.Regex.IsMatch(legajoTextBox.Text.Trim(), @"^[0-9]+$"))
             {
-                errorProvider.SetError(legajoTextBox, "El legajo es requerido");
+                errorProvider.SetError(legajoTextBox, "El legajo es obligatorio y debe contener solo números");
                 isValid = false;
             }
 

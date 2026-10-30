@@ -1,4 +1,4 @@
-﻿using API.Clients;
+using API.Clients;
 using DTOs;
 
 namespace WindowsForms
@@ -23,6 +23,9 @@ namespace WindowsForms
         protected override async Task GuardarAsync()
         {
             tipoOferta.Nombre = nombreTextBox.Text.Trim();
+
+            System.ComponentModel.DataAnnotations.Validator.ValidateObject(
+                tipoOferta, new System.ComponentModel.DataAnnotations.ValidationContext(tipoOferta), validateAllProperties: true);
 
             if (tipoOferta.Id == 0)
                 await client.AddAsync(tipoOferta);

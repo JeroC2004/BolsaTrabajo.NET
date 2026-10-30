@@ -11,7 +11,7 @@ namespace DTOs
             ErrorMessage = "El nombre de usuario debe tener entre 3 y 50 caracteres.")]
         [RegularExpression(
             @"^[a-zA-Z0-9._-]+$",
-            ErrorMessage = "El usuario solo puede contener letras, números, puntos, guiones y guiones bajos.")]
+            ErrorMessage = "El usuario solo puede contener letras, nÃºmeros, puntos, guiones y guiones bajos.")]
         public string Username { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El nombre es obligatorio.")]
@@ -23,17 +23,18 @@ namespace DTOs
         public string ApeAlumno { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El email es obligatorio.")]
-        [EmailAddress(ErrorMessage = "El email no tiene un formato válido.")]
+        [EmailAddress(ErrorMessage = "El email no tiene un formato vÃ¡lido.")]
         [StringLength(150)]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "El legajo es obligatorio.")]
         [StringLength(50)]
+        [Required(ErrorMessage = "El legajo es obligatorio.")]
+        [RegularExpression(@"^[0-9]+$", ErrorMessage = "El legajo debe contener solo nÃºmeros.")]
         public string Legajo { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El DNI es obligatorio.")]
         [RegularExpression(@"^\d{8,9}$",
-            ErrorMessage = "El DNI debe contener únicamente entre 8 y 9 dígitos.")]
+            ErrorMessage = "El DNI debe contener Ãºnicamente entre 8 y 9 dÃ­gitos.")]
         public string Dni { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El plan es obligatorio.")]
@@ -41,7 +42,7 @@ namespace DTOs
         public string Plan { get; set; } = string.Empty;
 
         [Range(1, 5,
-            ErrorMessage = "El año de curso debe estar entre 1 y 5.")]
+            ErrorMessage = "El aÃ±o de curso debe estar entre 1 y 5.")]
         public int AnioCurso { get; set; }
 
         [Range(0, 99,
@@ -53,17 +54,17 @@ namespace DTOs
         public float Promedio { get; set; }
 
         [Range(1, int.MaxValue,
-            ErrorMessage = "Debe seleccionar una carrera válida.")]
+            ErrorMessage = "Debe seleccionar una carrera vÃ¡lida.")]
         public int CarreraId { get; set; }
 
-        [Required(ErrorMessage = "La contraseña es obligatoria.")]
+        [Required(ErrorMessage = "La contraseÃ±a es obligatoria.")]
         [MinLength(6,
-            ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
+            ErrorMessage = "La contraseÃ±a debe tener al menos 6 caracteres.")]
         public string Password { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Debe confirmar la contraseña.")]
+        [Required(ErrorMessage = "Debe confirmar la contraseÃ±a.")]
         [Compare(nameof(Password),
-            ErrorMessage = "Las contraseñas no coinciden.")]
+            ErrorMessage = "Las contraseÃ±as no coinciden.")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 }

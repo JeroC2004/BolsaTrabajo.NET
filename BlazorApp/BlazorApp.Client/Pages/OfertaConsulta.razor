@@ -1,0 +1,142 @@
+@page "/ofertas/{OfertaId:int}"
+@attribute [Authorize]
+@inject API.Clients.OfertaApiClient OfertaClient
+@inject API.Clients.PostulacionApiClient PostulacionClient
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+
+<PageTitle>Detalle de oferta</PageTitle>
+
+<h1>Detalle de oferta</h1>
+
+@if (cargando)
+{
+    <p>Cargando oferta...</p>
+}
+else
+{
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">@errorMessage</div>
+    }
+
+    @if (oferta != null)
+    {
+        <h2>@oferta.Titulo</h2>
+        <dl class="row">
+            <dt class="col-sm-3">Empresa</dt><dd class="col-sm-9">@oferta.EmpresaNombre</dd>
+            <dt class="col-sm-3">Tipo de oferta</dt><dd class="col-sm-9">@oferta.TipoOfertaNombre</dd>
+            <dt class="col-sm-3">Vínculo</dt><dd class="col-sm-9">@oferta.TipoVinculo</dd>
+            <dt class="col-sm-3">Estado</dt><dd class="col-sm-9">@oferta.Estado</dd>
+            <dt class="col-sm-3">Desde</dt><dd class="col-sm-9">@oferta.FechaDesde.ToString("dd/MM/yyyy")</dd>
+            <dt class="col-sm-3">Hasta</dt><dd class="col-sm-9">@oferta.FechaHasta.ToString("dd/MM/yyyy")</dd>
+        </dl>
+
+        <h3>Descripción del puesto</h3>
+        <p style="white-space: pre-wrap; overflow-wrap: anywhere">@oferta.Detalle</p>
+
+        <h3>Requisitos</h3>
+        @if (oferta.Requisitos.Count == 0)
+        {
+            <p>La empresa no especificó requisitos adicionales.</p>
+        }
+        else
+        {
+            <ul class="list-group mb-3">
+                @foreach (var requisito in oferta.Requisitos)
+                {
+                    <li class="list-group-item">
+                        <span style="white-space: pre-wrap; overflow-wrap: anywhere">@requisito.Descripcion</span>
+                        <span class="badge @(requisito.EsExcluyente ? "bg-danger" : "bg-secondary") ms-2">
+                            @(requisito.EsExcluyente ? "Excluyente" : "No excluyente")
+                        </span>
+                    </li>
+                }
+            </ul>
+        }
+
+        @if (esAlumno)
+        {
+            @if (postulado)
+            {
+                <div class="alert alert-success" role="status">
+                    Ya estás postulado a esta oferta. Podés seguir el estado en <a href="postulaciones">Mis postulaciones</a>.
+                </div>
+            }
+            else if (!Disponible)
+            {
+                <p class="text-muted">Esta oferta no está disponible para postularse.</p>
+            }
+            <button class="btn btn-primary me-2" disabled="@(enviando || postulado || !Disponible)" @onclick="PostularseAsync">
+                @(enviando ? "Enviando..." : "Postularme")
+            </button>
+        }
+    }
+
+    <a class="btn btn-secondary" href="ofertas">Volver a ofertas</a>
+}
+
+@code {
+    [Parameter] public int OfertaId { get; set; }
+
+    private OfertaDTO? oferta;
+    private bool cargando = true;
+    private bool enviando;
+    private bool esAlumno;
+    private bool postulado;
+    private string? errorMessage;
+    private bool Disponible => oferta?.Estado == nameof(EstadoOferta.Activa)
+        && oferta.FechaHasta.Date >= DateTime.Today;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        cargando = true;
+        oferta = null;
+        postulado = false;
+        errorMessage = null;
+        try
+        {
+            oferta = await OfertaClient.GetAsync(OfertaId);
+            esAlumno = (await AuthStateProvider.GetAuthenticationStateAsync()).User.IsInRole(Roles.Alumno);
+            if (esAlumno)
+                postulado = (await PostulacionClient.GetAllAsync(OfertaId)).Any();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            oferta = null;
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private async Task PostularseAsync()
+    {
+        if (enviando || postulado || !Disponible) return;
+        enviando = true;
+        errorMessage = null;
+        try
+        {
+            await PostulacionClient.AddAsync(new PostulacionDTO { OfertaId = OfertaId });
+            postulado = true;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            Navigation.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            enviando = false;
+        }
+    }
+}

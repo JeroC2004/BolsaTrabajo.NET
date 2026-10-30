@@ -1,4 +1,4 @@
-﻿@page "/tiposoferta/nuevo"
+@page "/tiposoferta/nuevo"
 @page "/tiposoferta/editar/{ItemId:int}"
 
 @using DTOs
@@ -20,6 +20,7 @@ else
 {
     <EditForm Model="item" OnValidSubmit="GuardarAsync">
         <DataAnnotationsValidator />
+        <ValidationSummary />
 
         <div class="mb-3">
             <label>Nombre</label>

@@ -1,4 +1,4 @@
-﻿using API.Clients;
+using API.Clients;
 using DTOs;
 
 namespace WindowsForms
@@ -38,6 +38,9 @@ namespace WindowsForms
             empresa.RazonSocial = razonSocialTextBox.Text.Trim();
             empresa.Rubro = rubroTextBox.Text.Trim();
             empresa.Descripcion = descripcionTextBox.Text.Trim();
+
+            System.ComponentModel.DataAnnotations.Validator.ValidateObject(
+                empresa, new System.ComponentModel.DataAnnotations.ValidationContext(empresa), validateAllProperties: true);
 
             if (empresa.Id == 0)
                 await client.AddAsync(empresa);

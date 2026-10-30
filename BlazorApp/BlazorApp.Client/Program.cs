@@ -2,6 +2,7 @@ using API.Clients;
 using BlazorApp.Client.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using System.Net.Http.Json;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -9,7 +10,15 @@ builder.Services.AddAuthorizationCore();
 
 builder.Services.AddTransient<BearerTokenHandler>();
 
-var apiUrl = new Uri("http://localhost:5183/");
+// WebAssembly obtiene del host la URL configurada mediante la variable de entorno.
+using var configurationClient = new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) };
+var configuration = await configurationClient.GetFromJsonAsync<Dictionary<string, string>>("configuracion-cliente");
+if (configuration == null || !configuration.TryGetValue("apiBaseUrl", out var baseUrl)
+    || !Uri.TryCreate(baseUrl, UriKind.Absolute, out var apiUrl)
+    || (apiUrl.Scheme != Uri.UriSchemeHttp && apiUrl.Scheme != Uri.UriSchemeHttps))
+{
+    throw new InvalidOperationException("El host no proporcionó una URL HTTP válida para la API.");
+}
 
 builder.Services.AddHttpClient<OfertaApiClient>(client => client.BaseAddress = apiUrl)
     .AddHttpMessageHandler<BearerTokenHandler>();

@@ -1,4 +1,4 @@
-﻿@page "/alumnos/nuevo"
+@page "/alumnos/nuevo"
 @page "/alumnos/editar/{AlumnoId:int}"
 
 @using DTOs
@@ -22,6 +22,7 @@ else
 {
     <EditForm Model="alumno" OnValidSubmit="GuardarAsync">
         <DataAnnotationsValidator />
+        <ValidationSummary />
 
         <div class="row">
             <div class="col-md-6 mb-3">

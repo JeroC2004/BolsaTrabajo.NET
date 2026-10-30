@@ -7,10 +7,12 @@ namespace Application.Services
     public class AlumnoService : IAlumnoService
     {
         private readonly IAlumnoRepository alumnoRepository;
+        private readonly ICarreraRepository carreraRepository;
 
-        public AlumnoService(IAlumnoRepository alumnoRepository)
+        public AlumnoService(IAlumnoRepository alumnoRepository, ICarreraRepository carreraRepository)
         {
             this.alumnoRepository = alumnoRepository;
+            this.carreraRepository = carreraRepository;
         }
 
         public async Task<AlumnoDTO> AddAsync(AlumnoDTO dto)
@@ -25,9 +27,11 @@ namespace Application.Services
             Alumno alumno = new Alumno(0, dto.NomAlumno, dto.ApeAlumno, dto.Email, dto.Legajo, dto.Dni,
                                         dto.Plan, dto.AnioCurso, dto.CantMatAp, dto.Promedio, dto.CarreraId, fechaAlta);
 
+            await ValidarCarreraAsync(dto.CarreraId);
+
             await alumnoRepository.AddAsync(alumno);
 
-            return await GetAsync(alumno.Id) ?? throw new InvalidOperationException("No se pudo recuperar el alumno recién creado.");
+            return await GetAsync(alumno.Id) ?? throw new InvalidOperationException("No se pudo recuperar el alumno reciÃ©n creado.");
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -66,6 +70,8 @@ namespace Application.Services
             Alumno alumno = new Alumno(dto.Id, dto.NomAlumno, dto.ApeAlumno, dto.Email, dto.Legajo, dto.Dni,
                                         dto.Plan, dto.AnioCurso, dto.CantMatAp, dto.Promedio, dto.CarreraId, existing.FechaAlta);
 
+            await ValidarCarreraAsync(dto.CarreraId);
+
             return await alumnoRepository.UpdateAsync(alumno);
         }
 
@@ -74,6 +80,12 @@ namespace Application.Services
             var criteria = new AlumnoCriteria(criteriaDTO.Texto);
             var alumnos = await alumnoRepository.GetByCriteriaAsync(criteria);
             return alumnos.Select(MapToDTO).ToList();
+        }
+
+        private async Task ValidarCarreraAsync(int carreraId)
+        {
+            if (await carreraRepository.GetAsync(carreraId) == null)
+                throw new ArgumentException($"La carrera con Id {carreraId} no existe.");
         }
 
         private static AlumnoDTO MapToDTO(Alumno alumno)
