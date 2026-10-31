@@ -1,3 +1,4 @@
+// Guía de estudio: Pantalla para consultar, cargar, descargar o eliminar el PDF del currículum de un alumno mediante la API.
 using API.Clients;
 using DTOs;
 
@@ -15,6 +16,7 @@ namespace WindowsForms
         private readonly Button descargarButton = new();
         private readonly Button eliminarButton = new();
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public CurriculumForm(int alumnoId)
         {
             this.alumnoId = alumnoId;
@@ -55,6 +57,7 @@ namespace WindowsForms
             Shown += async (s, e) => await ActualizarAsync();
         }
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         private async Task ActualizarAsync()
         {
             await EjecutarAsync(async () =>
@@ -77,6 +80,7 @@ namespace WindowsForms
             });
         }
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         private async Task CargarArchivoAsync()
         {
             using var dialogo = new OpenFileDialog
@@ -113,6 +117,7 @@ namespace WindowsForms
             });
         }
 
+        // Procesa la eliminación solicitada y actualiza la información presentada por la pantalla.
         private async Task EliminarAsync()
         {
             var confirmar = MessageBox.Show("¿Está seguro que desea eliminar su currículum?", "Confirmar eliminación",
@@ -127,6 +132,7 @@ namespace WindowsForms
             });
         }
 
+        // Ejecuta una acción de la pantalla centralizando el estado de espera y la presentación de errores.
         private async Task EjecutarAsync(Func<Task> accion)
         {
             try

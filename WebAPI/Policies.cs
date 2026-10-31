@@ -1,4 +1,5 @@
-﻿namespace WebAPI
+﻿// Guía de estudio: Centraliza los nombres de políticas de autorización. Program.cs define qué roles satisface cada política y los endpoints la exigen.
+namespace WebAPI
 {
     public static class Policies
     {

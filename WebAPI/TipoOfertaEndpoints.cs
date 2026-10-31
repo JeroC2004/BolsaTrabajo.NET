@@ -1,3 +1,4 @@
+// Guía de estudio: Define las rutas HTTP de TipoOferta mediante Minimal APIs. Recibe parámetros o DTO, aplica autorización, llama a servicios y traduce los resultados a respuestas HTTP.
 using Application.Services;
 using DTOs;
 
@@ -5,8 +6,10 @@ namespace WebAPI
 {
     public static class TipoOfertaEndpoints
     {
+        // Registra las rutas del recurso y sus manejadores; cada endpoint especifica su respuesta y los permisos requeridos.
         public static void MapTipoOfertaEndpoints(this WebApplication app)
         {
+            // GET /tiposoferta: Consulta y devuelve los datos solicitados.
             app.MapGet("/tiposoferta", async (ITipoOfertaService tipoOfertaService) =>
             {
                 var dtos = await tipoOfertaService.GetAllAsync();
@@ -17,6 +20,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // GET /tiposoferta/{id}: Consulta y devuelve los datos solicitados.
             app.MapGet("/tiposoferta/{id}", async (int id, ITipoOfertaService tipoOfertaService) =>
             {
                 var dto = await tipoOfertaService.GetAsync(id);
@@ -29,6 +33,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // POST /tiposoferta: Procesa la creación o la acción recibida en la solicitud.
             app.MapPost("/tiposoferta", async (TipoOfertaDTO dto, ITipoOfertaService tipoOfertaService) =>
             {
                 try
@@ -48,6 +53,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.Administrador);
 
+            // PUT /tiposoferta: Procesa la actualización de los datos recibidos.
             app.MapPut("/tiposoferta", async (TipoOfertaDTO dto, ITipoOfertaService tipoOfertaService) =>
             {
                 try
@@ -70,6 +76,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.Administrador);
 
+            // DELETE /tiposoferta/{id}: Solicita la eliminación del recurso indicado.
             app.MapDelete("/tiposoferta/{id}", async (int id, ITipoOfertaService tipoOfertaService) =>
             {
                 try

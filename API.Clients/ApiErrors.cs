@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿// Guía de estudio: Interpreta respuestas HTTP fallidas y extrae mensajes de la API para convertirlos en excepciones entendibles por las interfaces.
+using System.Net;
 using System.Text.Json;
 
 namespace API.Clients
@@ -6,6 +7,7 @@ namespace API.Clients
     
     internal static class ApiErrors
     {
+        // Convierte el estado HTTP y el mensaje recibido en una excepción que pueda mostrar la interfaz.
         public static async Task<Exception> CrearExcepcionAsync(HttpResponseMessage response, string accion)
         {
             if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -22,6 +24,7 @@ namespace API.Clients
                 : mensaje);
         }
 
+        // Busca el mensaje de error en el contenido de la respuesta, contemplando los formatos devueltos por la API.
         private static string ExtraerMensaje(string contenido)
         {
             try

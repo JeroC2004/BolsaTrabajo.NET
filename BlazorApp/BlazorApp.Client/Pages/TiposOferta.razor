@@ -1,4 +1,5 @@
-﻿@page "/tiposoferta"
+﻿@* Guía de estudio: Listado del catálogo TiposOferta: carga registros de la API y permite navegar al editor o eliminar un elemento. *@
+@page "/tiposoferta"
 
 @using API.Clients
 @using DTOs
@@ -73,11 +74,13 @@ else
     private string? errorMessage;
     private bool loading;
 
+    // Carga los datos iniciales del componente cuando Blazor crea la página.
     protected override async Task OnInitializedAsync()
     {
         await CargarAsync();
     }
 
+    // Carga los datos necesarios y actualiza los controles de la pantalla.
     private async Task CargarAsync()
     {
         loading = true;
@@ -103,16 +106,19 @@ else
         }
     }
 
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void Nuevo()
     {
         Navigation.NavigateTo("/tiposoferta/nuevo");
     }
 
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void Editar(int id)
     {
         Navigation.NavigateTo($"/tiposoferta/editar/{id}");
     }
 
+    // Procesa la eliminación solicitada y actualiza la información presentada por la pantalla.
     private async Task EliminarAsync(int id)
     {
         bool confirmar = await JS.InvokeAsync<bool>("confirm", "¿Está seguro de eliminar el tipo de oferta seleccionado?");

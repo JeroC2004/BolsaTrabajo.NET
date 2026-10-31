@@ -1,4 +1,5 @@
-﻿using Application.Services;
+﻿// Guía de estudio: Define las rutas HTTP de Curriculum mediante Minimal APIs. Recibe parámetros o DTO, aplica autorización, llama a servicios y traduce los resultados a respuestas HTTP.
+using Application.Services;
 using Domain.Model;
 using DTOs;
 using System.Security.Claims;
@@ -7,6 +8,7 @@ namespace WebAPI
 {
     public static class CurriculumEndpoints
     {
+        // Autoriza al administrador, al alumno propietario o a una empresa que recibió una postulación de ese alumno.
         private static async Task<bool> PuedeVerAsync(int alumnoId, ClaimsPrincipal user, IPostulacionService postulacionService)
         {
             if (user.EsAdministrador())
@@ -28,13 +30,16 @@ namespace WebAPI
             return false;
         }
 
+        // Permite modificar el CV al administrador o al alumno al que pertenece.
         private static bool PuedeModificar(int alumnoId, ClaimsPrincipal user)
         {
             return user.EsAdministrador() || (user.EsAlumno() && user.GetAlumnoId() == alumnoId);
         }
 
+        // Registra las rutas del recurso y sus manejadores; cada endpoint especifica su respuesta y los permisos requeridos.
         public static void MapCurriculumEndpoints(this WebApplication app)
         {
+            // GET /alumnos/{id}/cv/info: Consulta y devuelve los datos solicitados.
             app.MapGet("/alumnos/{id}/cv/info", async (int id, ICurriculumService curriculumService,
                 IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
@@ -54,6 +59,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // GET /alumnos/{id}/cv: Consulta y devuelve los datos solicitados.
             app.MapGet("/alumnos/{id}/cv", async (int id, ICurriculumService curriculumService,
                 IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
@@ -73,6 +79,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // PUT /alumnos/{id}/cv: Procesa la actualización de los datos recibidos.
             app.MapPut("/alumnos/{id}/cv", async (int id, IFormFile archivo, ICurriculumService curriculumService,
                 ClaimsPrincipal user) =>
             {
@@ -106,6 +113,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.AdministradorOAlumno);
 
+            // DELETE /alumnos/{id}/cv: Solicita la eliminación del recurso indicado.
             app.MapDelete("/alumnos/{id}/cv", async (int id, ICurriculumService curriculumService, ClaimsPrincipal user) =>
             {
                 if (!PuedeModificar(id, user))

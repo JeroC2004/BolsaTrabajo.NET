@@ -1,3 +1,4 @@
+// Guía de estudio: Representa los datos personales y académicos de un estudiante y su relación con una carrera. Encapsula cambios mediante métodos Set y valida los valores recibidos.
 using System.Text.RegularExpressions;
 
 namespace Domain.Model
@@ -39,6 +40,7 @@ namespace Domain.Model
 
         public DateTime FechaAlta { get; private set; }
 
+        // Construye la entidad a partir de los datos recibidos y aplica sus reglas de inicialización.
         public Alumno(int id, string nomAlumno, string apeAlumno, string email, string legajo, string dni,
                        string plan, int anioCurso, int cantMatAp, float promedio, int carreraId, DateTime fechaAlta)
         {
@@ -56,8 +58,10 @@ namespace Domain.Model
             SetFechaAlta(fechaAlta);
         }
 
+        // Constructor sin parámetros utilizado por Entity Framework Core al materializar la entidad desde la base de datos.
         private Alumno() { }
 
+        // Establece Id aplicando las comprobaciones definidas en este método.
         public void SetId(int id)
         {
             if (id < 0)
@@ -65,6 +69,7 @@ namespace Domain.Model
             Id = id;
         }
 
+        // Establece NomAlumno aplicando las comprobaciones definidas en este método.
         public void SetNomAlumno(string nomAlumno)
         {
             if (string.IsNullOrWhiteSpace(nomAlumno))
@@ -72,6 +77,7 @@ namespace Domain.Model
             NomAlumno = nomAlumno;
         }
 
+        // Establece ApeAlumno aplicando las comprobaciones definidas en este método.
         public void SetApeAlumno(string apeAlumno)
         {
             if (string.IsNullOrWhiteSpace(apeAlumno))
@@ -79,6 +85,7 @@ namespace Domain.Model
             ApeAlumno = apeAlumno;
         }
 
+        // Establece Email aplicando las comprobaciones definidas en este método.
         public void SetEmail(string email)
         {
             if (!EsEmailValido(email))
@@ -86,6 +93,7 @@ namespace Domain.Model
             Email = email;
         }
 
+        // Comprueba que el correo no esté vacío y coincida con el formato esperado por la entidad.
         private static bool EsEmailValido(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
@@ -93,6 +101,7 @@ namespace Domain.Model
             return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         }
 
+        // Establece Legajo aplicando las comprobaciones definidas en este método.
         public void SetLegajo(string legajo)
         {
             if (string.IsNullOrWhiteSpace(legajo))
@@ -102,6 +111,7 @@ namespace Domain.Model
             Legajo = legajo;
         }
 
+        // Establece Dni aplicando las comprobaciones definidas en este método.
         public void SetDni(string dni)
         {
             if (string.IsNullOrWhiteSpace(dni))
@@ -109,6 +119,7 @@ namespace Domain.Model
             Dni = dni;
         }
 
+        // Establece Plan aplicando las comprobaciones definidas en este método.
         public void SetPlan(string plan)
         {
             if (string.IsNullOrWhiteSpace(plan))
@@ -116,6 +127,7 @@ namespace Domain.Model
             Plan = plan;
         }
 
+        // Establece AnioCurso aplicando las comprobaciones definidas en este método.
         public void SetAnioCurso(int anioCurso)
         {
             if (anioCurso <= 0)
@@ -123,6 +135,7 @@ namespace Domain.Model
             AnioCurso = anioCurso;
         }
 
+        // Establece CantMatAp aplicando las comprobaciones definidas en este método.
         public void SetCantMatAp(int cantMatAp)
         {
             if (cantMatAp < 0)
@@ -130,6 +143,7 @@ namespace Domain.Model
             CantMatAp = cantMatAp;
         }
 
+        // Establece Promedio aplicando las comprobaciones definidas en este método.
         public void SetPromedio(float promedio)
         {
             if (promedio < 0 || promedio > 10)
@@ -137,6 +151,7 @@ namespace Domain.Model
             Promedio = promedio;
         }
 
+        // Establece CarreraId aplicando las comprobaciones definidas en este método.
         public void SetCarreraId(int carreraId)
         {
             if (carreraId <= 0)
@@ -150,6 +165,7 @@ namespace Domain.Model
             }
         }
 
+        // Establece Carrera aplicando las comprobaciones definidas en este método.
         public void SetCarrera(Carrera carrera)
         {
             ArgumentNullException.ThrowIfNull(carrera);
@@ -157,6 +173,7 @@ namespace Domain.Model
             _carreraId = carrera.Id;
         }
 
+        // Establece FechaAlta aplicando las comprobaciones definidas en este método.
         public void SetFechaAlta(DateTime fechaAlta)
         {
             if (fechaAlta == default)

@@ -1,4 +1,5 @@
-﻿using DTOs;
+﻿// Guía de estudio: Cliente HTTP de Auth: encapsula llamadas a las rutas de la API y la serialización de DTO, para que las pantallas no repitan la comunicación con el servidor.
+using DTOs;
 using System.Net.Http.Json;
 
 namespace API.Clients
@@ -7,11 +8,13 @@ namespace API.Clients
     {
         private readonly HttpClient _httpClient;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public AuthApiClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
+        // Consulta el catálogo público de carreras que necesita un alumno antes de crear su cuenta.
         public async Task<IEnumerable<CarreraDTO>> GetCarrerasRegistroAsync()
         {
             using var response = await _httpClient.GetAsync("auth/carreras");
@@ -19,6 +22,7 @@ namespace API.Clients
             return await response.Content.ReadFromJsonAsync<List<CarreraDTO>>() ?? new List<CarreraDTO>();
         }
 
+        // Comprueba las credenciales mediante la implementación de autenticación de esta capa y devuelve el resultado del acceso.
         public async Task<LoginResponse?> LoginAsync(LoginRequest request)
         {
             var response = await _httpClient.PostAsJsonAsync("auth/login", request);

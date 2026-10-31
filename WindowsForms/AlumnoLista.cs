@@ -1,4 +1,5 @@
-﻿using API.Clients;
+﻿// Guía de estudio: Lista de alumnos con búsqueda y acciones de alta, edición y baja mediante clientes HTTP; adapta las acciones al rol de la sesión.
+using API.Clients;
 using DTOs;
 using System.Windows.Forms;
 
@@ -10,6 +11,7 @@ namespace WindowsForms
 
         private readonly AlumnoApiClient _alumnoClient;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public AlumnoLista()
         {
             InitializeComponent();
@@ -23,6 +25,7 @@ namespace WindowsForms
 
         private static bool PuedeGestionar => Sesion.EsAdministrador;
 
+        // Ajusta los controles disponibles según el rol; la API vuelve a comprobar permisos al recibir las solicitudes.
         private void AplicarPermisos()
         {
             agregarButton.Visible = PuedeGestionar;
@@ -30,6 +33,7 @@ namespace WindowsForms
             eliminarButton.Visible = PuedeGestionar;
         }
 
+        // Prepara controles y propiedades visuales para presentar los datos y conectar las acciones de la pantalla.
         private void ConfigurarColumnas()
         {
             dataGridView1.AutoGenerateColumns = false;
@@ -46,6 +50,7 @@ namespace WindowsForms
 
         private async void AlumnoLista_Load(object sender, EventArgs e) => await CargarAlumnosAsync();
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         private async Task CargarAlumnosAsync()
         {
             try
@@ -71,6 +76,7 @@ namespace WindowsForms
             }
         }
 
+        // Aplica los filtros ingresados, consulta la API y actualiza el listado con los resultados.
         private async void buscarButton_Click(object sender, EventArgs e)
         {
             try
@@ -93,18 +99,21 @@ namespace WindowsForms
             }
         }
 
+        // Limpia los filtros de búsqueda y vuelve a cargar los datos del listado.
         private async void refrescarButton_Click(object sender, EventArgs e)
         {
             buscarTextBox.Clear();
             await CargarAlumnosAsync();
         }
 
+        // Abre o navega a la pantalla correspondiente a la acción seleccionada.
         private async void agregarButton_Click(object sender, EventArgs e)
         {
             var detalle = new AlumnoDetalle();
             if (detalle.ShowDialog(this) == DialogResult.OK) await CargarAlumnosAsync();
         }
 
+        // Abre o navega a la pantalla correspondiente a la acción seleccionada.
         private async void actualizarButton_Click(object sender, EventArgs e)
         {
             var seleccionado = ObtenerSeleccionado();
@@ -118,6 +127,7 @@ namespace WindowsForms
             if (detalle.ShowDialog(this) == DialogResult.OK) await CargarAlumnosAsync();
         }
 
+        // Procesa la eliminación solicitada y actualiza la información presentada por la pantalla.
         private async void eliminarButton_Click(object sender, EventArgs e)
         {
             var seleccionado = ObtenerSeleccionado();
@@ -147,6 +157,7 @@ namespace WindowsForms
             }
         }
 
+        // Procesa el doble clic sobre una fila para ejecutar la acción asociada al registro.
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0 && PuedeGestionar) actualizarButton_Click(sender, e);

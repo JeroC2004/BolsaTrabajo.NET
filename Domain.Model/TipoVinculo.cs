@@ -1,4 +1,5 @@
-﻿namespace Domain.Model
+﻿// Guía de estudio: Enumeración de modalidades de vinculación laboral; se diferencia del catálogo editable TipoOferta.
+namespace Domain.Model
 {
     public enum TipoVinculo
     {

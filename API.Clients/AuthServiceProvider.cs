@@ -1,4 +1,5 @@
-﻿namespace API.Clients
+﻿// Guía de estudio: Mantiene la implementación de autenticación que usa el cliente de escritorio; permite registrarla, consultarla y quitarla.
+namespace API.Clients
 {
     public static class AuthServiceProvider
     {
@@ -15,6 +16,7 @@
             }
         }
 
+        // Registra el servicio de autenticación que usarán las llamadas del cliente de escritorio.
         public static void Register(IAuthService authService)
         {
             lock (_lock)
@@ -23,6 +25,7 @@
             }
         }
 
+        // Quita la referencia al servicio de autenticación registrado.
         public static void Clear()
         {
             lock (_lock)

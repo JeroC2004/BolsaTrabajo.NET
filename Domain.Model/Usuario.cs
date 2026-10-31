@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿// Guía de estudio: Cuenta de acceso: mantiene identidad, rol y asociación con alumno o empresa. Guarda un hash de contraseña con salt y permite verificar credenciales sin almacenar la contraseña original.
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 
 namespace Domain.Model
@@ -28,8 +29,10 @@ namespace Domain.Model
             SetRol(rol, alumnoId, empresaId);
         }
 
+        // Constructor sin parámetros utilizado por Entity Framework Core al materializar la entidad desde la base de datos.
         private Usuario() { }
 
+        // Establece Id aplicando las comprobaciones definidas en este método.
         public void SetId(int id)
         {
             if (id < 0)
@@ -37,6 +40,7 @@ namespace Domain.Model
             Id = id;
         }
 
+        // Establece Username aplicando las comprobaciones definidas en este método.
         public void SetUsername(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
@@ -46,6 +50,7 @@ namespace Domain.Model
             Username = username;
         }
 
+        // Establece Email aplicando las comprobaciones definidas en este método.
         public void SetEmail(string email)
         {
             if (!EsEmailValido(email))
@@ -53,6 +58,7 @@ namespace Domain.Model
             Email = email;
         }
 
+        // Comprueba que el correo no esté vacío y coincida con el formato esperado por la entidad.
         private static bool EsEmailValido(string email)
         {
             if (string.IsNullOrWhiteSpace(email))
@@ -60,6 +66,7 @@ namespace Domain.Model
             return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
         }
 
+        // Valida la contraseña, genera un salt aleatorio y guarda su hash derivado; no conserva el texto original.
         public void SetPassword(string password)
         {
             if (string.IsNullOrWhiteSpace(password))
@@ -71,6 +78,7 @@ namespace Domain.Model
             PasswordHash = HashPassword(password, Salt);
         }
 
+        // Establece FechaCreacion aplicando las comprobaciones definidas en este método.
         public void SetFechaCreacion(DateTime fechaCreacion)
         {
             if (fechaCreacion == default)
@@ -78,6 +86,7 @@ namespace Domain.Model
             FechaCreacion = fechaCreacion;
         }
 
+        // Establece Activo aplicando las comprobaciones definidas en este método.
         public void SetActivo(bool activo)
         {
             Activo = activo;
@@ -112,6 +121,7 @@ namespace Domain.Model
             EmpresaId = empresaId;
         }
 
+        // Calcula el hash de la contraseña recibida con el salt guardado y lo compara con el hash registrado.
         public bool ValidatePassword(string password)
         {
             if (string.IsNullOrWhiteSpace(password))
@@ -121,6 +131,7 @@ namespace Domain.Model
             return PasswordHash == hashedInput;
         }
 
+        // Genera bytes aleatorios para que contraseñas iguales no produzcan el mismo hash almacenado.
         private static string GenerateSalt()
         {
             byte[] saltBytes = new byte[32];
@@ -128,6 +139,7 @@ namespace Domain.Model
             return Convert.ToBase64String(saltBytes);
         }
 
+        // Deriva el hash con PBKDF2, salt y SHA-256 y lo devuelve codificado en Base64.
         private static string HashPassword(string password, string salt)
         {
             using var pbkdf2 = new Rfc2898DeriveBytes(password, Convert.FromBase64String(salt), 10000, HashAlgorithmName.SHA256);

@@ -1,4 +1,5 @@
-﻿using API.Clients;
+﻿// Guía de estudio: Lista ofertas con filtros de búsqueda y acciones de consulta, alta, edición y baja según los permisos del usuario.
+using API.Clients;
 using DTOs;
 using System.Windows.Forms;
 
@@ -17,6 +18,7 @@ namespace WindowsForms
         private readonly OfertaApiClient _ofertaClient;
         private readonly Button verDetalleButton = new();
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public OfertaLista()
         {
             InitializeComponent();
@@ -29,6 +31,7 @@ namespace WindowsForms
             ConfigurarFiltros();
         }
 
+        // Prepara controles y propiedades visuales para presentar los datos y conectar las acciones de la pantalla.
         private void ConfigurarFiltros()
         {
             estadoFiltro.Items.Add("Todos los estados");
@@ -61,6 +64,7 @@ namespace WindowsForms
 
         private static bool PuedeGestionar => Sesion.EsAdministrador || Sesion.EsEmpresa;
 
+        // Ajusta los controles disponibles según el rol; la API vuelve a comprobar permisos al recibir las solicitudes.
         private void AplicarPermisos()
         {
             agregarButton.Visible = PuedeGestionar;
@@ -73,6 +77,7 @@ namespace WindowsForms
             verDetalleButton.Click += verDetalleButton_Click;
         }
 
+        // Abre la consulta de la oferta seleccionada en el listado.
         private void verDetalleButton_Click(object? sender, EventArgs e)
         {
             var seleccionada = ObtenerSeleccionada();
@@ -86,6 +91,7 @@ namespace WindowsForms
             consulta.ShowDialog(this);
         }
 
+        // Prepara controles y propiedades visuales para presentar los datos y conectar las acciones de la pantalla.
         private void ConfigurarColumnas()
         {
             dataGridView1.AutoGenerateColumns = false;
@@ -111,6 +117,7 @@ namespace WindowsForms
             });
         }
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         private async void OfertaLista_Load(object sender, EventArgs e)
         {
             try
@@ -123,6 +130,7 @@ namespace WindowsForms
             await CargarOfertasAsync();
         }
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         private async Task CargarOfertasAsync()
         {
             try
@@ -148,6 +156,7 @@ namespace WindowsForms
             }
         }
 
+        // Aplica los filtros ingresados, consulta la API y actualiza el listado con los resultados.
         private async void buscarButton_Click(object sender, EventArgs e)
         {
             try
@@ -179,6 +188,7 @@ namespace WindowsForms
             }
         }
 
+        // Limpia los filtros de búsqueda y vuelve a cargar los datos del listado.
         private async void refrescarButton_Click(object sender, EventArgs e)
         {
             buscarTextBox.Clear();
@@ -188,12 +198,14 @@ namespace WindowsForms
             await CargarOfertasAsync();
         }
 
+        // Abre o navega a la pantalla correspondiente a la acción seleccionada.
         private async void agregarButton_Click(object sender, EventArgs e)
         {
             var detalle = new OfertaDetalle();
             if (detalle.ShowDialog(this) == DialogResult.OK) await CargarOfertasAsync();
         }
 
+        // Abre o navega a la pantalla correspondiente a la acción seleccionada.
         private async void actualizarButton_Click(object sender, EventArgs e)
         {
             var seleccionada = ObtenerSeleccionada();
@@ -207,6 +219,7 @@ namespace WindowsForms
             if (detalle.ShowDialog(this) == DialogResult.OK) await CargarOfertasAsync();
         }
 
+        // Procesa la eliminación solicitada y actualiza la información presentada por la pantalla.
         private async void eliminarButton_Click(object sender, EventArgs e)
         {
             var seleccionada = ObtenerSeleccionada();
@@ -236,6 +249,7 @@ namespace WindowsForms
             }
         }
 
+        // Procesa el doble clic sobre una fila para ejecutar la acción asociada al registro.
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0) verDetalleButton_Click(sender, e);

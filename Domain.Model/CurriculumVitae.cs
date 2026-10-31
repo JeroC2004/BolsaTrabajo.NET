@@ -1,4 +1,5 @@
-﻿namespace Domain.Model
+﻿// Guía de estudio: Representa el PDF del alumno y sus metadatos. Valida nombre, tamaño y firma del contenido antes de aceptar o reemplazar el archivo.
+namespace Domain.Model
 {
 
     public class CurriculumVitae
@@ -15,6 +16,7 @@
         public int Tamanio { get; private set; }
         public DateTime FechaCarga { get; private set; }
 
+        // Construye la entidad a partir de los datos recibidos y aplica sus reglas de inicialización.
         public CurriculumVitae(int id, int alumnoId, string nombreArchivo, byte[] contenido, DateTime fechaCarga)
         {
             SetId(id);
@@ -22,8 +24,10 @@
             Reemplazar(nombreArchivo, contenido, fechaCarga);
         }
 
+        // Constructor sin parámetros utilizado por Entity Framework Core al materializar la entidad desde la base de datos.
         private CurriculumVitae() { }
 
+        // Establece Id aplicando las comprobaciones definidas en este método.
         public void SetId(int id)
         {
             if (id < 0)
@@ -31,6 +35,7 @@
             Id = id;
         }
 
+        // Establece AlumnoId aplicando las comprobaciones definidas en este método.
         public void SetAlumnoId(int alumnoId)
         {
             if (alumnoId <= 0)
@@ -38,6 +43,7 @@
             AlumnoId = alumnoId;
         }
 
+        // Valida y sustituye el archivo del currículum y actualiza sus metadatos.
         public void Reemplazar(string nombreArchivo, byte[] contenido, DateTime fechaCarga)
         {
             string nombre = ValidarNombre(nombreArchivo);
@@ -52,6 +58,7 @@
             FechaCarga = fechaCarga;
         }
 
+        // Comprueba Nombre antes de continuar con la operación.
         private static string ValidarNombre(string nombreArchivo)
         {
             if (string.IsNullOrWhiteSpace(nombreArchivo))
@@ -68,6 +75,7 @@
             return nombre;
         }
 
+        // Comprueba las condiciones del contenido binario, como el tamaño permitido y la firma PDF.
         private static void ValidarContenido(byte[] contenido)
         {
             if (contenido == null || contenido.Length == 0)

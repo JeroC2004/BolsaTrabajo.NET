@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿// Guía de estudio: Lee el contenido Base64Url del JWT y su vencimiento para las interfaces. Leer claims no verifica la firma: la validación de seguridad corresponde a la API.
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
@@ -7,6 +8,7 @@ namespace API.Clients
  
     public static class JwtClaimsReader
     {
+        // Decodifica los claims del JWT para consultarlos en el cliente; esta lectura no comprueba su firma.
         public static IReadOnlyList<Claim> ReadClaims(string? token)
         {
             var claims = new List<Claim>();
@@ -44,6 +46,7 @@ namespace API.Clients
             return claims;
         }
 
+        // Consulta el claim de expiración para determinar si el token ya venció.
         public static bool IsExpired(IEnumerable<Claim> claims)
         {
             string? exp = claims.FirstOrDefault(c => c.Type == "exp")?.Value;
@@ -52,6 +55,7 @@ namespace API.Clients
                 && DateTimeOffset.FromUnixTimeSeconds(segundos) <= DateTimeOffset.UtcNow;
         }
 
+        // Adapta Base64Url y su relleno para decodificar el contenido del token.
         private static byte[] DecodeBase64Url(string valor)
         {
             string base64 = valor.Replace('-', '+').Replace('_', '/');

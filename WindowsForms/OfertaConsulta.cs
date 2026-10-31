@@ -1,3 +1,4 @@
+// Guía de estudio: Consulta de una oferta con sus requisitos y disponibilidad; permite iniciar la postulación del alumno desde el detalle.
 using API.Clients;
 using Domain.Model;
 using DTOs;
@@ -29,6 +30,7 @@ namespace WindowsForms
         private bool Disponible => oferta?.Estado == nameof(EstadoOferta.Activa)
             && oferta.FechaHasta.Date >= DateTime.Today;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public OfertaConsulta(int ofertaId)
         {
             this.ofertaId = ofertaId;
@@ -79,6 +81,7 @@ namespace WindowsForms
             Shown += CargarAsync;
         }
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         private async void CargarAsync(object? sender, EventArgs e)
         {
             try
@@ -118,6 +121,7 @@ namespace WindowsForms
             }
         }
 
+        // Envía a la API la solicitud de vincular al alumno con la oferta seleccionada.
         private async void PostularseAsync(object? sender, EventArgs e)
         {
             if (enviando || postulado || !Disponible) return;

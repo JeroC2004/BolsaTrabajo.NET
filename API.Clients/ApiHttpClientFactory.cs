@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿// Guía de estudio: Crea clientes HTTP con la dirección de la API y el manejador de autorización; ofrece una instancia compartida para escritorio.
+using System.Net.Http.Headers;
 
 namespace API.Clients
 {
@@ -9,6 +10,7 @@ namespace API.Clients
 
         public static HttpClient Shared => _shared.Value;
 
+        // Crea un HttpClient con dirección base, formato JSON y manejador de autorización.
         public static HttpClient Create()
         {
             var client = new HttpClient(new AuthorizationMessageHandler())

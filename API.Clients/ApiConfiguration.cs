@@ -1,4 +1,5 @@
-﻿namespace API.Clients
+﻿// Guía de estudio: Resuelve la dirección base de la API para que los clientes HTTP sepan a qué servidor enviar las solicitudes.
+namespace API.Clients
 {
     public static class ApiConfiguration
     {

@@ -1,3 +1,4 @@
+// Guía de estudio: Define las rutas HTTP de Empresa mediante Minimal APIs. Recibe parámetros o DTO, aplica autorización, llama a servicios y traduce los resultados a respuestas HTTP.
 using Application.Services;
 using DTOs;
 
@@ -5,8 +6,10 @@ namespace WebAPI
 {
     public static class EmpresaEndpoints
     {
+        // Registra las rutas del recurso y sus manejadores; cada endpoint especifica su respuesta y los permisos requeridos.
         public static void MapEmpresaEndpoints(this WebApplication app)
         {
+            // GET /empresas: Consulta y devuelve los datos solicitados.
             app.MapGet("/empresas", async (IEmpresaService empresaService) =>
             {
                 var dtos = await empresaService.GetAllAsync();
@@ -17,6 +20,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // GET /empresas/{id}: Consulta y devuelve los datos solicitados.
             app.MapGet("/empresas/{id}", async (int id, IEmpresaService empresaService) =>
             {
                 var dto = await empresaService.GetAsync(id);
@@ -29,6 +33,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // POST /empresas: Procesa la creación o la acción recibida en la solicitud.
             app.MapPost("/empresas", async (EmpresaDTO dto, IEmpresaService empresaService) =>
             {
                 try
@@ -48,6 +53,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.Administrador);
 
+            // PUT /empresas: Procesa la actualización de los datos recibidos.
             app.MapPut("/empresas", async (EmpresaDTO dto, IEmpresaService empresaService) =>
             {
                 try
@@ -70,6 +76,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.Administrador);
 
+            // DELETE /empresas/{id}: Solicita la eliminación del recurso indicado.
             app.MapDelete("/empresas/{id}", async (int id, IEmpresaService empresaService) =>
             {
                 try

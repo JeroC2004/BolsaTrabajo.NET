@@ -1,4 +1,5 @@
-﻿@page "/carreras"
+﻿@* Guía de estudio: Listado del catálogo Carreras: carga registros de la API y permite navegar al editor o eliminar un elemento. *@
+@page "/carreras"
 
 @using API.Clients
 @using DTOs
@@ -77,11 +78,13 @@ else
     private string? errorMessage;
     private bool loading;
 
+    // Carga los datos iniciales del componente cuando Blazor crea la página.
     protected override async Task OnInitializedAsync()
     {
         await CargarAsync();
     }
 
+    // Carga los datos necesarios y actualiza los controles de la pantalla.
     private async Task CargarAsync()
     {
         loading = true;
@@ -107,16 +110,19 @@ else
         }
     }
 
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void Nuevo()
     {
         Navigation.NavigateTo("/carreras/nuevo");
     }
 
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void Editar(int id)
     {
         Navigation.NavigateTo($"/carreras/editar/{id}");
     }
 
+    // Procesa la eliminación solicitada y actualiza la información presentada por la pantalla.
     private async Task EliminarAsync(int id)
     {
         bool confirmar = await JS.InvokeAsync<bool>("confirm", "¿Está seguro de eliminar la carrera seleccionada?");

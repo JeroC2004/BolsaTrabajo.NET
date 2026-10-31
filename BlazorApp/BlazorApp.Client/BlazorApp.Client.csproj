@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+  <!-- Guía de estudio: Define el proyecto BlazorApp.Client: SDK, framework de destino, opciones de compilación, paquetes NuGet y referencias a otras capas. -->
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>

@@ -1,4 +1,5 @@
-﻿@page "/reportes/ofertas"
+﻿@* Guía de estudio: Página del reporte de ofertas agrupadas por tipo; representa resultados en tabla y gráfico y permite imprimir. *@
+@page "/reportes/ofertas"
 
 @using API.Clients
 @using BlazorApp.Client.Shared
@@ -87,11 +88,13 @@ else
     private string? errorMessage;
     private bool loading;
 
+    // Carga los datos iniciales del componente cuando Blazor crea la página.
     protected override async Task OnInitializedAsync()
     {
         await GenerarAsync();
     }
 
+    // Consulta el reporte y prepara sus filas y series para actualizar la tabla y el gráfico.
     private async Task GenerarAsync()
     {
         loading = true;
@@ -123,6 +126,7 @@ else
         }
     }
 
+    // Solicita al navegador la impresión de la vista del reporte.
     private async Task ImprimirAsync()
     {
         await JS.InvokeVoidAsync("print");

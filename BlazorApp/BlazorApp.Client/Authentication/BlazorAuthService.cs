@@ -1,3 +1,4 @@
+// Guía de estudio: Implementa la sesión web: solicita el JWT, coordina su almacenamiento y avisa al proveedor de autenticación cuando cambia la sesión.
 using API.Clients;
 using DTOs;
 using Microsoft.JSInterop;
@@ -14,6 +15,7 @@ public sealed class BlazorAuthService : IAuthService
     private readonly IJSRuntime jsRuntime;
 
     public event Action<bool>? AuthenticationStateChanged;
+    // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
     public BlazorAuthService(
         AuthApiClient authClient,
         IJSRuntime jsRuntime)
@@ -22,6 +24,7 @@ public sealed class BlazorAuthService : IAuthService
         this.jsRuntime = jsRuntime;
     }
 
+    // Comprueba las credenciales mediante la implementación de autenticación de esta capa y devuelve el resultado del acceso.
     public async Task<bool> LoginAsync(string username, string password)
     {
         var request = new LoginRequest
@@ -57,6 +60,7 @@ public sealed class BlazorAuthService : IAuthService
         return true;
     }
 
+    // Recupera el token de la sesión para autorizar las solicitudes HTTP.
     public async Task<string?> GetTokenAsync()
     {
         return await jsRuntime.InvokeAsync<string?>(
@@ -64,6 +68,7 @@ public sealed class BlazorAuthService : IAuthService
             TokenKey);
     }
 
+    // Obtiene el nombre de usuario guardado en la sesión.
     public async Task<string?> GetUsernameAsync()
     {
         return await jsRuntime.InvokeAsync<string?>(
@@ -71,6 +76,7 @@ public sealed class BlazorAuthService : IAuthService
             UsernameKey);
     }
 
+    // Indica si la sesión dispone de las credenciales que esta implementación considera vigentes.
     public async Task<bool> IsAuthenticatedAsync()
     {
         string? token = await GetTokenAsync();
@@ -85,6 +91,7 @@ public sealed class BlazorAuthService : IAuthService
         return !string.IsNullOrWhiteSpace(token);
     }
 
+    // Comprueba si el token sigue vigente y actualiza la sesión cuando corresponde.
     public async Task CheckTokenExpirationAsync()
     {
         string? expirationValue =
@@ -103,6 +110,7 @@ public sealed class BlazorAuthService : IAuthService
             await LogoutAsync();
     }
 
+    // Limpia la sesión de esta interfaz para que deje de utilizar las credenciales guardadas.
     public async Task LogoutAsync()
     {
         await jsRuntime.InvokeVoidAsync(

@@ -1,3 +1,4 @@
+@* Guía de estudio: Consulta de una oferta con sus requisitos y disponibilidad; permite iniciar la postulación del alumno desde el detalle. *@
 @page "/ofertas/{OfertaId:int}"
 @attribute [Authorize]
 @inject API.Clients.OfertaApiClient OfertaClient
@@ -88,6 +89,7 @@ else
     private bool Disponible => oferta?.Estado == nameof(EstadoOferta.Activa)
         && oferta.FechaHasta.Date >= DateTime.Today;
 
+    // Actualiza los datos del componente a partir de los parámetros recibidos desde la ruta o el componente padre.
     protected override async Task OnParametersSetAsync()
     {
         cargando = true;
@@ -116,6 +118,7 @@ else
         }
     }
 
+    // Envía a la API la solicitud de vincular al alumno con la oferta seleccionada.
     private async Task PostularseAsync()
     {
         if (enviando || postulado || !Disponible) return;

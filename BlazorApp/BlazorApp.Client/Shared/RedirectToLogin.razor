@@ -1,8 +1,10 @@
+@* Guía de estudio: Redirige al inicio de sesión cuando una ruta requiere autenticación y el usuario todavía no ingresó. *@
 @inject NavigationManager Navigation
 
 <p>Redirigiendo al inicio de sesión...</p>
 
 @code {
+    // Realiza la redirección al inicio de sesión al inicializar este componente.
     protected override void OnInitialized()
     {
         string loginUri = Navigation.BaseUri.TrimEnd('/') + "/login";

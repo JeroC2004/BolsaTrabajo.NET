@@ -1,4 +1,5 @@
-﻿@page "/Error"
+﻿@* Guía de estudio: Página de error del host web que presenta información de la solicitud cuando falla su procesamiento. *@
+@page "/Error"
 @using System.Diagnostics
 
 <PageTitle>Error</PageTitle>
@@ -31,6 +32,7 @@
     private string? RequestId { get; set; }
     private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
+    // Realiza la redirección al inicio de sesión al inicializar este componente.
     protected override void OnInitialized() =>
         RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
 }

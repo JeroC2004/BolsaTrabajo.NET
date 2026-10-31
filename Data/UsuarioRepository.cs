@@ -1,4 +1,5 @@
-﻿using Domain.Model;
+﻿// Guía de estudio: Acceso a datos de Usuario mediante Entity Framework Core: construye consultas y persiste cambios usando BolsaTrabajoContext. Separa los detalles de base de datos de los servicios.
+using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data
@@ -13,17 +14,20 @@ namespace Data
     {
         private readonly BolsaTrabajoContext context;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public UsuarioRepository(BolsaTrabajoContext context)
         {
             this.context = context;
         }
 
+        // Busca un usuario activo por su nombre para comprobar el inicio de sesión.
         public async Task<Usuario?> GetByUsernameAsync(string username)
         {
             return await context.Usuarios
                 .FirstOrDefaultAsync(u => u.Username == username && u.Activo);
         }
 
+        // Guarda alumno y usuario en una transacción: se confirman ambos registros juntos o se revierte la operación.
         public async Task RegisterAlumnoAsync(Alumno alumno, string username, string password)
         {
             if (!await context.Carreras.AnyAsync(c => c.Id == alumno.CarreraId))

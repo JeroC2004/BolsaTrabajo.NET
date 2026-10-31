@@ -1,4 +1,5 @@
-﻿
+﻿// Guía de estudio: Metadatos generados de la migración: describen el modelo resultante para que Entity Framework Core identifique y ejecute correctamente los cambios de esquema.
+
 using System;
 using Data;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ namespace Data.Migrations
     [Migration("20261022150951_Etapa1_Roles")]
     partial class Etapa1_Roles
     {
+        // Describe el modelo de entidades que resulta después de aplicar esta migración.
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618

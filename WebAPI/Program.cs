@@ -1,3 +1,4 @@
+// Guía de estudio: Inicio de la API: registra contexto SQL Server, repositorios y servicios por inyección de dependencias; configura Swagger, JWT, políticas y CORS; publica endpoints, aplica migraciones y carga datos iniciales.
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,6 +10,7 @@ using DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Swagger describe los endpoints y permite probarlos enviando el JWT desde su interfaz.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -37,6 +39,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// El contenedor crea el contexto SQL Server y entrega las dependencias a cada petición.
 builder.Services.AddDbContext<BolsaTrabajoContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -60,6 +63,7 @@ builder.Services.AddScoped<IReporteService, ReporteService>();
 builder.Services.AddScoped<ICurriculumService, CurriculumService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// Estos parámetros deben coincidir con los utilizados por AuthService al firmar el token.
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"]!;
 var issuer = jwtSettings["Issuer"];
@@ -81,6 +85,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+// Una política agrupa los roles que pueden ejecutar una acción protegida de la API.
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(Policies.Administrador,
@@ -96,6 +101,7 @@ builder.Services.AddAuthorization(options =>
         p => p.RequireRole(Roles.Administrador, Roles.Alumno));
 });
 
+// CORS permite que el navegador consuma la API desde un origen diferente al del servidor.
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -125,6 +131,7 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Cada extensión registra las rutas HTTP de un recurso; la lógica está en sus servicios.
 app.MapAuthEndpoints();
 app.MapAlumnoEndpoints();
 app.MapCarreraEndpoints();
@@ -135,10 +142,12 @@ app.MapPostulacionEndpoints();
 app.MapReporteEndpoints();
 app.MapCurriculumEndpoints();
 
+// El scope permite resolver el contexto fuera de una petición y liberarlo al terminar.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<BolsaTrabajoContext>();
 
+    // Actualiza el esquema antes de intentar insertar los datos iniciales o de prueba.
     await db.Database.MigrateAsync();
 
     try

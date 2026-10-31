@@ -1,4 +1,5 @@
-﻿using Domain.Model;
+﻿// Guía de estudio: Acceso a datos de Reporte mediante Entity Framework Core: construye consultas y persiste cambios usando BolsaTrabajoContext. Separa los detalles de base de datos de los servicios.
+using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using System.Data;
@@ -9,11 +10,13 @@ namespace Data
     {
         private readonly BolsaTrabajoContext context;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public ReporteRepository(BolsaTrabajoContext context)
         {
             this.context = context;
         }
 
+        // Obtiene los datos del reporte de postulaciones agrupadas por oferta, aplicando los filtros recibidos.
         public async Task<IEnumerable<OfertaPostulacionesResumen>> GetPostulacionesPorOfertaAsync(
             int? empresaId, DateTime? desde, DateTime? hasta)
         {
@@ -51,6 +54,7 @@ namespace Data
                 .ToListAsync();
         }
 
+        // Obtiene los datos del reporte que agrupa las ofertas por su tipo.
         public async Task<IEnumerable<TipoOfertaResumen>> GetOfertasPorTipoAsync(int? empresaId)
         {
             const string sql = @"

@@ -1,3 +1,4 @@
+// Guía de estudio: Editor de Empresa: carga los datos necesarios, permite modificarlos y solicita su guardado mediante el cliente de la API.
 using API.Clients;
 using DTOs;
 
@@ -11,6 +12,7 @@ namespace WindowsForms
         private readonly TextBox rubroTextBox;
         private readonly TextBox descripcionTextBox;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public EmpresaDetalleForm(EmpresaDTO? existente)
             : base(existente == null ? "Nueva empresa" : "Modificar empresa")
         {
@@ -33,6 +35,7 @@ namespace WindowsForms
             descripcionTextBox.Text = empresa.Descripcion;
         }
 
+        // Reúne los datos editados y ejecuta el guardado, mostrando el resultado o los errores de la operación.
         protected override async Task GuardarAsync()
         {
             empresa.RazonSocial = razonSocialTextBox.Text.Trim();

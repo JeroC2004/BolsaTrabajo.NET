@@ -1,3 +1,4 @@
+// Guía de estudio: Editor de Carrera: carga los datos necesarios, permite modificarlos y solicita su guardado mediante el cliente de la API.
 using API.Clients;
 using DTOs;
 
@@ -11,6 +12,7 @@ namespace WindowsForms
         private readonly TextBox departamentoTextBox;
         private readonly NumericUpDown duracionNumeric;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public CarreraDetalleForm(CarreraDTO? existente)
             : base(existente == null ? "Nueva carrera" : "Modificar carrera")
         {
@@ -33,6 +35,7 @@ namespace WindowsForms
             duracionNumeric.Value = Math.Clamp(carrera.Duracion, 1, 10);
         }
 
+        // Reúne los datos editados y ejecuta el guardado, mostrando el resultado o los errores de la operación.
         protected override async Task GuardarAsync()
         {
             carrera.NomCarrera = nombreTextBox.Text.Trim();

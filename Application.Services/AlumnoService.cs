@@ -1,3 +1,4 @@
+// Guía de estudio: Servicio de aplicación de Alumno: coordina las operaciones de sus repositorios y prepara los DTO que intercambia con la API. Es el punto donde revisar la lógica del caso de uso.
 using Domain.Model;
 using Data;
 using DTOs;
@@ -9,12 +10,14 @@ namespace Application.Services
         private readonly IAlumnoRepository alumnoRepository;
         private readonly ICarreraRepository carreraRepository;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public AlumnoService(IAlumnoRepository alumnoRepository, ICarreraRepository carreraRepository)
         {
             this.alumnoRepository = alumnoRepository;
             this.carreraRepository = carreraRepository;
         }
 
+        // Agrega un registro coordinando los datos de esta capa.
         public async Task<AlumnoDTO> AddAsync(AlumnoDTO dto)
         {
             if (await alumnoRepository.EmailExistsAsync(dto.Email))
@@ -34,11 +37,13 @@ namespace Application.Services
             return await GetAsync(alumno.Id) ?? throw new InvalidOperationException("No se pudo recuperar el alumno recién creado.");
         }
 
+        // Elimina el registro indicado coordinando los datos de esta capa.
         public async Task<bool> DeleteAsync(int id)
         {
             return await alumnoRepository.DeleteAsync(id);
         }
 
+        // Busca un registro por su identificador coordinando los datos de esta capa.
         public async Task<AlumnoDTO?> GetAsync(int id)
         {
             Alumno? alumno = await alumnoRepository.GetAsync(id);
@@ -49,12 +54,14 @@ namespace Application.Services
             return MapToDTO(alumno);
         }
 
+        // Obtiene la colección de registros coordinando los datos de esta capa.
         public async Task<IEnumerable<AlumnoDTO>> GetAllAsync()
         {
             var alumnos = await alumnoRepository.GetAllAsync();
             return alumnos.Select(MapToDTO).ToList();
         }
 
+        // Actualiza el registro o su estado coordinando los datos de esta capa.
         public async Task<bool> UpdateAsync(AlumnoDTO dto)
         {
             if (await alumnoRepository.EmailExistsAsync(dto.Email, dto.Id))
@@ -75,6 +82,7 @@ namespace Application.Services
             return await alumnoRepository.UpdateAsync(alumno);
         }
 
+        // Consulta registros con los criterios de búsqueda recibidos coordinando los datos de esta capa.
         public async Task<IEnumerable<AlumnoDTO>> GetByCriteriaAsync(AlumnoCriteriaDTO criteriaDTO)
         {
             var criteria = new AlumnoCriteria(criteriaDTO.Texto);
@@ -82,12 +90,14 @@ namespace Application.Services
             return alumnos.Select(MapToDTO).ToList();
         }
 
+        // Comprueba CarreraAsync antes de continuar con la operación.
         private async Task ValidarCarreraAsync(int carreraId)
         {
             if (await carreraRepository.GetAsync(carreraId) == null)
                 throw new ArgumentException($"La carrera con Id {carreraId} no existe.");
         }
 
+        // Transforma la entidad o proyección en un DTO para devolver solamente los datos previstos por el contrato de la API.
         private static AlumnoDTO MapToDTO(Alumno alumno)
         {
             return new AlumnoDTO

@@ -1,3 +1,4 @@
+@* Guía de estudio: Página de acceso: envía credenciales al servicio de autenticación y navega al sistema cuando se establece la sesión. *@
 @page "/login"
 
 @using API.Clients
@@ -70,6 +71,7 @@
     private bool loading;
     private string? errorMessage;
 
+    // Procesa los datos ingresados y muestra el resultado de la operación solicitada.
     private async Task IniciarSesionAsync()
     {
         loading = true;
@@ -117,6 +119,7 @@
         }
     }
 
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void IrARegistro()
     {
         Navigation.NavigateTo("/registro");

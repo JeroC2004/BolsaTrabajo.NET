@@ -1,3 +1,4 @@
+// Guía de estudio: Acceso a datos de Oferta mediante Entity Framework Core: construye consultas y persiste cambios usando BolsaTrabajoContext. Separa los detalles de base de datos de los servicios.
 using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,17 +8,20 @@ namespace Data
     {
         private readonly BolsaTrabajoContext context;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public OfertaRepository(BolsaTrabajoContext context)
         {
             this.context = context;
         }
 
+        // Agrega un registro en la base de datos mediante el contexto de EF Core.
         public async Task AddAsync(Oferta oferta)
         {
             context.Ofertas.Add(oferta);
             await context.SaveChangesAsync();
         }
 
+        // Elimina el registro indicado en la base de datos mediante el contexto de EF Core.
         public async Task<bool> DeleteAsync(int id)
         {
             var oferta = await context.Ofertas.FindAsync(id);
@@ -30,6 +34,7 @@ namespace Data
             return false;
         }
 
+        // Busca un registro por su identificador en la base de datos mediante el contexto de EF Core.
         public async Task<Oferta?> GetAsync(int id)
         {
             return await context.Ofertas
@@ -39,6 +44,7 @@ namespace Data
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
 
+        // Obtiene la colección de registros en la base de datos mediante el contexto de EF Core.
         public async Task<IEnumerable<Oferta>> GetAllAsync()
         {
             return await context.Ofertas
@@ -48,6 +54,7 @@ namespace Data
                 .ToListAsync();
         }
 
+        // Actualiza el registro o su estado en la base de datos mediante el contexto de EF Core.
         public async Task<bool> UpdateAsync(Oferta oferta)
         {
             var existing = await context.Ofertas
@@ -71,6 +78,7 @@ namespace Data
             return true;
         }
 
+        // Compara requisitos actuales y recibidos: modifica los conservados, agrega los nuevos y elimina los que ya no están.
         private void SincronizarRequisitos(Oferta existing, ICollection<RequisitoOferta> recibidos)
         {
             var actuales = existing.Requisitos.ToDictionary(r => r.Id);
@@ -98,6 +106,7 @@ namespace Data
             context.RequisitosOferta.RemoveRange(eliminados);
         }
 
+        // Consulta registros con los criterios de búsqueda recibidos en la base de datos mediante el contexto de EF Core.
         public async Task<IEnumerable<Oferta>> GetByCriteriaAsync(OfertaCriteria criteria)
         {
             var query = context.Ofertas.AsNoTracking()

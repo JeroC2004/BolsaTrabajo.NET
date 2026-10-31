@@ -1,3 +1,4 @@
+// Guía de estudio: Servicio de aplicación de Carrera: coordina las operaciones de sus repositorios y prepara los DTO que intercambia con la API. Es el punto donde revisar la lógica del caso de uso.
 using Data;
 using Domain.Model;
 using DTOs;
@@ -8,23 +9,27 @@ namespace Application.Services
     {
         private readonly ICarreraRepository carreraRepository;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public CarreraService(ICarreraRepository carreraRepository)
         {
             this.carreraRepository = carreraRepository;
         }
 
+        // Obtiene la colección de registros coordinando los datos de esta capa.
         public async Task<IEnumerable<CarreraDTO>> GetAllAsync()
         {
             var carreras = await carreraRepository.GetAllAsync();
             return carreras.Select(MapToDTO).ToList();
         }
 
+        // Busca un registro por su identificador coordinando los datos de esta capa.
         public async Task<CarreraDTO?> GetAsync(int id)
         {
             var carrera = await carreraRepository.GetAsync(id);
             return carrera == null ? null : MapToDTO(carrera);
         }
 
+        // Agrega un registro coordinando los datos de esta capa.
         public async Task<CarreraDTO> AddAsync(CarreraDTO dto)
         {
             Carrera carrera = CrearCarrera(0, dto);
@@ -36,6 +41,7 @@ namespace Application.Services
             return MapToDTO(carrera);
         }
 
+        // Actualiza el registro o su estado coordinando los datos de esta capa.
         public async Task<bool> UpdateAsync(CarreraDTO dto)
         {
             Carrera carrera = CrearCarrera(dto.Id, dto);
@@ -46,6 +52,7 @@ namespace Application.Services
             return await carreraRepository.UpdateAsync(carrera);
         }
 
+        // Elimina el registro indicado coordinando los datos de esta capa.
         public async Task<bool> DeleteAsync(int id)
         {
             if (await carreraRepository.HasAlumnosAsync(id))
@@ -54,6 +61,7 @@ namespace Application.Services
             return await carreraRepository.DeleteAsync(id);
         }
 
+        // Construye la entidad Carrera con los campos normalizados y validados del DTO.
         private static Carrera CrearCarrera(int id, CarreraDTO dto)
         {
             return new Carrera(
@@ -63,6 +71,7 @@ namespace Application.Services
                 dto.Duracion);
         }
 
+        // Normaliza el texto y verifica las restricciones del campo antes de construir la entidad.
         private static string Limpiar(string? valor, int maximo, string campo)
         {
             string texto = (valor ?? string.Empty).Trim();
@@ -71,6 +80,7 @@ namespace Application.Services
             return texto;
         }
 
+        // Transforma la entidad o proyección en un DTO para devolver solamente los datos previstos por el contrato de la API.
         private static CarreraDTO MapToDTO(Carrera carrera)
         {
             return new CarreraDTO

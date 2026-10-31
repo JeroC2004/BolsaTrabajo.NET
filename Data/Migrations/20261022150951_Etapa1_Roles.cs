@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Guía de estudio: Migración de base de datos (20261022150951_Etapa1_Roles): Up aplica los cambios de esquema y Down define su reversión. Conserva la evolución de las tablas junto con el código.
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -7,6 +8,7 @@ namespace Data.Migrations
 {
     public partial class Etapa1_Roles : Migration
     {
+        // Aplica los cambios de esta migración sobre el esquema de la base de datos.
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
@@ -65,6 +67,7 @@ namespace Data.Migrations
                 onDelete: ReferentialAction.Cascade);
         }
 
+        // Define cómo deshacer los cambios de esquema introducidos por esta migración.
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(

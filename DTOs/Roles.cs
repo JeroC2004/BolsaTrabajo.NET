@@ -1,4 +1,5 @@
-﻿namespace DTOs
+﻿// Guía de estudio: Centraliza los nombres de roles y los tipos de claims compartidos para que API e interfaces usen los mismos identificadores.
+namespace DTOs
 {
 
     public static class Roles

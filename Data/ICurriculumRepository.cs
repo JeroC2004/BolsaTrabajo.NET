@@ -1,4 +1,5 @@
-﻿using Domain.Model;
+﻿// Guía de estudio: Contrato de persistencia de Curriculum: declara las operaciones disponibles sin exponer a los servicios cómo se consulta o guarda cada dato.
+using Domain.Model;
 
 namespace Data
 {

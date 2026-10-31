@@ -1,4 +1,5 @@
-﻿namespace BlazorApp.Client.Shared
+﻿// Guía de estudio: Estructura de una serie del gráfico: reúne su identificación visual y los valores numéricos que se dibujan.
+namespace BlazorApp.Client.Shared
 {
    
     public class SerieGrafico

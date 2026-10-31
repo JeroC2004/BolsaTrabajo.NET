@@ -1,4 +1,5 @@
-﻿using DTOs;
+﻿// Guía de estudio: Cliente HTTP de Alumno: encapsula llamadas a las rutas de la API y la serialización de DTO, para que las pantallas no repitan la comunicación con el servidor.
+using DTOs;
 using System.Net.Http.Json;
 using System.Net;
 
@@ -8,11 +9,13 @@ namespace API.Clients
     {
         private readonly HttpClient _httpClient;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public AlumnoApiClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
+        // Busca un registro por su identificador mediante una solicitud HTTP a la API.
         public async Task<AlumnoDTO> GetAsync(int id)
         {
             HttpResponseMessage response = await _httpClient.GetAsync($"alumnos/{id}");
@@ -27,6 +30,7 @@ namespace API.Clients
             throw new Exception($"Error al obtener alumno con Id {id}. Status: {response.StatusCode}, Detalle: {errorContent}");
         }
 
+        // Obtiene la colección de registros mediante una solicitud HTTP a la API.
         public async Task<IEnumerable<AlumnoDTO>> GetAllAsync()
         {
             HttpResponseMessage response = await _httpClient.GetAsync("alumnos");
@@ -41,6 +45,7 @@ namespace API.Clients
             throw new Exception($"Error al obtener lista de alumnos. Status: {response.StatusCode}, Detalle: {errorContent}");
         }
 
+        // Consulta registros con los criterios de búsqueda recibidos mediante una solicitud HTTP a la API.
         public async Task<IEnumerable<AlumnoDTO>> GetByCriteriaAsync(string texto)
         {
             HttpResponseMessage response = await _httpClient.GetAsync($"alumnos/criteria?texto={Uri.EscapeDataString(texto)}");
@@ -55,6 +60,7 @@ namespace API.Clients
             throw new Exception($"Error al buscar alumnos. Status: {response.StatusCode}, Detalle: {errorContent}");
         }
 
+        // Agrega un registro mediante una solicitud HTTP a la API.
         public async Task AddAsync(AlumnoDTO alumno)
         {
             HttpResponseMessage response = await _httpClient.PostAsJsonAsync("alumnos", alumno);
@@ -65,6 +71,7 @@ namespace API.Clients
             }
         }
 
+        // Actualiza el registro o su estado mediante una solicitud HTTP a la API.
         public async Task UpdateAsync(AlumnoDTO alumno)
         {
             HttpResponseMessage response = await _httpClient.PutAsJsonAsync("alumnos", alumno);
@@ -75,6 +82,7 @@ namespace API.Clients
             }
         }
 
+        // Elimina el registro indicado mediante una solicitud HTTP a la API.
         public async Task DeleteAsync(int id)
         {
             HttpResponseMessage response = await _httpClient.DeleteAsync($"alumnos/{id}");

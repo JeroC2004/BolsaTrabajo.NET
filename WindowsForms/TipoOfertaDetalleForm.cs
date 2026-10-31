@@ -1,3 +1,4 @@
+// Guía de estudio: Editor de TipoOferta: carga los datos necesarios, permite modificarlos y solicita su guardado mediante el cliente de la API.
 using API.Clients;
 using DTOs;
 
@@ -9,6 +10,7 @@ namespace WindowsForms
         private readonly TipoOfertaDTO tipoOferta;
         private readonly TextBox nombreTextBox;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public TipoOfertaDetalleForm(TipoOfertaDTO? existente)
             : base(existente == null ? "Nuevo tipo de oferta" : "Modificar tipo de oferta")
         {
@@ -20,6 +22,7 @@ namespace WindowsForms
             nombreTextBox.Text = tipoOferta.Nombre;
         }
 
+        // Reúne los datos editados y ejecuta el guardado, mostrando el resultado o los errores de la operación.
         protected override async Task GuardarAsync()
         {
             tipoOferta.Nombre = nombreTextBox.Text.Trim();

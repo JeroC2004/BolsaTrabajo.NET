@@ -1,4 +1,5 @@
-﻿@page "/"
+﻿@* Guía de estudio: Pantalla de inicio y acceso a las funciones del sistema; presenta opciones de navegación según la sesión. *@
+@page "/"
 
 @inject NavigationManager Navigation
 
@@ -42,16 +43,19 @@
 </div>
 
 @code {
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void IrALogin()
     {
         Navigation.NavigateTo("/login");
     }
 
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void IrARegistro()
     {
         Navigation.NavigateTo("/registro");
     }
 
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void IrAOfertas()
     {
         Navigation.NavigateTo("/ofertas");

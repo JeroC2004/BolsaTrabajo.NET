@@ -1,9 +1,11 @@
-﻿using System.Text;
+﻿// Guía de estudio: Construye un PDF sencillo en memoria para los currículums de demostración, sin depender de un archivo externo.
+using System.Text;
 
 namespace Data
 {
     internal static class PdfDemo
     {
+        // Construye en memoria el documento PDF de demostración y devuelve sus bytes.
         public static byte[] Crear(string titulo, IEnumerable<string> lineas)
         {
             var texto = new StringBuilder();
@@ -44,6 +46,7 @@ namespace Data
             return Encoding.Latin1.GetBytes(pdf.ToString());
         }
 
+        // Escapa el contenido de una celda para conservar separadores y comillas al exportar CSV.
         private static string Escapar(string texto)
         {
             var sb = new StringBuilder(texto.Length);

@@ -1,3 +1,4 @@
+// Guía de estudio: Editor de alumnos: carga carreras y, si recibe un identificador, los datos existentes; valida el formulario y solicita alta o modificación a la API.
 using API.Auth.WindowsForms;
 using API.Clients;
 using DTOs;
@@ -13,6 +14,7 @@ namespace WindowsForms
         private readonly AlumnoApiClient _alumnoClient;
         private readonly CarreraApiClient _carreraClient;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public AlumnoDetalle()
         {
             InitializeComponent();
@@ -22,6 +24,7 @@ namespace WindowsForms
             _carreraClient = new CarreraApiClient(httpClient);
         }
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public AlumnoDetalle(int id)
         {
             InitializeComponent();
@@ -32,6 +35,7 @@ namespace WindowsForms
             _carreraClient = new CarreraApiClient(httpClient);
         }
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         private async void AlumnoDetalle_Load(object sender, EventArgs e)
         {
             try
@@ -67,6 +71,7 @@ namespace WindowsForms
             }
         }
 
+        // Copia los valores del DTO a los controles del formulario para permitir su consulta o edición.
         private void CargarDatos(AlumnoDTO alumno)
         {
             nomAlumnoTextBox.Text = alumno.NomAlumno;
@@ -81,6 +86,7 @@ namespace WindowsForms
             carreraComboBox.SelectedValue = alumno.CarreraId;
         }
 
+        // Procesa los datos ingresados y muestra el resultado de la operación solicitada.
         private async void guardarButton_Click(object sender, EventArgs e)
         {
             if (!ValidateInput())
@@ -126,12 +132,14 @@ namespace WindowsForms
             }
         }
 
+        // Sale del editor sin confirmar el guardado de los cambios.
         private void cancelarButton_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
             Close();
         }
 
+        // Revisa los campos del formulario y señala los errores antes de enviar datos a la API.
         private bool ValidateInput()
         {
             errorProvider.Clear();

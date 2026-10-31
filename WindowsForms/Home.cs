@@ -1,4 +1,5 @@
-﻿using API.Clients;
+﻿// Guía de estudio: Pantalla de inicio y acceso a las funciones del sistema; presenta opciones de navegación según la sesión.
+using API.Clients;
 using DTOs;
 
 namespace WindowsForms
@@ -18,6 +19,7 @@ namespace WindowsForms
         private ToolStripMenuItem? curriculumMenuItem;
         private ToolStripMenuItem? administracionMenuItem;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public Home()
         {
             InitializeComponent();
@@ -27,6 +29,7 @@ namespace WindowsForms
             CrearMenuReportes();
         }
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         private async void Home_Load(object sender, EventArgs e)
         {
             var authService = AuthServiceProvider.Instance;
@@ -43,6 +46,7 @@ namespace WindowsForms
             await ActualizarSesionAsync();
         }
 
+        // Abre o navega a la pantalla correspondiente a la acción seleccionada.
         private async Task ActualizarSesionAsync()
         {
             await Sesion.CargarAsync();
@@ -66,17 +70,20 @@ namespace WindowsForms
                 reportesMenuItem.Visible = Sesion.EsAdministrador || Sesion.EsEmpresa;
         }
 
+        // Abre el listado de alumnos desde el menú principal.
         private void alumnosToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AbrirVentanaHija(alumnoListaForm, f => alumnoListaForm = f, () => new AlumnoLista());
         }
 
+        // Abre el listado de ofertas desde el menú principal.
         private void ofertasToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AbrirVentanaHija(ofertaListaForm, f => ofertaListaForm = f, () => new OfertaLista());
         }
 
 
+        // Construye las opciones de administración de catálogos en el menú principal.
         private void CrearMenuAdministracion()
         {
             administracionMenuItem = new ToolStripMenuItem("Administración") { Visible = false };
@@ -92,6 +99,7 @@ namespace WindowsForms
             menuStrip1.Items.Insert(posicion, administracionMenuItem);
         }
 
+        // Agrega al menú el acceso a las postulaciones según el rol actual.
         private void CrearMenuPostulaciones()
         {
             postulacionesMenuItem = new ToolStripMenuItem("Postulaciones");
@@ -102,6 +110,7 @@ namespace WindowsForms
             menuStrip1.Items.Insert(posicion, postulacionesMenuItem);
         }
 
+        // Agrega el acceso a la gestión del currículum del alumno.
         private void CrearMenuCurriculum()
         {
             curriculumMenuItem = new ToolStripMenuItem("Mi CV") { Visible = false };
@@ -118,6 +127,7 @@ namespace WindowsForms
             menuStrip1.Items.Insert(posicion, curriculumMenuItem);
         }
 
+        // Agrega al menú los reportes disponibles para el usuario.
         private void CrearMenuReportes()
         {
             reportesMenuItem = new ToolStripMenuItem("Reportes") { Visible = false };
@@ -131,6 +141,7 @@ namespace WindowsForms
             menuStrip1.Items.Insert(posicion, reportesMenuItem);
         }
 
+        // Configura el formulario genérico con columnas, consulta y series del reporte de postulaciones.
         private static Form CrearReportePostulaciones()
         {
             var client = new ReporteApiClient(ApiHttpClientFactory.Shared);
@@ -162,6 +173,7 @@ namespace WindowsForms
                          $"(pendientes {filas.Sum(f => f.Pendientes)}, aceptadas {filas.Sum(f => f.Aceptadas)}, rechazadas {filas.Sum(f => f.Rechazadas)})");
         }
 
+        // Configura el formulario genérico con columnas, consulta y series del reporte de ofertas por tipo.
         private static Form CrearReporteOfertas()
         {
             var client = new ReporteApiClient(ApiHttpClientFactory.Shared);
@@ -188,6 +200,7 @@ namespace WindowsForms
                 filas => $"Ofertas: {filas.Sum(f => f.Total)}   |   Activas: {filas.Sum(f => f.Activas)}   |   No activas: {filas.Sum(f => f.NoActivas)}");
         }
 
+        // Configura el listado reutilizable con las operaciones y columnas de postulaciones.
         private static Form CrearListaPostulaciones()
         {
             var client = new PostulacionApiClient(ApiHttpClientFactory.Shared);
@@ -237,6 +250,7 @@ namespace WindowsForms
                 accionesExtra: accionesExtra);
         }
 
+        // Configura el listado reutilizable con las operaciones y columnas de empresas.
         private static Form CrearListaEmpresas()
         {
             var client = new EmpresaApiClient(ApiHttpClientFactory.Shared);
@@ -251,6 +265,7 @@ namespace WindowsForms
                 id => client.DeleteAsync(id));
         }
 
+        // Configura el listado reutilizable con las operaciones y columnas de carreras.
         private static Form CrearListaCarreras()
         {
             var client = new CarreraApiClient(ApiHttpClientFactory.Shared);
@@ -265,6 +280,7 @@ namespace WindowsForms
                 id => client.DeleteAsync(id));
         }
 
+        // Configura el listado reutilizable con las operaciones y columnas de tipos de oferta.
         private static Form CrearListaTiposOferta()
         {
             var client = new TipoOfertaApiClient(ApiHttpClientFactory.Shared);
@@ -299,6 +315,7 @@ namespace WindowsForms
 
         private void mosaicoToolStripMenuItem_Click(object sender, EventArgs e) => LayoutMdi(MdiLayout.TileHorizontal);
 
+        // Cierra la sesión y sale de la pantalla principal.
         private async void cerrarSesionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var result = MessageBox.Show("¿Está seguro que desea cerrar la sesión?", "Cerrar sesión",

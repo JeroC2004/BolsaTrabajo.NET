@@ -1,3 +1,4 @@
+// Guía de estudio: Define las rutas HTTP de Alumno mediante Minimal APIs. Recibe parámetros o DTO, aplica autorización, llama a servicios y traduce los resultados a respuestas HTTP.
 using Application.Services;
 using DTOs;
 using System.Security.Claims;
@@ -6,8 +7,10 @@ namespace WebAPI
 {
     public static class AlumnoEndpoints
     {
+        // Registra las rutas del recurso y sus manejadores; cada endpoint especifica su respuesta y los permisos requeridos.
         public static void MapAlumnoEndpoints(this WebApplication app)
         {
+            // GET /alumnos/{id}: Consulta y devuelve los datos solicitados.
             app.MapGet("/alumnos/{id}", async (int id, IAlumnoService alumnoService, ClaimsPrincipal user) =>
             {
                 if (user.EsAlumno() && user.GetAlumnoId() != id)
@@ -27,6 +30,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // GET /alumnos: Consulta y devuelve los datos solicitados.
             app.MapGet("/alumnos", async (IAlumnoService alumnoService) =>
             {
                 var dtos = await alumnoService.GetAllAsync();
@@ -38,6 +42,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.AdministradorOEmpresa);
 
+            // POST /alumnos: Procesa la creación o la acción recibida en la solicitud.
             app.MapPost("/alumnos", async (AlumnoDTO dto, IAlumnoService alumnoService) =>
             {
                 try
@@ -57,6 +62,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.Administrador);
 
+            // PUT /alumnos: Procesa la actualización de los datos recibidos.
             app.MapPut("/alumnos", async (AlumnoDTO dto, IAlumnoService alumnoService, ClaimsPrincipal user) =>
             {
                 if (user.EsAlumno() && user.GetAlumnoId() != dto.Id)
@@ -84,6 +90,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.AdministradorOAlumno);
 
+            // DELETE /alumnos/{id}: Solicita la eliminación del recurso indicado.
             app.MapDelete("/alumnos/{id}", async (int id, IAlumnoService alumnoService) =>
             {
                 var deleted = await alumnoService.DeleteAsync(id);
@@ -100,6 +107,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.Administrador);
 
+            // GET /alumnos/criteria: Consulta y devuelve los datos solicitados.
             app.MapGet("/alumnos/criteria", async (string texto, IAlumnoService alumnoService) =>
             {
                 try

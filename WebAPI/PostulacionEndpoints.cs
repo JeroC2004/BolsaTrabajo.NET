@@ -1,4 +1,5 @@
-﻿using Application.Services;
+﻿// Guía de estudio: Define las rutas HTTP de Postulacion mediante Minimal APIs. Recibe parámetros o DTO, aplica autorización, llama a servicios y traduce los resultados a respuestas HTTP.
+using Application.Services;
 using DTOs;
 using System.Security.Claims;
 
@@ -6,6 +7,7 @@ namespace WebAPI
 {
     public static class PostulacionEndpoints
     {
+        // Comprueba que el usuario pueda consultar la postulación según su rol y su relación con alumno u oferta.
         private static bool PuedeVer(PostulacionDTO postulacion, ClaimsPrincipal user)
         {
             if (user.EsAlumno())
@@ -17,8 +19,10 @@ namespace WebAPI
             return true;
         }
 
+        // Registra las rutas del recurso y sus manejadores; cada endpoint especifica su respuesta y los permisos requeridos.
         public static void MapPostulacionEndpoints(this WebApplication app)
         {
+            // GET /postulaciones: Consulta y devuelve los datos solicitados.
             app.MapGet("/postulaciones", async (int? ofertaId, IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
                 int? alumnoId = user.EsAlumno() ? (user.GetAlumnoId() ?? 0) : null;
@@ -33,6 +37,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // GET /postulaciones/{id}: Consulta y devuelve los datos solicitados.
             app.MapGet("/postulaciones/{id}", async (int id, IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
                 var dto = await postulacionService.GetAsync(id);
@@ -51,6 +56,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // POST /postulaciones: Procesa la creación o la acción recibida en la solicitud.
             app.MapPost("/postulaciones", async (PostulacionDTO dto, IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
                 if (user.EsAlumno())
@@ -73,6 +79,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.AdministradorOAlumno);
 
+            // PUT /postulaciones: Procesa la actualización de los datos recibidos.
             app.MapPut("/postulaciones", async (PostulacionDTO dto, IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
                 if (user.EsEmpresa())
@@ -104,6 +111,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.Empresa);
 
+            // DELETE /postulaciones/{id}: Solicita la eliminación del recurso indicado.
             app.MapDelete("/postulaciones/{id}", async (int id, IPostulacionService postulacionService, ClaimsPrincipal user) =>
             {
                 if (user.EsAlumno())

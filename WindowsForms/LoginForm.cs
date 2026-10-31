@@ -1,10 +1,12 @@
-﻿using API.Clients;
+﻿// Guía de estudio: Pantalla de inicio de sesión de escritorio: captura credenciales y utiliza el servicio de autenticación para acceder al sistema.
+using API.Clients;
 using System.Windows.Forms;
 
 namespace WindowsForms
 {
     public partial class LoginForm : Form
     {
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public LoginForm()
         {
             InitializeComponent();
@@ -29,6 +31,7 @@ namespace WindowsForms
             Controls.Add(registro);
         }
 
+        // Envía las credenciales al servicio de autenticación y procesa el resultado del acceso.
         private async void loginButton_Click(object sender, EventArgs e)
         {
             if (ValidateInput())
@@ -67,12 +70,14 @@ namespace WindowsForms
             }
         }
 
+        // Cierra el formulario sin iniciar sesión.
         private void cancelButton_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
 
+        // Revisa los campos del formulario y señala los errores antes de enviar datos a la API.
         private bool ValidateInput()
         {
             errorProvider.SetError(usernameTextBox, string.Empty);
@@ -95,6 +100,7 @@ namespace WindowsForms
             return isValid;
         }
 
+        // Detecta la tecla de confirmación en el campo de contraseña para iniciar el acceso.
         private void passwordTextBox_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)Keys.Enter)

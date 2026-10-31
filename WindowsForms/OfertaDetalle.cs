@@ -1,4 +1,5 @@
-﻿using API.Clients;
+﻿// Guía de estudio: Editor de ofertas: reúne datos de empresa, tipo, fechas y requisitos y envía el DTO a la API para crear o modificar la oferta.
+using API.Clients;
 using Domain.Model;
 using DTOs;
 using System.ComponentModel;
@@ -18,6 +19,7 @@ namespace WindowsForms
 
         private BindingList<RequisitoOfertaDTO> listaRequisitos = new();
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public OfertaDetalle()
         {
             InitializeComponent();
@@ -31,6 +33,7 @@ namespace WindowsForms
             ConfigurarGrilla();
         }
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public OfertaDetalle(int id)
         {
             InitializeComponent();
@@ -44,6 +47,7 @@ namespace WindowsForms
             ConfigurarGrilla();
         }
 
+        // Prepara controles y propiedades visuales para presentar los datos y conectar las acciones de la pantalla.
         private void ConfigurarGrilla()
         {
             requisitosGridView.AutoGenerateColumns = false;
@@ -69,6 +73,7 @@ namespace WindowsForms
             requisitosGridView.DataSource = listaRequisitos;
         }
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         private async void OfertaDetalle_Load(object sender, EventArgs e)
         {
             try
@@ -122,6 +127,7 @@ namespace WindowsForms
             }
         }
 
+        // Copia los valores del DTO a los controles del formulario para permitir su consulta o edición.
         private void CargarDatos(OfertaDTO oferta)
         {
             tituloTextBox.Text = oferta.Titulo;
@@ -143,6 +149,7 @@ namespace WindowsForms
             }
         }
 
+        // Procesa los datos ingresados y muestra el resultado de la operación solicitada.
         private async void guardarButton_Click(object sender, EventArgs e)
         {
             if (!ValidateInput())
@@ -188,12 +195,14 @@ namespace WindowsForms
             }
         }
 
+        // Sale del editor sin confirmar el guardado de los cambios.
         private void cancelarButton_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
             Close();
         }
 
+        // Revisa los campos del formulario y señala los errores antes de enviar datos a la API.
         private bool ValidateInput()
         {
             errorProvider.Clear();
@@ -238,11 +247,16 @@ namespace WindowsForms
             return isValid;
         }
 
+        // Manejador de evento sin implementación: actualmente no realiza ninguna acción.
         private void tituloTextBox_TextChanged(object sender, EventArgs e) { }
+        // Manejador de evento sin implementación: actualmente no realiza ninguna acción.
         private void textBox1_TextChanged(object sender, EventArgs e) { }
+        // Manejador de evento sin implementación: actualmente no realiza ninguna acción.
         private void label1_Click(object sender, EventArgs e) { }
+        // Manejador de evento sin implementación: actualmente no realiza ninguna acción.
         private void EsExcluyentechk_CheckedChanged(object sender, EventArgs e) { }
 
+        // Abre o navega a la pantalla correspondiente a la acción seleccionada.
         private void agregarButton_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(requisitoTextBox.Text))
@@ -262,6 +276,7 @@ namespace WindowsForms
             requisitoTextBox.Focus();
         }
 
+        // Quita de la colección editable el requisito seleccionado antes de guardar la oferta.
         private void btnEliminarRequisito_Click_1(object sender, EventArgs e)
         {
             if (requisitosGridView.CurrentRow != null)

@@ -1,4 +1,5 @@
-﻿
+﻿// Guía de estudio: Fotografía del modelo que usa Entity Framework Core para comparar cambios al generar nuevas migraciones; no es una consulta a los datos actuales.
+
 using System;
 using Data;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ namespace Data.Migrations
     [DbContext(typeof(BolsaTrabajoContext))]
     partial class BolsaTrabajoContextModelSnapshot : ModelSnapshot
     {
+        // Reconstruye el modelo de referencia que EF Core utiliza al comparar y generar migraciones.
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618

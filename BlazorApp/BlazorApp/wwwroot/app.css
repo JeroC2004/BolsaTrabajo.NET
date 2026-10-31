@@ -1,3 +1,4 @@
+/* Guía de estudio: Reglas de presentación visual: estilos, distribución y adaptación de la interfaz. Los archivos razor.css aíslan sus estilos al componente correspondiente. */
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }

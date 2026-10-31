@@ -1,4 +1,5 @@
-﻿using Data;
+﻿// Guía de estudio: Servicio de aplicación de Reporte: coordina las operaciones de sus repositorios y prepara los DTO que intercambia con la API. Es el punto donde revisar la lógica del caso de uso.
+using Data;
 using DTOs;
 
 namespace Application.Services
@@ -7,11 +8,13 @@ namespace Application.Services
     {
         private readonly IReporteRepository reporteRepository;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public ReporteService(IReporteRepository reporteRepository)
         {
             this.reporteRepository = reporteRepository;
         }
 
+        // Obtiene los datos del reporte de postulaciones agrupadas por oferta, aplicando los filtros recibidos.
         public async Task<IEnumerable<ReportePostulacionesOfertaDTO>> GetPostulacionesPorOfertaAsync(
             int? empresaId, DateTime? desde, DateTime? hasta)
         {
@@ -37,6 +40,7 @@ namespace Application.Services
                 .ToList();
         }
 
+        // Obtiene los datos del reporte que agrupa las ofertas por su tipo.
         public async Task<IEnumerable<ReporteOfertasTipoDTO>> GetOfertasPorTipoAsync(int? empresaId)
         {
             var filas = await reporteRepository.GetOfertasPorTipoAsync(empresaId);

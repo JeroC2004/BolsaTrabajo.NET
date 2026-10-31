@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@* Guía de estudio: Define el marco común de las páginas: navegación y zona donde se muestra el contenido de la ruta actual. *@
+@inherits LayoutComponentBase
 
 @using API.Clients
 @using DTOs
@@ -130,6 +131,7 @@
     private static string ObtenerRol(ClaimsPrincipal usuario) =>
         usuario.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
 
+    // Cierra la sesión actual y redirige a la pantalla de acceso.
     private async Task CerrarSesionAsync()
     {
         await AuthService.LogoutAsync();

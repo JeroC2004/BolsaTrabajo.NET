@@ -1,4 +1,5 @@
-﻿@page "/counter"
+﻿@* Guía de estudio: Página de ejemplo de Blazor: incrementa un contador al pulsar un botón y demuestra eventos y actualización de la vista. *@
+@page "/counter"
 
 <PageTitle>Counter</PageTitle>
 
@@ -11,6 +12,7 @@
 @code {
     private int currentCount = 0;
 
+    // Incrementa el contador que muestra la página de ejemplo.
     private void IncrementCount()
     {
         currentCount++;

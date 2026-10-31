@@ -1,4 +1,5 @@
-﻿@page "/postulaciones"
+﻿@* Guía de estudio: Página que lista solicitudes y ofrece creación, cambio de estado, descarga de CV y eliminación según el rol. *@
+@page "/postulaciones"
 
 @using API.Clients
 @using DTOs
@@ -154,6 +155,7 @@ else
         ? "Mis postulaciones"
         : esEmpresa ? "Postulantes a mis ofertas" : "Postulaciones";
 
+    // Carga los datos iniciales del componente cuando Blazor crea la página.
     protected override async Task OnInitializedAsync()
     {
         try
@@ -181,6 +183,7 @@ else
         await CargarAsync();
     }
 
+    // Carga los datos necesarios y actualiza los controles de la pantalla.
     private async Task CargarAsync()
     {
         loading = true;
@@ -215,6 +218,7 @@ else
         _ => "bg-secondary"
     };
 
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void Nueva()
     {
         Navigation.NavigateTo("/postulaciones/nueva");
@@ -224,6 +228,7 @@ else
 
     private Task RechazarAsync(PostulacionDTO postulacion) => CambiarEstadoAsync(postulacion, "Rechazada");
 
+    // Envía el nuevo estado de la postulación y actualiza la vista con el resultado.
     private async Task CambiarEstadoAsync(PostulacionDTO postulacion, string estado)
     {
         errorMessage = null;
@@ -243,6 +248,7 @@ else
         }
     }
 
+    // Recupera el PDF desde la API y solicita su guardado desde la interfaz.
     private async Task DescargarCvAsync(PostulacionDTO postulacion)
     {
         errorMessage = null;
@@ -263,6 +269,7 @@ else
         }
     }
 
+    // Procesa la eliminación solicitada y actualiza la información presentada por la pantalla.
     private async Task EliminarAsync(int id)
     {
         string pregunta = esAlumno

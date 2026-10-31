@@ -1,3 +1,4 @@
+@* Guía de estudio: Página de registro de alumnos que recopila datos personales, académicos y de acceso, y muestra el resultado devuelto por la API. *@
 @page "/registro"
 
 @using API.Clients
@@ -194,6 +195,7 @@
 
     private List<CarreraDTO> carreras = new();
 
+    // Carga los datos iniciales del componente cuando Blazor crea la página.
     protected override async Task OnInitializedAsync()
     {
         try { carreras = (await AuthClient.GetCarrerasRegistroAsync()).ToList(); }
@@ -203,6 +205,7 @@
     private bool guardando;
     private string? errorMessage;
 
+    // Procesa los datos ingresados y muestra el resultado de la operación solicitada.
     private async Task RegistrarAsync()
     {
         errorMessage = null;
@@ -235,6 +238,7 @@
         }
     }
 
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void VolverAlInicio()
     {
         Navigation.NavigateTo("/");

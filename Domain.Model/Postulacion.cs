@@ -1,4 +1,5 @@
-﻿namespace Domain.Model
+﻿// Guía de estudio: Vincula un alumno con una oferta e incluye fecha y estado de la solicitud. La entidad controla sus valores; el servicio comprueba disponibilidad y duplicados.
+namespace Domain.Model
 {
     public class Postulacion
     {
@@ -10,6 +11,7 @@
         public DateTime FechaPostulacion { get; private set; }
         public EstadoPostulacion Estado { get; private set; }
 
+        // Construye la entidad a partir de los datos recibidos y aplica sus reglas de inicialización.
         public Postulacion(int id, int alumnoId, int ofertaId, DateTime fechaPostulacion,
                            EstadoPostulacion estado = EstadoPostulacion.Pendiente)
         {
@@ -20,8 +22,10 @@
             SetEstado(estado);
         }
 
+        // Constructor sin parámetros utilizado por Entity Framework Core al materializar la entidad desde la base de datos.
         private Postulacion() { }
 
+        // Establece Id aplicando las comprobaciones definidas en este método.
         public void SetId(int id)
         {
             if (id < 0)
@@ -29,6 +33,7 @@
             Id = id;
         }
 
+        // Establece AlumnoId aplicando las comprobaciones definidas en este método.
         public void SetAlumnoId(int alumnoId)
         {
             if (alumnoId <= 0)
@@ -36,6 +41,7 @@
             AlumnoId = alumnoId;
         }
 
+        // Establece OfertaId aplicando las comprobaciones definidas en este método.
         public void SetOfertaId(int ofertaId)
         {
             if (ofertaId <= 0)
@@ -43,6 +49,7 @@
             OfertaId = ofertaId;
         }
 
+        // Establece FechaPostulacion aplicando las comprobaciones definidas en este método.
         public void SetFechaPostulacion(DateTime fechaPostulacion)
         {
             if (fechaPostulacion == default)
@@ -50,6 +57,7 @@
             FechaPostulacion = fechaPostulacion;
         }
 
+        // Establece Estado aplicando las comprobaciones definidas en este método.
         public void SetEstado(EstadoPostulacion estado)
         {
             if (!Enum.IsDefined(typeof(EstadoPostulacion), estado))

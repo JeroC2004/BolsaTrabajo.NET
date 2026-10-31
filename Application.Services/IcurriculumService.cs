@@ -1,4 +1,5 @@
-﻿using DTOs;
+﻿// Guía de estudio: Contrato del servicio de currículums: declara consultas de metadatos y archivo, guardado y eliminación del PDF sin exponer los detalles de persistencia.
+using DTOs;
 
 namespace Application.Services
 {

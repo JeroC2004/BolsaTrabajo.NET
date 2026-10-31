@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿// Guía de estudio: Formulario genérico de reportes: consulta filas, arma tabla y gráfico y permite exportar los resultados a CSV.
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 
@@ -22,6 +23,7 @@ namespace WindowsForms
 
         private List<TFila> filas = new();
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public ReporteForm(
             string titulo,
             string tituloGrafico,
@@ -99,6 +101,7 @@ namespace WindowsForms
         private static Label CrearEtiqueta(string texto) =>
             new() { Text = texto, AutoSize = true, Margin = new Padding(8, 6, 2, 0) };
 
+        // Prepara controles y propiedades visuales para presentar los datos y conectar las acciones de la pantalla.
         private static void ConfigurarSelectorFecha(DateTimePicker picker)
         {
             picker.Format = DateTimePickerFormat.Short;
@@ -107,6 +110,7 @@ namespace WindowsForms
             picker.Width = 115;
         }
 
+        // Prepara controles y propiedades visuales para presentar los datos y conectar las acciones de la pantalla.
         private void ConfigurarGrilla()
         {
             grilla.Dock = DockStyle.Fill;
@@ -128,6 +132,7 @@ namespace WindowsForms
             }
         }
 
+        // Consulta el reporte y prepara sus filas y series para actualizar la tabla y el gráfico.
         private async Task GenerarAsync()
         {
             try
@@ -163,6 +168,7 @@ namespace WindowsForms
             }
         }
 
+        // Convierte las filas del reporte a CSV y permite guardar el archivo en disco.
         private void ExportarCsv()
         {
             if (filas.Count == 0)
@@ -200,6 +206,7 @@ namespace WindowsForms
             }
         }
 
+        // Obtiene una propiedad de la fila para construir su representación en el reporte exportado.
         private static string ObtenerValor(TFila fila, string propiedad)
         {
             PropertyInfo? info = typeof(TFila).GetProperty(propiedad);
@@ -207,6 +214,7 @@ namespace WindowsForms
             return Convert.ToString(valor, CultureInfo.CurrentCulture) ?? string.Empty;
         }
 
+        // Escapa el contenido de una celda para conservar separadores y comillas al exportar CSV.
         private static string Escapar(string valor)
         {
             if (valor.IndexOfAny(new[] { ';', '"', '\n', '\r' }) >= 0)

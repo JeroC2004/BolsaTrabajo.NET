@@ -1,4 +1,5 @@
-﻿using Domain.Model;
+﻿// Guía de estudio: Carga usuarios iniciales y datos de demostración (alumnos, empresas, ofertas, postulaciones y CV). Consulta lo existente para evitar volver a insertar los mismos datos.
+using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data
@@ -8,6 +9,7 @@ namespace Data
         private const string PasswordEmpresa = "empresa123";
         private const string PasswordAlumno = "alumno123";
 
+        // Prepara los datos iniciales o de demostración correspondientes, consultando los registros existentes antes de agregar los necesarios.
         public static async Task SeedAsync(BolsaTrabajoContext context)
         {
             await context.Database.ExecuteSqlRawAsync(
@@ -185,6 +187,7 @@ namespace Data
             new("52010", "i", 17, EstadoPostulacion.Rechazada),
         };
 
+        // Prepara los datos iniciales o de demostración correspondientes, consultando los registros existentes antes de agregar los necesarios.
         public static async Task SeedDatosDePruebaAsync(BolsaTrabajoContext context)
         {
             if (await context.Ofertas.AnyAsync(o => o.Titulo == PrimeraOfertaDemo && o.EmpresaId == 1))
@@ -245,6 +248,7 @@ namespace Data
             await transaccion.CommitAsync();
         }
 
+        // Prepara los datos iniciales o de demostración correspondientes, consultando los registros existentes antes de agregar los necesarios.
         public static async Task SeedCurriculumsDePruebaAsync(BolsaTrabajoContext context)
         {
             if (await context.Curriculums.AnyAsync())
@@ -288,6 +292,7 @@ namespace Data
             await context.SaveChangesAsync();
         }
 
+        // Prepara los datos iniciales o de demostración correspondientes, consultando los registros existentes antes de agregar los necesarios.
         private static async Task AsegurarUsuarioEmpresaAsync(BolsaTrabajoContext context, int empresaId, string username, string email)
         {
             if (!await context.Empresas.AnyAsync(e => e.Id == empresaId))
@@ -296,6 +301,7 @@ namespace Data
             await AsegurarUsuarioAsync(context, username, email, PasswordEmpresa, RolUsuario.Empresa, empresaId: empresaId);
         }
 
+        // Prepara los datos iniciales o de demostración correspondientes, consultando los registros existentes antes de agregar los necesarios.
         private static async Task AsegurarAlumnoConUsuarioAsync(BolsaTrabajoContext context, string legajo, string nombre,
             string apellido, string email, string dni, string plan, int anioCurso, int materiasAprobadas,
             float promedio, int carreraId, string username)
@@ -315,6 +321,7 @@ namespace Data
             await AsegurarUsuarioAsync(context, username, email, PasswordAlumno, RolUsuario.Alumno, alumnoId: alumno.Id);
         }
 
+        // Prepara los datos iniciales o de demostración correspondientes, consultando los registros existentes antes de agregar los necesarios.
         private static async Task AsegurarUsuarioAsync(BolsaTrabajoContext context, string username, string email,
             string password, RolUsuario rol, int? alumnoId = null, int? empresaId = null)
         {

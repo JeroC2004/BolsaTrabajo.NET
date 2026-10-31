@@ -1,3 +1,4 @@
+// Guía de estudio: Inicio de Blazor WebAssembly: obtiene del host la URL de la API y registra clientes HTTP, envío del JWT y servicios de autenticación del navegador.
 using API.Clients;
 using BlazorApp.Client.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;

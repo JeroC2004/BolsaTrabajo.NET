@@ -1,3 +1,4 @@
+// Guía de estudio: Representa una oferta laboral con empresa, categoría, fechas, estado, vínculo y requisitos. Sus métodos Set permiten cambiar sus datos aplicando las reglas definidas en la entidad.
 namespace Domain.Model
 {
     public class Oferta
@@ -51,6 +52,7 @@ namespace Domain.Model
             }
         }
 
+        // Construye la entidad a partir de los datos recibidos y aplica sus reglas de inicialización.
         public Oferta(int id, string titulo, TipoVinculo tipoVinculo, DateTime fechaDesde, DateTime fechaHasta,
                        string detalle, EstadoOferta estado, int empresaId, int tipoOfertaId)
         {
@@ -64,8 +66,10 @@ namespace Domain.Model
             SetTipoOfertaId(tipoOfertaId);
         }
 
+        // Constructor sin parámetros utilizado por Entity Framework Core al materializar la entidad desde la base de datos.
         private Oferta() { }
 
+        // Establece Id aplicando las comprobaciones definidas en este método.
         public void SetId(int id)
         {
             if (id < 0)
@@ -73,6 +77,7 @@ namespace Domain.Model
             Id = id;
         }
 
+        // Establece Titulo aplicando las comprobaciones definidas en este método.
         public void SetTitulo(string titulo)
         {
             if (string.IsNullOrWhiteSpace(titulo))
@@ -80,12 +85,14 @@ namespace Domain.Model
             Titulo = titulo;
         }
 
+        // Establece TipoVinculo aplicando las comprobaciones definidas en este método.
         public void SetTipoVinculo(TipoVinculo tipoVinculo)
         {
             if (!Enum.IsDefined(typeof(TipoVinculo), tipoVinculo))
                 throw new ArgumentException("El tipo de vínculo no es válido.", nameof(tipoVinculo));
             TipoVinculo = tipoVinculo;
         }
+        // Establece Fechas aplicando las comprobaciones definidas en este método.
         public void SetFechas(DateTime desde, DateTime hasta)
         {
             if (desde == default || hasta == default || desde > hasta)
@@ -94,6 +101,7 @@ namespace Domain.Model
             FechaHasta = hasta;
         }
 
+        // Establece FechaDesde aplicando las comprobaciones definidas en este método.
         public void SetFechaDesde(DateTime fechaDesde)
         {
             if (fechaDesde == default)
@@ -103,6 +111,7 @@ namespace Domain.Model
             FechaDesde = fechaDesde;
         }
 
+        // Establece FechaHasta aplicando las comprobaciones definidas en este método.
         public void SetFechaHasta(DateTime fechaHasta)
         {
             if (fechaHasta == default)
@@ -112,6 +121,7 @@ namespace Domain.Model
             FechaHasta = fechaHasta;
         }
 
+        // Establece Detalle aplicando las comprobaciones definidas en este método.
         public void SetDetalle(string detalle)
         {
             if (string.IsNullOrWhiteSpace(detalle))
@@ -119,6 +129,7 @@ namespace Domain.Model
             Detalle = detalle;
         }
 
+        // Establece Requisitos aplicando las comprobaciones definidas en este método.
         public void SetRequisitos(ICollection<RequisitoOferta> nuevosRequisitos)
         {
             if (nuevosRequisitos == null)
@@ -127,6 +138,7 @@ namespace Domain.Model
             Requisitos = nuevosRequisitos;
         }
 
+        // Establece Estado aplicando las comprobaciones definidas en este método.
         public void SetEstado(EstadoOferta estado)
         {
             if (!Enum.IsDefined(typeof(EstadoOferta), estado))
@@ -134,6 +146,7 @@ namespace Domain.Model
             Estado = estado;
         }
 
+        // Establece EmpresaId aplicando las comprobaciones definidas en este método.
         public void SetEmpresaId(int empresaId)
         {
             if (empresaId <= 0)
@@ -144,6 +157,7 @@ namespace Domain.Model
                 _empresa = null;
         }
 
+        // Establece Empresa aplicando las comprobaciones definidas en este método.
         public void SetEmpresa(Empresa empresa)
         {
             ArgumentNullException.ThrowIfNull(empresa);
@@ -151,6 +165,7 @@ namespace Domain.Model
             _empresaId = empresa.Id;
         }
 
+        // Establece TipoOfertaId aplicando las comprobaciones definidas en este método.
         public void SetTipoOfertaId(int tipoOfertaId)
         {
             if (tipoOfertaId <= 0)
@@ -161,6 +176,7 @@ namespace Domain.Model
                 _tipoOferta = null;
         }
 
+        // Establece TipoOferta aplicando las comprobaciones definidas en este método.
         public void SetTipoOferta(TipoOferta tipoOferta)
         {
             ArgumentNullException.ThrowIfNull(tipoOferta);

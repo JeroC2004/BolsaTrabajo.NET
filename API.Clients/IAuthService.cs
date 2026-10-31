@@ -1,4 +1,5 @@
-﻿namespace API.Clients
+﻿// Guía de estudio: Contrato de autenticación para las interfaces: iniciar y cerrar sesión, obtener token y usuario y comprobar expiración. Permite implementaciones diferentes para escritorio y navegador.
+namespace API.Clients
 {
     public interface IAuthService
     {

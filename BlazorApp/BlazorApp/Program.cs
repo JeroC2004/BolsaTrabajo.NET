@@ -1,3 +1,4 @@
+// Guía de estudio: Inicio del host Blazor: configura componentes WebAssembly, middleware y archivos estáticos; entrega la aplicación y publica la URL de la API para el cliente.
 using API.Clients;
 using BlazorApp.Components;
 

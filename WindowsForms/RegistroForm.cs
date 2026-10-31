@@ -1,4 +1,5 @@
-﻿using API.Clients;
+﻿// Guía de estudio: Pantalla de registro de alumnos: reúne datos de cuenta y académicos y envía la solicitud de creación a la API.
+using API.Clients;
 using DTOs;
 using System.ComponentModel.DataAnnotations;
 
@@ -15,6 +16,7 @@ namespace WindowsForms
         private readonly AuthApiClient client = new(ApiHttpClientFactory.Shared);
         public string UsernameRegistrado { get; private set; } = string.Empty;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public RegistroForm()
         {
             Text = "Registro de alumno";
@@ -66,6 +68,7 @@ namespace WindowsForms
             };
         }
 
+        // Reúne los datos editados y ejecuta el guardado, mostrando el resultado o los errores de la operación.
         private async void GuardarAsync(object? sender, EventArgs e)
         {
             string T(string key) => campos[key].Text.Trim();

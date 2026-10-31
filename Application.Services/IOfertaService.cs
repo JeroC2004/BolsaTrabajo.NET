@@ -1,3 +1,4 @@
+// Guía de estudio: Contrato del servicio de Oferta: declara los casos de uso que la API puede invocar, independientemente de su implementación.
 using DTOs;
 
 namespace Application.Services

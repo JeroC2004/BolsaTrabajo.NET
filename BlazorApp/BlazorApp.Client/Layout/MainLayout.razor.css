@@ -1,3 +1,4 @@
+/* Guía de estudio: Reglas de presentación visual: estilos, distribución y adaptación de la interfaz. Los archivos razor.css aíslan sus estilos al componente correspondiente. */
 .page {
     position: relative;
     display: flex;

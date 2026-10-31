@@ -1,3 +1,4 @@
+// Guía de estudio: Contrato de persistencia de Alumno: declara las operaciones disponibles sin exponer a los servicios cómo se consulta o guarda cada dato.
 using Domain.Model;
 
 namespace Data

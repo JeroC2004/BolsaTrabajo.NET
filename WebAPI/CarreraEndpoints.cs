@@ -1,3 +1,4 @@
+// Guía de estudio: Define las rutas HTTP de Carrera mediante Minimal APIs. Recibe parámetros o DTO, aplica autorización, llama a servicios y traduce los resultados a respuestas HTTP.
 using Application.Services;
 using DTOs;
 
@@ -5,8 +6,10 @@ namespace WebAPI
 {
     public static class CarreraEndpoints
     {
+        // Registra las rutas del recurso y sus manejadores; cada endpoint especifica su respuesta y los permisos requeridos.
         public static void MapCarreraEndpoints(this WebApplication app)
         {
+            // GET /carreras: Consulta y devuelve los datos solicitados.
             app.MapGet("/carreras", async (ICarreraService carreraService) =>
             {
                 var dtos = await carreraService.GetAllAsync();
@@ -17,6 +20,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // GET /carreras/{id}: Consulta y devuelve los datos solicitados.
             app.MapGet("/carreras/{id}", async (int id, ICarreraService carreraService) =>
             {
                 var dto = await carreraService.GetAsync(id);
@@ -29,6 +33,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // POST /carreras: Procesa la creación o la acción recibida en la solicitud.
             app.MapPost("/carreras", async (CarreraDTO dto, ICarreraService carreraService) =>
             {
                 try
@@ -48,6 +53,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.Administrador);
 
+            // PUT /carreras: Procesa la actualización de los datos recibidos.
             app.MapPut("/carreras", async (CarreraDTO dto, ICarreraService carreraService) =>
             {
                 try
@@ -70,6 +76,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.Administrador);
 
+            // DELETE /carreras/{id}: Solicita la eliminación del recurso indicado.
             app.MapDelete("/carreras/{id}", async (int id, ICarreraService carreraService) =>
             {
                 try

@@ -1,3 +1,4 @@
+// Guía de estudio: Servicio de aplicación de Oferta: coordina las operaciones de sus repositorios y prepara los DTO que intercambia con la API. Es el punto donde revisar la lógica del caso de uso.
 using Domain.Model;
 using Data;
 using DTOs;
@@ -10,6 +11,7 @@ namespace Application.Services
         private readonly IEmpresaRepository empresaRepository;
         private readonly ITipoOfertaRepository tipoOfertaRepository;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public OfertaService(
             IOfertaRepository ofertaRepository,
             IEmpresaRepository empresaRepository,
@@ -20,6 +22,7 @@ namespace Application.Services
             this.tipoOfertaRepository = tipoOfertaRepository;
         }
 
+        // Agrega un registro coordinando los datos de esta capa.
         public async Task<OfertaDTO> AddAsync(OfertaDTO dto)
         {
             var tipoVinculo = ParseTipoVinculo(dto.TipoVinculo);
@@ -36,11 +39,13 @@ namespace Application.Services
             return await GetAsync(oferta.Id) ?? throw new InvalidOperationException("No se pudo recuperar la oferta recién creada.");
         }
 
+        // Elimina el registro indicado coordinando los datos de esta capa.
         public async Task<bool> DeleteAsync(int id)
         {
             return await ofertaRepository.DeleteAsync(id);
         }
 
+        // Busca un registro por su identificador coordinando los datos de esta capa.
         public async Task<OfertaDTO?> GetAsync(int id)
         {
             Oferta? oferta = await ofertaRepository.GetAsync(id);
@@ -51,12 +56,14 @@ namespace Application.Services
             return MapToDTO(oferta);
         }
 
+        // Obtiene la colección de registros coordinando los datos de esta capa.
         public async Task<IEnumerable<OfertaDTO>> GetAllAsync()
         {
             var ofertas = await ofertaRepository.GetAllAsync();
             return ofertas.Select(MapToDTO).ToList();
         }
 
+        // Actualiza el registro o su estado coordinando los datos de esta capa.
         public async Task<bool> UpdateAsync(OfertaDTO dto)
         {
             var existing = await ofertaRepository.GetAsync(dto.Id);
@@ -75,6 +82,7 @@ namespace Application.Services
             return await ofertaRepository.UpdateAsync(oferta);
         }
 
+        // Consulta registros con los criterios de búsqueda recibidos coordinando los datos de esta capa.
         public async Task<IEnumerable<OfertaDTO>> GetByCriteriaAsync(OfertaCriteriaDTO criteriaDTO)
         {
             var criteria = new OfertaCriteria(criteriaDTO.Texto, criteriaDTO.TipoOfertaId,
@@ -85,6 +93,7 @@ namespace Application.Services
             return ofertas.Select(MapToDTO).ToList();
         }
 
+        // Convierte el texto recibido a TipoVinculo y rechaza los valores que no puede interpretar.
         private static TipoVinculo ParseTipoVinculo(string value)
         {
             if (!Enum.TryParse<TipoVinculo>(value, ignoreCase: true, out var result))
@@ -92,6 +101,7 @@ namespace Application.Services
             return result;
         }
 
+        // Convierte el texto recibido a Estado y rechaza los valores que no puede interpretar.
         private static EstadoOferta ParseEstado(string value)
         {
             if (!Enum.TryParse<EstadoOferta>(value, ignoreCase: true, out var result))
@@ -99,6 +109,7 @@ namespace Application.Services
             return result;
         }
 
+        // Comprueba ReferenciasAsync antes de continuar con la operación.
         private async Task ValidarReferenciasAsync(int empresaId, int tipoOfertaId)
         {
             if (await empresaRepository.GetAsync(empresaId) == null)
@@ -109,6 +120,7 @@ namespace Application.Services
                 throw new ArgumentException($"El tipo de oferta con Id {tipoOfertaId} no existe.");
         }
 
+        // Convierte requisitos recibidos a entidades; valida descripciones y decide si conserva los identificadores al editar.
         private static List<RequisitoOferta> MapRequisitos(IEnumerable<RequisitoOfertaDTO>? requisitos, bool conservarIds)
         {
             if (requisitos == null)
@@ -129,6 +141,7 @@ namespace Application.Services
             }).ToList();
         }
 
+        // Transforma la entidad o proyección en un DTO para devolver solamente los datos previstos por el contrato de la API.
         private static OfertaDTO MapToDTO(Oferta oferta)
         {
             return new OfertaDTO

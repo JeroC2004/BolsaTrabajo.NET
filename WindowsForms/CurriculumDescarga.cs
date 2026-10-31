@@ -1,9 +1,11 @@
+// Guía de estudio: Descarga el PDF desde la API y permite elegir dónde guardarlo con el diálogo de archivos de Windows Forms.
 using API.Clients;
 
 namespace WindowsForms
 {
     internal static class CurriculumDescarga
     {
+        // Recupera el PDF desde la API y coordina su guardado en la interfaz.
         public static async Task DescargarAsync(IWin32Window? propietario, CurriculumApiClient client, int alumnoId, string? nombreSugerido = null)
         {
             var archivo = await client.DescargarAsync(alumnoId);

@@ -1,3 +1,4 @@
+@* Guía de estudio: Página de ofertas con filtros y acciones de consulta y administración; las acciones visibles dependen del rol. *@
 @page "/ofertas"
 
 @using API.Clients
@@ -159,6 +160,7 @@ else
     private readonly string[] estados = { "Activa", "Pausada", "Cerrada", "Finalizada" };
     private readonly string[] vinculos = { "Pasantia", "PrimerEmpleo", "PracticaProfesional", "EmpleoFullTime", "EmpleoPartTime" };
 
+    // Limpia los filtros de búsqueda y vuelve a cargar los datos del listado.
     private async Task LimpiarAsync()
     {
         criterio = string.Empty;
@@ -168,6 +170,7 @@ else
     private string? errorMessage;
     private bool loading;
 
+    // Carga los datos iniciales del componente cuando Blazor crea la página.
     protected override async Task OnInitializedAsync()
     {
         await CargarAsync();
@@ -175,6 +178,7 @@ else
         catch (Exception ex) { errorMessage = $"No se pudieron cargar los tipos: {ex.Message}"; }
     }
 
+    // Carga los datos necesarios y actualiza los controles de la pantalla.
     private async Task CargarAsync()
     {
         loading = true;
@@ -201,6 +205,7 @@ else
         }
     }
 
+    // Aplica los filtros ingresados, consulta la API y actualiza el listado con los resultados.
     private async Task BuscarAsync()
     {
         if (filtro.Desde.HasValue && filtro.Hasta.HasValue && filtro.Desde.Value.Date > filtro.Hasta.Value.Date)
@@ -235,16 +240,19 @@ else
         }
     }
 
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void NuevaOferta()
     {
         Navigation.NavigateTo("/ofertas/nueva");
     }
 
+    // Abre o navega a la pantalla correspondiente a la acción seleccionada.
     private void Editar(int id)
     {
         Navigation.NavigateTo($"/ofertas/editar/{id}");
     }
 
+    // Procesa la eliminación solicitada y actualiza la información presentada por la pantalla.
     private async Task EliminarAsync(int id)
     {
         bool confirmar = await JS.InvokeAsync<bool>(

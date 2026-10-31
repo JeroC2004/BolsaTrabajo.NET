@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Guía de estudio: Migración de base de datos (20261002004239_InitialCreate): Up aplica los cambios de esquema y Down define su reversión. Conserva la evolución de las tablas junto con el código.
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -9,6 +10,7 @@ namespace Data.Migrations
 {
     public partial class InitialCreate : Migration
     {
+        // Aplica los cambios de esta migración sobre el esquema de la base de datos.
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -255,6 +257,7 @@ namespace Data.Migrations
                 unique: true);
         }
 
+        // Define cómo deshacer los cambios de esquema introducidos por esta migración.
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

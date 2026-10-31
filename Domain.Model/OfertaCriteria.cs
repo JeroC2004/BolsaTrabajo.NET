@@ -1,3 +1,4 @@
+// Guía de estudio: Agrupa filtros opcionales de ofertas: texto, categoría, estado, vínculo y rango de fechas. El repositorio aplica los filtros presentes.
 namespace Domain.Model
 {
     public class OfertaCriteria

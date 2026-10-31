@@ -1,3 +1,4 @@
+@* Guía de estudio: Página para crear o editar datos de un alumno; carga carreras, prepara el DTO y guarda los cambios mediante la API. *@
 @page "/alumnos/nuevo"
 @page "/alumnos/editar/{AlumnoId:int}"
 
@@ -108,6 +109,7 @@ else
 
     private string TituloPagina => AlumnoId.HasValue ? "Editar Alumno" : "Nuevo Alumno";
 
+    // Carga los datos iniciales del componente cuando Blazor crea la página.
     protected override async Task OnInitializedAsync()
     {
         try
@@ -143,6 +145,7 @@ else
         }
     }
 
+    // Reúne los datos editados y ejecuta el guardado, mostrando el resultado o los errores de la operación.
     private async Task GuardarAsync()
     {
         errorMessage = null;

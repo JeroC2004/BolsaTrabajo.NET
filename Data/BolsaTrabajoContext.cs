@@ -1,4 +1,5 @@
-﻿using Domain.Model;
+﻿// Guía de estudio: Contexto de Entity Framework Core: expone las tablas mediante DbSet y configura claves, relaciones, índices únicos, conversiones y datos iniciales en OnModelCreating.
+using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Reflection.Emit;
@@ -7,6 +8,7 @@ namespace Data
 {
     public class BolsaTrabajoContext : DbContext
     {
+        // Cada DbSet es el punto de acceso a las entidades de una tabla desde LINQ y EF Core.
         public DbSet<Alumno> Alumnos { get; set; }
         public DbSet<Carrera> Carreras { get; set; }
         public DbSet<Empresa> Empresas { get; set; }
@@ -17,11 +19,13 @@ namespace Data
         public DbSet<Postulacion> Postulaciones { get; set; }
         public DbSet<CurriculumVitae> Curriculums { get; set; }
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public BolsaTrabajoContext(DbContextOptions<BolsaTrabajoContext> options) : base(options)
         {
             //Database.EnsureCreated();
         }
 
+        // Configura el mapeo entre entidades y tablas: claves, relaciones, restricciones, índices y datos iniciales.
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

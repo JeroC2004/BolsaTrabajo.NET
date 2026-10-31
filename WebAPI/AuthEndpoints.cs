@@ -1,12 +1,15 @@
-﻿using Application.Services;
+﻿// Guía de estudio: Define las rutas HTTP de Auth mediante Minimal APIs. Recibe parámetros o DTO, aplica autorización, llama a servicios y traduce los resultados a respuestas HTTP.
+using Application.Services;
 using DTOs;
 
 namespace WebAPI
 {
     public static class AuthEndpoints
     {
+        // Registra las rutas del recurso y sus manejadores; cada endpoint especifica su respuesta y los permisos requeridos.
         public static void MapAuthEndpoints(this WebApplication app)
         {
+            // GET /auth/carreras: Consulta y devuelve los datos solicitados.
             app.MapGet("/auth/carreras", async (ICarreraService service) =>
                 Results.Ok(await service.GetAllAsync()))
                 .WithTags("Auth").AllowAnonymous();

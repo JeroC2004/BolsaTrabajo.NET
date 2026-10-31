@@ -1,4 +1,5 @@
-﻿window.descargarArchivo = function (nombre, tipo, base64) {
+﻿// Guía de estudio: Funciones JavaScript invocadas desde Blazor para descargar archivos en el navegador mediante datos binarios y un enlace temporal.
+window.descargarArchivo = function (nombre, tipo, base64) {
     const binario = atob(base64);
     const bytes = new Uint8Array(binario.length);
     for (let i = 0; i < binario.length; i++) {

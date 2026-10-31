@@ -1,4 +1,5 @@
-﻿namespace WindowsForms
+﻿// Guía de estudio: Componente visual reutilizable que representa etiquetas y series numéricas como barras para los reportes.
+namespace WindowsForms
 {
     
     internal sealed record SerieGrafico(string Nombre, Color Color, IReadOnlyList<double> Valores);
@@ -16,6 +17,7 @@
         private List<string> etiquetas = new();
         private List<SerieGrafico> series = new();
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public GraficoBarras()
         {
             DoubleBuffered = true;
@@ -24,6 +26,7 @@
             BackColor = Color.White;
         }
 
+        // Actualiza el título, las etiquetas y las series del gráfico y solicita que vuelva a dibujarse.
         public void SetDatos(string titulo, IEnumerable<string> etiquetas, IEnumerable<SerieGrafico> series)
         {
             this.titulo = titulo;
@@ -39,6 +42,7 @@
 
         private double TotalEn(int indice) => series.Sum(serie => ValorEn(serie, indice));
 
+        // Dibuja el gráfico en el área del control a partir de las etiquetas y series configuradas.
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);

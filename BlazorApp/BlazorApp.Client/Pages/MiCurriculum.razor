@@ -1,4 +1,5 @@
-﻿@page "/curriculum"
+﻿@* Guía de estudio: Página del alumno para administrar su PDF: consulta metadatos, permite seleccionar un archivo y ofrece descarga y eliminación. *@
+@page "/curriculum"
 
 @using DTOs
 @using Microsoft.AspNetCore.Authorization
@@ -79,6 +80,7 @@ else
     private string? errorMessage;
     private string? mensaje;
 
+    // Carga los datos iniciales del componente cuando Blazor crea la página.
     protected override async Task OnInitializedAsync()
     {
         try
@@ -108,6 +110,7 @@ else
         }
     }
 
+    // Lee el archivo seleccionado y coordina su carga como currículum del alumno.
     private async Task SeleccionarArchivoAsync(InputFileChangeEventArgs e)
     {
         errorMessage = null;
@@ -150,6 +153,7 @@ else
         }
     }
 
+    // Recupera el PDF desde la API y solicita su guardado desde la interfaz.
     private async Task DescargarAsync()
     {
         errorMessage = null;
@@ -176,6 +180,7 @@ else
         }
     }
 
+    // Procesa la eliminación solicitada y actualiza la información presentada por la pantalla.
     private async Task EliminarAsync()
     {
         bool confirmar = await JS.InvokeAsync<bool>("confirm", "¿Está seguro de eliminar su currículum?");

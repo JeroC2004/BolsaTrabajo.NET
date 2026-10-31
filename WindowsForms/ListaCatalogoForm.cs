@@ -1,4 +1,5 @@
-﻿namespace WindowsForms
+﻿// Guía de estudio: Formulario base reutilizable para mostrar y administrar catálogos; recibe las operaciones específicas para evitar repetir la misma pantalla.
+namespace WindowsForms
 {
 
     internal sealed class ListaCatalogoForm<TDto> : Form where TDto : class
@@ -11,6 +12,7 @@
         private readonly Func<int, Task> eliminar;
         private readonly bool permiteModificar;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public ListaCatalogoForm(
             string titulo,
             string nombreEntidad,
@@ -63,6 +65,7 @@
             Load += async (s, e) => await CargarAsync();
         }
 
+        // Prepara controles y propiedades visuales para presentar los datos y conectar las acciones de la pantalla.
         private void ConfigurarGrilla(IEnumerable<(string Propiedad, string Encabezado, int Ancho)> columnas)
         {
             grilla.Dock = DockStyle.Fill;
@@ -105,6 +108,7 @@
             };
         }
 
+        // Construye un botón del listado y lo conecta con la acción recibida.
         private static Button CrearBoton(string texto, EventHandler onClick)
         {
             var boton = new Button { Text = texto, AutoSize = true };
@@ -112,6 +116,7 @@
             return boton;
         }
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         private async Task CargarAsync()
         {
             try
@@ -138,6 +143,7 @@
 
         private TDto? ObtenerSeleccionado() => grilla.CurrentRow?.DataBoundItem as TDto;
 
+        // Abre o navega a la pantalla correspondiente a la acción seleccionada.
         private async void agregarButton_Click(object? sender, EventArgs e)
         {
             using Form detalle = crearDetalle(null);
@@ -145,6 +151,7 @@
                 await CargarAsync();
         }
 
+        // Abre el editor del registro seleccionado y actualiza el listado al terminar.
         private async void modificarButton_Click(object? sender, EventArgs e)
         {
             TDto? seleccionado = ObtenerSeleccionado();
@@ -159,6 +166,7 @@
                 await CargarAsync();
         }
 
+        // Procesa la eliminación solicitada y actualiza la información presentada por la pantalla.
         private async void eliminarButton_Click(object? sender, EventArgs e)
         {
             TDto? seleccionado = ObtenerSeleccionado();
@@ -193,6 +201,7 @@
             }
         }
 
+        // Ejecuta una acción de la pantalla centralizando el manejo de errores y el estado de espera.
         private async Task EjecutarAccionAsync(Func<TDto, Task> accion)
         {
             TDto? seleccionado = ObtenerSeleccionado();

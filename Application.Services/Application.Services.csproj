@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- Guía de estudio: Define el proyecto Application.Services: SDK, framework de destino, opciones de compilación, paquetes NuGet y referencias a otras capas. -->
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>

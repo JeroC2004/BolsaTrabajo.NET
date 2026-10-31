@@ -1,3 +1,4 @@
+// Guía de estudio: Acceso a datos de Alumno mediante Entity Framework Core: construye consultas y persiste cambios usando BolsaTrabajoContext. Separa los detalles de base de datos de los servicios.
 using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,17 +8,20 @@ namespace Data
     {
         private readonly BolsaTrabajoContext context;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public AlumnoRepository(BolsaTrabajoContext context)
         {
             this.context = context;
         }
 
+        // Agrega un registro en la base de datos mediante el contexto de EF Core.
         public async Task AddAsync(Alumno alumno)
         {
             context.Alumnos.Add(alumno);
             await context.SaveChangesAsync();
         }
 
+        // Elimina el registro indicado en la base de datos mediante el contexto de EF Core.
         public async Task<bool> DeleteAsync(int id)
         {
             var alumno = await context.Alumnos.FindAsync(id);
@@ -30,6 +34,7 @@ namespace Data
             return false;
         }
 
+        // Busca un registro por su identificador en la base de datos mediante el contexto de EF Core.
         public async Task<Alumno?> GetAsync(int id)
         {
             return await context.Alumnos
@@ -37,6 +42,7 @@ namespace Data
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
+        // Obtiene la colección de registros en la base de datos mediante el contexto de EF Core.
         public async Task<IEnumerable<Alumno>> GetAllAsync()
         {
             return await context.Alumnos
@@ -44,6 +50,7 @@ namespace Data
                 .ToListAsync();
         }
 
+        // Actualiza el registro o su estado en la base de datos mediante el contexto de EF Core.
         public async Task<bool> UpdateAsync(Alumno alumno)
         {
             var existing = await context.Alumnos.FindAsync(alumno.Id);
@@ -82,6 +89,7 @@ namespace Data
             return await query.AnyAsync();
         }
 
+        // Consulta registros con los criterios de búsqueda recibidos en la base de datos mediante el contexto de EF Core.
         public async Task<IEnumerable<Alumno>> GetByCriteriaAsync(AlumnoCriteria criteria)
         {
             string searchTerm = criteria.Texto.ToLower();

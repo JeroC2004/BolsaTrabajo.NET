@@ -1,4 +1,5 @@
-﻿using Data;
+﻿// Guía de estudio: Servicio de aplicación de Postulacion: coordina las operaciones de sus repositorios y prepara los DTO que intercambia con la API. Es el punto donde revisar la lógica del caso de uso.
+using Data;
 using Domain.Model;
 using DTOs;
 
@@ -11,6 +12,7 @@ namespace Application.Services
         private readonly IOfertaRepository ofertaRepository;
         private readonly ICurriculumRepository curriculumRepository;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public PostulacionService(
             IPostulacionRepository postulacionRepository,
             IAlumnoRepository alumnoRepository,
@@ -23,6 +25,7 @@ namespace Application.Services
             this.curriculumRepository = curriculumRepository;
         }
 
+        // Consulta la colección de registros, respetando los filtros opcionales recibidos.
         public async Task<IEnumerable<PostulacionDTO>> GetAllAsync(int? alumnoId = null, int? empresaId = null, int? ofertaId = null)
         {
             var postulaciones = (await postulacionRepository.GetAllAsync(alumnoId, empresaId, ofertaId)).ToList();
@@ -32,6 +35,7 @@ namespace Application.Services
             return postulaciones.Select(p => MapToDTO(p, conCv.Contains(p.AlumnoId))).ToList();
         }
 
+        // Busca un registro por su identificador coordinando los datos de esta capa.
         public async Task<PostulacionDTO?> GetAsync(int id)
         {
             var postulacion = await postulacionRepository.GetAsync(id);
@@ -41,6 +45,7 @@ namespace Application.Services
             return MapToDTO(postulacion, await TieneCvAsync(postulacion.AlumnoId));
         }
 
+        // Agrega un registro coordinando los datos de esta capa.
         public async Task<PostulacionDTO> AddAsync(PostulacionDTO dto)
         {
             var postulacion = new Postulacion(0, dto.AlumnoId, dto.OfertaId, DateTime.Today, EstadoPostulacion.Pendiente);
@@ -64,6 +69,7 @@ namespace Application.Services
             return MapToDTO(creada ?? postulacion, await TieneCvAsync(dto.AlumnoId));
         }
 
+        // Actualiza el registro o su estado coordinando los datos de esta capa.
         public async Task<bool> UpdateAsync(PostulacionDTO dto)
         {
             if (!Enum.TryParse(dto.Estado, true, out EstadoPostulacion estado)
@@ -75,17 +81,20 @@ namespace Application.Services
             return await postulacionRepository.UpdateEstadoAsync(dto.Id, estado);
         }
 
+        // Elimina el registro indicado coordinando los datos de esta capa.
         public async Task<bool> DeleteAsync(int id)
         {
             return await postulacionRepository.DeleteAsync(id);
         }
 
+        // Comprueba si el alumno tiene un currículum registrado sin descargar el contenido del PDF.
         private async Task<bool> TieneCvAsync(int alumnoId)
         {
             var conCv = await curriculumRepository.GetAlumnoIdsConCurriculumAsync(new[] { alumnoId });
             return conCv.Contains(alumnoId);
         }
 
+        // Transforma la entidad o proyección en un DTO para devolver solamente los datos previstos por el contrato de la API.
         private static PostulacionDTO MapToDTO(Postulacion p, bool alumnoTieneCv)
         {
             return new PostulacionDTO

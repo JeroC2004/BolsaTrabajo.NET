@@ -1,3 +1,4 @@
+// Guía de estudio: Define las rutas HTTP de Oferta mediante Minimal APIs. Recibe parámetros o DTO, aplica autorización, llama a servicios y traduce los resultados a respuestas HTTP.
 using Application.Services;
 using DTOs;
 using System.Security.Claims;
@@ -6,6 +7,7 @@ namespace WebAPI
 {
     public static class OfertaEndpoints
     {
+        // Limita las ofertas visibles: una empresa consulta las propias y un alumno solamente las activas.
         private static IEnumerable<OfertaDTO> FiltrarPorRol(IEnumerable<OfertaDTO> ofertas, ClaimsPrincipal user)
         {
             if (user.EsEmpresa())
@@ -20,8 +22,10 @@ namespace WebAPI
             return ofertas;
         }
 
+        // Registra las rutas del recurso y sus manejadores; cada endpoint especifica su respuesta y los permisos requeridos.
         public static void MapOfertaEndpoints(this WebApplication app)
         {
+            // GET /ofertas/{id}: Consulta y devuelve los datos solicitados.
             app.MapGet("/ofertas/{id}", async (int id, IOfertaService ofertaService, ClaimsPrincipal user) =>
             {
                 OfertaDTO? dto = await ofertaService.GetAsync(id);
@@ -40,6 +44,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // GET /ofertas: Consulta y devuelve los datos solicitados.
             app.MapGet("/ofertas", async (IOfertaService ofertaService, ClaimsPrincipal user) =>
             {
                 var dtos = await ofertaService.GetAllAsync();
@@ -51,6 +56,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization();
 
+            // POST /ofertas: Procesa la creación o la acción recibida en la solicitud.
             app.MapPost("/ofertas", async (OfertaDTO dto, IOfertaService ofertaService, ClaimsPrincipal user) =>
             {
                 if (user.EsEmpresa())
@@ -73,6 +79,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.AdministradorOEmpresa);
 
+            // PUT /ofertas: Procesa la actualización de los datos recibidos.
             app.MapPut("/ofertas", async (OfertaDTO dto, IOfertaService ofertaService, ClaimsPrincipal user) =>
             {
                 if (user.EsEmpresa())
@@ -105,6 +112,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.AdministradorOEmpresa);
 
+            // DELETE /ofertas/{id}: Solicita la eliminación del recurso indicado.
             app.MapDelete("/ofertas/{id}", async (int id, IOfertaService ofertaService, ClaimsPrincipal user) =>
             {
                 if (user.EsEmpresa())
@@ -128,6 +136,7 @@ namespace WebAPI
             .WithOpenApi()
             .RequireAuthorization(Policies.AdministradorOEmpresa);
 
+            // GET /ofertas/criteria: Consulta y devuelve los datos solicitados.
             app.MapGet("/ofertas/criteria", async (IOfertaService ofertaService, ClaimsPrincipal user,
                 string? texto = null, int? tipoOfertaId = null, string? estado = null,
                 string? tipoVinculo = null, DateTime? desde = null, DateTime? hasta = null) =>

@@ -1,4 +1,5 @@
-﻿namespace WindowsForms
+﻿// Guía de estudio: Formulario base para editores de catálogos: construye campos comunes y coordina carga, guardado y manejo de errores; las clases derivadas aportan los datos concretos.
+namespace WindowsForms
 {
    
     internal abstract partial class DetalleCatalogoForm : Form
@@ -9,6 +10,7 @@
         private int fila;
         private bool botonesAgregados;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         protected DetalleCatalogoForm(string titulo)
         {
             Text = titulo;
@@ -32,6 +34,7 @@
 
         protected virtual Task OnCargarAsync() => Task.CompletedTask;
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         private async Task CargarInicialAsync()
         {
             try
@@ -74,6 +77,7 @@
             return textBox;
         }
 
+        // Abre o navega a la pantalla correspondiente a la acción seleccionada.
         protected ComboBox AgregarCampoLista(string etiqueta)
         {
             var combo = new ComboBox
@@ -87,6 +91,7 @@
             return combo;
         }
 
+        // Abre o navega a la pantalla correspondiente a la acción seleccionada.
         protected NumericUpDown AgregarCampoNumerico(string etiqueta, int minimo, int maximo)
         {
             var numerico = new NumericUpDown
@@ -101,8 +106,10 @@
             return numerico;
         }
 
+        // Reúne los datos editados y ejecuta el guardado, mostrando el resultado o los errores de la operación.
         protected abstract Task GuardarAsync();
 
+        // Abre o navega a la pantalla correspondiente a la acción seleccionada.
         private void AgregarFila(string etiqueta, Control control)
         {
             var label = new Label
@@ -117,6 +124,7 @@
             fila++;
         }
 
+        // Prepara el formulario cuando Windows Forms lo carga por primera vez.
         protected override void OnLoad(EventArgs e)
         {
             if (!botonesAgregados)
@@ -151,6 +159,7 @@
             base.OnLoad(e);
         }
 
+        // Procesa los datos ingresados y muestra el resultado de la operación solicitada.
         private async void guardarButton_Click(object? sender, EventArgs e)
         {
             try

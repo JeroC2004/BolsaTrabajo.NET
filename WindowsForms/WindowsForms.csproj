@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Guía de estudio: Define el proyecto WindowsForms: SDK, framework de destino, opciones de compilación, paquetes NuGet y referencias a otras capas. -->
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>

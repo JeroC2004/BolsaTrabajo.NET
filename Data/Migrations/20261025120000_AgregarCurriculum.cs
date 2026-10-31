@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+﻿// Guía de estudio: Migración de base de datos (20261025120000_AgregarCurriculum): Up aplica los cambios de esquema y Down define su reversión. Conserva la evolución de las tablas junto con el código.
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -9,6 +10,7 @@ namespace Data.Migrations
     [Migration("20261025120000_AgregarCurriculum")]
     public partial class AgregarCurriculum : Migration
     {
+        // Aplica los cambios de esta migración sobre el esquema de la base de datos.
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -41,6 +43,7 @@ namespace Data.Migrations
                 unique: true);
         }
 
+        // Define cómo deshacer los cambios de esquema introducidos por esta migración.
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

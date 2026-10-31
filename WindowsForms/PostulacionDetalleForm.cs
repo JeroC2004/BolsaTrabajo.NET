@@ -1,4 +1,5 @@
-﻿using API.Clients;
+﻿// Guía de estudio: Editor de Postulacion: carga los datos necesarios, permite modificarlos y solicita su guardado mediante el cliente de la API.
+using API.Clients;
 using DTOs;
 
 namespace WindowsForms
@@ -16,6 +17,7 @@ namespace WindowsForms
         private readonly ComboBox ofertaCombo;
         private readonly ComboBox estadoCombo;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public PostulacionDetalleForm(PostulacionDTO? existente)
             : base(existente == null ? "Nueva postulación" : "Modificar postulación")
         {
@@ -45,6 +47,7 @@ namespace WindowsForms
             }
         }
 
+        // Carga los datos necesarios y actualiza los controles de la pantalla.
         protected override async Task OnCargarAsync()
         {
             if (existente == null)
@@ -68,6 +71,7 @@ namespace WindowsForms
             }
         }
 
+        // Reúne los datos editados y ejecuta el guardado, mostrando el resultado o los errores de la operación.
         protected override async Task GuardarAsync()
         {
             if (existente == null)

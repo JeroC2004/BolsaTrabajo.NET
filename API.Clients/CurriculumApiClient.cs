@@ -1,4 +1,5 @@
-﻿using DTOs;
+﻿// Guía de estudio: Cliente HTTP de Curriculum: encapsula llamadas a las rutas de la API y la serialización de DTO, para que las pantallas no repitan la comunicación con el servidor.
+using DTOs;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -9,11 +10,13 @@ namespace API.Clients
     {
         private readonly HttpClient _httpClient;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public CurriculumApiClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
+        // Consulta los metadatos del currículum del alumno sin descargar el PDF.
         public async Task<CurriculumDTO?> GetInfoAsync(int alumnoId)
         {
             HttpResponseMessage response = await _httpClient.GetAsync($"alumnos/{alumnoId}/cv/info");
@@ -27,6 +30,7 @@ namespace API.Clients
             throw await ApiErrors.CrearExcepcionAsync(response, "Error al obtener el CV");
         }
 
+        // Recupera el PDF desde la API y solicita su guardado desde la interfaz.
         public async Task<CurriculumArchivoDTO> DescargarAsync(int alumnoId)
         {
             HttpResponseMessage response = await _httpClient.GetAsync($"alumnos/{alumnoId}/cv");
@@ -44,6 +48,7 @@ namespace API.Clients
             };
         }
 
+        // Envía el PDF a la API como contenido multipart para guardar o reemplazar el currículum.
         public async Task<CurriculumDTO?> SubirAsync(int alumnoId, string nombreArchivo, byte[] contenido)
         {
             var archivo = new ByteArrayContent(contenido);
@@ -60,6 +65,7 @@ namespace API.Clients
             return await response.Content.ReadFromJsonAsync<CurriculumDTO>();
         }
 
+        // Procesa la eliminación solicitada y actualiza la información presentada por la pantalla.
         public async Task EliminarAsync(int alumnoId)
         {
             HttpResponseMessage response = await _httpClient.DeleteAsync($"alumnos/{alumnoId}/cv");

@@ -1,3 +1,4 @@
+@* Guía de estudio: Editor de TiposOferta: carga los datos necesarios, permite modificarlos y solicita su guardado mediante el cliente de la API. *@
 @page "/tiposoferta/nuevo"
 @page "/tiposoferta/editar/{ItemId:int}"
 
@@ -49,6 +50,7 @@ else
 
     private string TituloPagina => ItemId.HasValue ? "Editar Tipo de oferta" : "Nuevo tipo de oferta";
 
+    // Carga los datos iniciales del componente cuando Blazor crea la página.
     protected override async Task OnInitializedAsync()
     {
         try
@@ -72,6 +74,7 @@ else
         }
     }
 
+    // Reúne los datos editados y ejecuta el guardado, mostrando el resultado o los errores de la operación.
     private async Task GuardarAsync()
     {
         errorMessage = null;

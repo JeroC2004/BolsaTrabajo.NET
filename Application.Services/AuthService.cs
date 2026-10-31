@@ -1,4 +1,5 @@
-﻿
+﻿// Guía de estudio: Autenticación del servidor: valida usuario y contraseña, emite un JWT firmado con roles e identificadores y valida los datos del registro antes de delegar su persistencia.
+
 using Data;
 using DTOs;
 using Domain.Model;
@@ -22,6 +23,7 @@ namespace Application.Services
         private readonly IUsuarioRepository usuarioRepository;
         private readonly IConfiguration configuration;
 
+        // Inicializa el objeto y sus dependencias para las operaciones de esta clase.
         public AuthService(
             IUsuarioRepository usuarioRepository,
             IConfiguration configuration)
@@ -31,6 +33,7 @@ namespace Application.Services
         }
 
 
+        // Comprueba las credenciales mediante la implementación de autenticación de esta capa y devuelve el resultado del acceso.
         public async Task<LoginResponse?> LoginAsync(LoginRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.Username) ||
@@ -123,6 +126,7 @@ namespace Application.Services
             };
         }
 
+        // Procesa los datos de registro y comunica el resultado de crear la cuenta del alumno.
         public async Task RegisterAsync(RegisterRequest request)
         {
             ArgumentNullException.ThrowIfNull(request);
