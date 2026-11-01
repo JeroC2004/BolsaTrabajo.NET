@@ -3,7 +3,7 @@
 @using API.Clients
 @using DTOs
 @using Microsoft.AspNetCore.Authorization
-@attribute [Authorize(Roles = DTOs.Roles.AdministradorOEmpresa)]
+@attribute [Authorize(Roles = DTOs.Roles.Administrador)]
 
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -28,12 +28,6 @@
         Mostrar todos
     </button>
 
-    <AuthorizeView Roles="Administrador">
-        <button class="btn btn-success"
-                @onclick="NuevoAlumno">
-            Nuevo alumno
-        </button>
-    </AuthorizeView>
 </div>
 
 @if (!string.IsNullOrWhiteSpace(errorMessage))
@@ -167,11 +161,6 @@ else
         {
             loading = false;
         }
-    }
-
-    private void NuevoAlumno()
-    {
-        Navigation.NavigateTo("/alumnos/nuevo");
     }
 
     private void Editar(int id)

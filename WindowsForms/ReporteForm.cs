@@ -101,7 +101,8 @@ namespace WindowsForms
 
         private static void ConfigurarSelectorFecha(DateTimePicker picker)
         {
-            picker.Format = DateTimePickerFormat.Short;
+            picker.Format = DateTimePickerFormat.Custom;
+            picker.CustomFormat = "dd/MM/yyyy";
             picker.ShowCheckBox = true;
             picker.Checked = false;
             picker.Width = 115;

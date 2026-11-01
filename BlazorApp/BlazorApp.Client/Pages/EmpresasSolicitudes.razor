@@ -1,0 +1,60 @@
+@page "/empresas/solicitudes"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = DTOs.Roles.Administrador)]
+@inject API.Clients.EmpresaApiClient Client
+@inject IJSRuntime JS
+
+<PageTitle>Solicitudes de empresas</PageTitle>
+<h1>Solicitudes de empresas</h1>
+<p>Revise los datos antes de habilitar el acceso de la empresa.</p>
+<button class="btn btn-secondary mb-3" @onclick="CargarAsync" disabled="@ocupado">Actualizar</button>
+@if (error != null) { <div class="alert alert-danger" role="alert">@error</div> }
+@if (cargando) { <p>Cargando solicitudes...</p> }
+else if (solicitudes.Count == 0) { <p>No hay solicitudes de empresas.</p> }
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead><tr><th>Razón social</th><th>Rubro</th><th>Descripción</th><th>Usuario</th><th>Email</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody>
+                @foreach (var solicitud in solicitudes)
+                {
+                    <tr>
+                        <td>@solicitud.RazonSocial</td><td>@solicitud.Rubro</td><td>@solicitud.Descripcion</td>
+                        <td>@solicitud.Username</td><td>@solicitud.Email</td><td>@solicitud.Estado</td>
+                        <td>
+                            @if (solicitud.Estado == "Pendiente")
+                            {
+                                <button class="btn btn-success btn-sm me-2" disabled="@ocupado" @onclick="() => ResolverAsync(solicitud, true)">Aprobar</button>
+                                <button class="btn btn-danger btn-sm" disabled="@ocupado" @onclick="() => ResolverAsync(solicitud, false)">Rechazar</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<DTOs.EmpresaSolicitudDTO> solicitudes = new();
+    private string? error;
+    private bool ocupado, cargando = true;
+    protected override Task OnInitializedAsync() => CargarAsync();
+    private async Task CargarAsync()
+    {
+        cargando = true;
+        error = null;
+        try { solicitudes = await Client.GetSolicitudesAsync(); }
+        catch (Exception ex) { error = ex.Message; }
+        finally { cargando = false; }
+    }
+    private async Task ResolverAsync(DTOs.EmpresaSolicitudDTO solicitud, bool aprobar)
+    {
+        if (ocupado || !await JS.InvokeAsync<bool>("confirm", $"¿{(aprobar ? "Aprobar" : "Rechazar")} el registro de {solicitud.RazonSocial}?")) return;
+        ocupado = true;
+        error = null;
+        try { await Client.ResolverSolicitudAsync(solicitud.Id, aprobar); await CargarAsync(); }
+        catch (Exception ex) { error = ex.Message; }
+        finally { ocupado = false; }
+    }
+}

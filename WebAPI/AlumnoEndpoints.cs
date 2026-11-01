@@ -25,7 +25,7 @@ namespace WebAPI
             .Produces<AlumnoDTO>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi()
-            .RequireAuthorization();
+            .RequireAuthorization(Policies.AdministradorOAlumno);
 
             app.MapGet("/alumnos", async (IAlumnoService alumnoService) =>
             {
@@ -35,25 +35,6 @@ namespace WebAPI
             .WithName("GetAllAlumnos")
             .WithTags("Alumnos")
             .Produces<List<AlumnoDTO>>(StatusCodes.Status200OK)
-            .WithOpenApi()
-            .RequireAuthorization(Policies.AdministradorOEmpresa);
-
-            app.MapPost("/alumnos", async (AlumnoDTO dto, IAlumnoService alumnoService) =>
-            {
-                try
-                {
-                    AlumnoDTO alumnoDTO = await alumnoService.AddAsync(dto);
-                    return Results.Created($"/alumnos/{alumnoDTO.Id}", alumnoDTO);
-                }
-                catch (ArgumentException ex)
-                {
-                    return Results.BadRequest(new { error = ex.Message });
-                }
-            })
-            .WithName("AddAlumno")
-            .WithTags("Alumnos")
-            .Produces<AlumnoDTO>(StatusCodes.Status201Created)
-            .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi()
             .RequireAuthorization(Policies.Administrador);
 
@@ -116,7 +97,7 @@ namespace WebAPI
             .WithName("GetAlumnosByCriteria")
             .WithTags("Alumnos")
             .WithOpenApi()
-            .RequireAuthorization(Policies.AdministradorOEmpresa);
+            .RequireAuthorization(Policies.Administrador);
         }
     }
 }

@@ -40,13 +40,22 @@
                             </NavLink>
                         </div>
 
-                        @* Administrador y Empresa: alumnos y reportes *@
-                        <AuthorizeView Roles="Administrador,Empresa" Context="gestionContext">
+                        @* Alumnos: solo administrador *@
+                        <AuthorizeView Roles="Administrador" Context="alumnosContext">
                             <div class="nav-item px-3">
                                 <NavLink class="nav-link" href="alumnos">
                                     <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Alumnos
                                 </NavLink>
                             </div>
+                        </AuthorizeView>
+
+                        <AuthorizeView Roles="Administrador" Context="empresasContext">
+                            <div class="nav-item px-3">
+                                <NavLink class="nav-link" href="empresas" Match="NavLinkMatch.All">Empresas</NavLink>
+                            </div>
+                        </AuthorizeView>
+
+                        <AuthorizeView Roles="Administrador,Empresa" Context="gestionContext">
                             <div class="nav-item px-3">
                                 <NavLink class="nav-link" href="reportes/postulaciones">
                                     Reporte de postulaciones
@@ -62,7 +71,7 @@
                         @* Solo Administrador: catálogos *@
                         <AuthorizeView Roles="Administrador" Context="adminContext">
                             <div class="nav-item px-3">
-                                <NavLink class="nav-link" href="empresas">Empresas</NavLink>
+                                <NavLink class="nav-link" href="empresas/solicitudes">Solicitudes</NavLink>
                             </div>
                             <div class="nav-item px-3">
                                 <NavLink class="nav-link" href="carreras">Carreras</NavLink>

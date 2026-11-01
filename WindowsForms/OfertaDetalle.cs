@@ -18,20 +18,7 @@ namespace WindowsForms
 
         private BindingList<RequisitoOfertaDTO> listaRequisitos = new();
 
-        public OfertaDetalle()
-        {
-            InitializeComponent();
-            ofertaId = null;
-
-            var httpClient = ApiHttpClientFactory.Shared;
-            _ofertaClient = new OfertaApiClient(httpClient);
-            _empresaClient = new EmpresaApiClient(httpClient);
-            _tipoOfertaClient = new TipoOfertaApiClient(httpClient);
-
-            ConfigurarGrilla();
-        }
-
-        public OfertaDetalle(int id)
+        public OfertaDetalle(int? id = null)
         {
             InitializeComponent();
             ofertaId = id;

@@ -9,8 +9,8 @@ namespace WindowsForms
         private List<OfertaDTO> ofertas = new();
         private readonly ComboBox tipoFiltro = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
         private readonly ComboBox estadoFiltro = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 160 };
-        private readonly DateTimePicker desdeFiltro = new() { ShowCheckBox = true, Checked = false, Format = DateTimePickerFormat.Short, Width = 145 };
-        private readonly DateTimePicker hastaFiltro = new() { ShowCheckBox = true, Checked = false, Format = DateTimePickerFormat.Short, Width = 145 };
+        private readonly DateTimePicker desdeFiltro = new() { ShowCheckBox = true, Checked = false, Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy", Width = 145 };
+        private readonly DateTimePicker hastaFiltro = new() { ShowCheckBox = true, Checked = false, Format = DateTimePickerFormat.Custom, CustomFormat = "dd/MM/yyyy", Width = 145 };
 
 
         private readonly OfertaApiClient _ofertaClient;

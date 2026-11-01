@@ -11,14 +11,14 @@ namespace WindowsForms
             ClientSize = new Size(ClientSize.Width, ClientSize.Height + 55);
             var registro = new Button
             {
-                Text = "Registrarme como alumno",
+                Text = "Registrarse (alumno o empresa)",
                 Dock = DockStyle.Bottom,
                 Height = 45,
                 TabIndex = 7
             };
             registro.Click += (_, _) =>
             {
-                using var form = new RegistroForm();
+                using var form = new RegistroSeleccionForm();
                 if (form.ShowDialog(this) == DialogResult.OK)
                 {
                     usernameTextBox.Text = form.UsernameRegistrado;

@@ -7,6 +7,7 @@ namespace Data
     {
         Task<Usuario?> GetByUsernameAsync(string username);
         Task RegisterAlumnoAsync(Alumno alumno, string username, string password);
+        Task RegisterEmpresaAsync(Empresa empresa, string username, string email, string password);
     }
 
     public class UsuarioRepository : IUsuarioRepository
@@ -68,6 +69,42 @@ namespace Data
             catch
             {
                 await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task RegisterEmpresaAsync(Empresa empresa, string username, string email, string password)
+        {
+            if (await context.Usuarios.AnyAsync(u => u.Username.ToLower() == username.ToLower()))
+                throw new InvalidOperationException("Ese nombre de usuario ya está registrado.");
+            if (await context.Usuarios.AnyAsync(u => u.Email.ToLower() == email.ToLower()) ||
+                await context.Alumnos.AnyAsync(a => a.Email.ToLower() == email.ToLower()))
+                throw new InvalidOperationException("Ya existe una cuenta registrada con ese email.");
+            if (await context.Empresas.AnyAsync(e => e.RazonSocial.ToLower() == empresa.RazonSocial.ToLower()))
+                throw new InvalidOperationException("Ya existe una empresa o solicitud con esa razón social.");
+
+            empresa.SolicitarRegistro();
+            await using var transaction = await context.Database.BeginTransactionAsync();
+            try
+            {
+                context.Empresas.Add(empresa);
+                await context.SaveChangesAsync();
+                context.Usuarios.Add(new Usuario(0, username, email, password, DateTime.UtcNow,
+                    activo: false, rol: RolUsuario.Empresa, empresaId: empresa.Id));
+                await context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is Microsoft.Data.SqlClient.SqlException sql &&
+                (sql.Number == 2601 || sql.Number == 2627))
+            {
+                await transaction.RollbackAsync();
+                context.ChangeTracker.Clear();
+                throw new InvalidOperationException("El usuario, email o razón social ya fue registrado.", ex);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                context.ChangeTracker.Clear();
                 throw;
             }
         }

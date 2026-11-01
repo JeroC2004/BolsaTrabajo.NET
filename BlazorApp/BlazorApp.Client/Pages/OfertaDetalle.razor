@@ -65,11 +65,13 @@ else
             </div>
             <div class="col-md-4 mb-3">
                 <label>Fecha Desde</label>
-                <InputDate class="form-control" @bind-Value="oferta.FechaDesde" />
+                <FechaInput class="form-control" DisplayName="Fecha desde" @bind-Value="oferta.FechaDesde" />
+                <ValidationMessage For="@(() => oferta.FechaDesde)" />
             </div>
             <div class="col-md-4 mb-3">
                 <label>Fecha Hasta</label>
-                <InputDate class="form-control" @bind-Value="oferta.FechaHasta" />
+                <FechaInput class="form-control" DisplayName="Fecha hasta" @bind-Value="oferta.FechaHasta" />
+                <ValidationMessage For="@(() => oferta.FechaHasta)" />
             </div>
         </div>
 
@@ -245,7 +247,7 @@ else
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error: {ex.Message}";
+            errorMessage = ex.Message;
         }
         finally
         {

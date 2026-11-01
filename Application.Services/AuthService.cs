@@ -15,10 +15,25 @@ namespace Application.Services
         Task<LoginResponse?> LoginAsync(LoginRequest request);
 
         Task RegisterAsync(RegisterRequest request);
+        Task RegisterEmpresaAsync(EmpresaRegistroRequest request);
     }
 
     public class AuthService : IAuthService
     {
+        public async Task RegisterEmpresaAsync(EmpresaRegistroRequest request)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            request.Email = request.Email?.Trim() ?? string.Empty;
+            request.RazonSocial = request.RazonSocial?.Trim() ?? string.Empty;
+            request.Rubro = request.Rubro?.Trim() ?? string.Empty;
+            request.Descripcion = request.Descripcion?.Trim() ?? string.Empty;
+            var errores = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+            if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(request,
+                new System.ComponentModel.DataAnnotations.ValidationContext(request), errores, true))
+                throw new ArgumentException(string.Join(" ", errores.Select(e => e.ErrorMessage)));
+            var empresa = new Empresa(0, request.RazonSocial, request.Descripcion, request.Rubro);
+            await usuarioRepository.RegisterEmpresaAsync(empresa, request.RazonSocial, request.Email, request.Password);
+        }
         private readonly IUsuarioRepository usuarioRepository;
         private readonly IConfiguration configuration;
 

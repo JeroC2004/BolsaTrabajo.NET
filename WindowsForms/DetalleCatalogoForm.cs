@@ -1,7 +1,7 @@
 ﻿namespace WindowsForms
 {
    
-    internal abstract partial class DetalleCatalogoForm : Form
+    internal abstract class DetalleCatalogoForm : Form
     {
         private readonly TableLayoutPanel tabla = new();
         private readonly Button guardarButton = new();

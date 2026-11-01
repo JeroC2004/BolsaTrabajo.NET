@@ -25,7 +25,6 @@ namespace WindowsForms
 
         private void AplicarPermisos()
         {
-            agregarButton.Visible = PuedeGestionar;
             actualizarButton.Visible = PuedeGestionar;
             eliminarButton.Visible = PuedeGestionar;
         }
@@ -97,12 +96,6 @@ namespace WindowsForms
         {
             buscarTextBox.Clear();
             await CargarAlumnosAsync();
-        }
-
-        private async void agregarButton_Click(object sender, EventArgs e)
-        {
-            var detalle = new AlumnoDetalle();
-            if (detalle.ShowDialog(this) == DialogResult.OK) await CargarAlumnosAsync();
         }
 
         private async void actualizarButton_Click(object sender, EventArgs e)

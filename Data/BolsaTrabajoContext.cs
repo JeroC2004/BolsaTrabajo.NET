@@ -1,7 +1,5 @@
 ﻿using Domain.Model;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace Data
 {
@@ -19,7 +17,6 @@ namespace Data
 
         public BolsaTrabajoContext(DbContextOptions<BolsaTrabajoContext> options) : base(options)
         {
-            //Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -46,6 +43,7 @@ namespace Data
 
             modelBuilder.Entity<Empresa>(entity =>
             {
+                entity.Property(e => e.EstadoRegistro).IsRequired().HasConversion<string>().HasMaxLength(20);
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
                 entity.Property(e => e.RazonSocial).IsRequired().HasMaxLength(150);
@@ -54,9 +52,9 @@ namespace Data
                 entity.HasIndex(e => e.RazonSocial).IsUnique();
 
                 entity.HasData(
-                    new { Id = 1, RazonSocial = "TechCorp S.A.", Descripcion = "Empresa de desarrollo de software", Rubro = "Tecnología" },
-                    new { Id = 2, RazonSocial = "DataSoft Rosario S.A.", Descripcion = "Desarrollo de software a medida y consultoría IT", Rubro = "Tecnología" },
-                    new { Id = 3, RazonSocial = "NubeCloud Argentina", Descripcion = "Servicios de infraestructura cloud y ciberseguridad", Rubro = "Tecnología" }
+                    new { Id = 1, RazonSocial = "TechCorp S.A.", Descripcion = "Empresa de desarrollo de software", Rubro = "Tecnología", EstadoRegistro = EstadoRegistroEmpresa.Aprobada },
+                    new { Id = 2, RazonSocial = "DataSoft Rosario S.A.", Descripcion = "Desarrollo de software a medida y consultoría IT", Rubro = "Tecnología", EstadoRegistro = EstadoRegistroEmpresa.Aprobada },
+                    new { Id = 3, RazonSocial = "NubeCloud Argentina", Descripcion = "Servicios de infraestructura cloud y ciberseguridad", Rubro = "Tecnología", EstadoRegistro = EstadoRegistroEmpresa.Aprobada }
                 );
             });
 
@@ -175,7 +173,7 @@ namespace Data
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
-                entity.Property(e => e.Username).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Username).IsRequired().HasMaxLength(150);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(150);
                 entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(255);
                 entity.Property(e => e.Salt).IsRequired().HasMaxLength(255);

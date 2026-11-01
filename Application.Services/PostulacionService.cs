@@ -96,6 +96,7 @@ namespace Application.Services
                 AlumnoLegajo = p.Alumno?.Legajo,
                 AlumnoEmail = p.Alumno?.Email,
                 AlumnoCarrera = p.Alumno?.Carrera?.NomCarrera,
+                AlumnoAnioCurso = p.Alumno?.AnioCurso ?? 0,
                 AlumnoPromedio = p.Alumno?.Promedio ?? 0,
                 AlumnoTieneCv = alumnoTieneCv,
                 OfertaId = p.OfertaId,

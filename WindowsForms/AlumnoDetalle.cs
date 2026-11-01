@@ -1,4 +1,3 @@
-using API.Auth.WindowsForms;
 using API.Clients;
 using DTOs;
 using System.Windows.Forms;
@@ -7,20 +6,11 @@ namespace WindowsForms
 {
     public partial class AlumnoDetalle : Form
     {
-        private readonly int? alumnoId;
+        private readonly int alumnoId;
         private List<CarreraDTO> carreras = new();
 
         private readonly AlumnoApiClient _alumnoClient;
         private readonly CarreraApiClient _carreraClient;
-
-        public AlumnoDetalle()
-        {
-            InitializeComponent();
-            alumnoId = null;
-            var httpClient = ApiHttpClientFactory.Shared;
-            _alumnoClient = new AlumnoApiClient(httpClient);
-            _carreraClient = new CarreraApiClient(httpClient);
-        }
 
         public AlumnoDetalle(int id)
         {
@@ -44,16 +34,9 @@ namespace WindowsForms
                 carreraComboBox.DisplayMember = "NomCarrera";
                 carreraComboBox.ValueMember = "Id";
 
-                if (alumnoId.HasValue)
-                {
-                    Text = "Editar Alumno";
-                    var alumno = await _alumnoClient.GetAsync(alumnoId.Value);
-                    CargarDatos(alumno);
-                }
-                else
-                {
-                    Text = "Nuevo Alumno";
-                }
+                Text = "Editar Alumno";
+                var alumno = await _alumnoClient.GetAsync(alumnoId);
+                CargarDatos(alumno);
             }
             catch (Exception ex)
             {
@@ -88,7 +71,7 @@ namespace WindowsForms
 
             var dto = new AlumnoDTO
             {
-                Id = alumnoId ?? 0,
+                Id = alumnoId,
                 NomAlumno = nomAlumnoTextBox.Text.Trim(),
                 ApeAlumno = apeAlumnoTextBox.Text.Trim(),
                 Email = emailTextBox.Text.Trim(),
@@ -106,10 +89,7 @@ namespace WindowsForms
                 Cursor = Cursors.WaitCursor;
                 guardarButton.Enabled = false;
 
-                if (alumnoId.HasValue)
-                    await _alumnoClient.UpdateAsync(dto);
-                else
-                    await _alumnoClient.AddAsync(dto);
+                await _alumnoClient.UpdateAsync(dto);
 
                 DialogResult = DialogResult.OK;
                 Close();

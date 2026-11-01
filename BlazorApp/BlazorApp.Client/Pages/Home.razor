@@ -7,11 +7,17 @@
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
     <div class="card shadow-sm p-5 text-center" style="max-width: 550px; border: 1px solid #dee2e6; border-radius: 8px;">
         <h1 class="h3 fw-bold text-dark mb-3">
-            Sistema de Bolsa de Trabajo
+            <AuthorizeView>
+                <Authorized>@Titulo(context.User)</Authorized>
+                <NotAuthorized>Sistema de Bolsa de Trabajo</NotAuthorized>
+            </AuthorizeView>
         </h1>
 
         <p class="text-secondary mb-4" style="font-size: 1.05rem; line-height: 1.5;">
-            Acceda al portal o registre una cuenta nueva para consultar oportunidades laborales.
+            <AuthorizeView>
+                <Authorized>@Descripcion(context.User)</Authorized>
+                <NotAuthorized>Acceda al portal o registre una cuenta nueva para consultar oportunidades laborales.</NotAuthorized>
+            </AuthorizeView>
         </p>
 
         <hr class="my-4 text-muted" />
@@ -20,7 +26,7 @@
             <Authorized>
                 <button class="btn btn-success px-5 py-2"
                         @onclick="IrAOfertas">
-                    Ir al panel
+                    @(context.User.IsInRole("Administrador") ? "Gestionar ofertas" : context.User.IsInRole("Empresa") ? "Ver mis ofertas" : "Explorar ofertas")
                 </button>
             </Authorized>
 
@@ -42,6 +48,16 @@
 </div>
 
 @code {
+    private static string Titulo(System.Security.Claims.ClaimsPrincipal usuario) =>
+        usuario.IsInRole("Administrador") ? "Panel de administración" :
+        usuario.IsInRole("Empresa") ? "Portal de empresas" :
+        usuario.IsInRole("Alumno") ? "Tu próximo paso laboral" : "Sistema de Bolsa de Trabajo";
+
+    private static string Descripcion(System.Security.Claims.ClaimsPrincipal usuario) =>
+        usuario.IsInRole("Administrador") ? "Administrá ofertas, postulaciones, alumnos y empresas. Consultá reportes y revisá las solicitudes de registro." :
+        usuario.IsInRole("Empresa") ? "Gestioná tus ofertas laborales, revisá las postulaciones recibidas y consultá tus reportes." :
+        usuario.IsInRole("Alumno") ? "Explorá oportunidades laborales, seguí tus postulaciones y mantené actualizados tu perfil y tu CV." :
+        "Consultá las oportunidades laborales disponibles.";
     private void IrALogin()
     {
         Navigation.NavigateTo("/login");

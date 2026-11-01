@@ -114,7 +114,7 @@ namespace Data
             if (criteria.Desde.HasValue)
                 query = query.Where(o => o.FechaDesde >= criteria.Desde.Value);
             if (criteria.Hasta.HasValue)
-                query = query.Where(o => o.FechaDesde.Date <= criteria.Hasta.Value);
+                query = query.Where(o => o.FechaHasta.Date <= criteria.Hasta.Value);
             return await query.OrderByDescending(o => o.FechaDesde).ThenBy(o => o.Id).ToListAsync();
         }
     }

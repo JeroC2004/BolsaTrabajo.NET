@@ -9,5 +9,7 @@ namespace Application.Services
         Task<EmpresaDTO> AddAsync(EmpresaDTO dto);
         Task<bool> UpdateAsync(EmpresaDTO dto);
         Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<EmpresaSolicitudDTO>> GetSolicitudesAsync();
+        Task<bool> ResolverSolicitudAsync(int id, bool aprobar);
     }
 }

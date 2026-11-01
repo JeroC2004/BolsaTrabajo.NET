@@ -22,20 +22,23 @@
 
 <h1 style="text-align: center">Postulaciones por oferta</h1>
 
+<EditForm Model="@this" OnValidSubmit="GenerarAsync">
 <div class="row g-2 align-items-end mb-3 d-print-none">
     <div class="col-auto">
         <label class="form-label">Desde</label>
-        <input type="date" class="form-control" @bind="desde" />
+        <FechaInput class="form-control" DisplayName="Desde" @bind-Value="desde" />
     </div>
     <div class="col-auto">
         <label class="form-label">Hasta</label>
-        <input type="date" class="form-control" @bind="hasta" />
+        <FechaInput class="form-control" DisplayName="Hasta" @bind-Value="hasta" />
     </div>
     <div class="col-auto">
-        <button class="btn btn-primary" @onclick="GenerarAsync">Generar</button>
-        <button class="btn btn-outline-secondary" @onclick="ImprimirAsync">Imprimir</button>
+        <button class="btn btn-primary" type="submit">Generar</button>
+        <button class="btn btn-outline-secondary" type="button" @onclick="ImprimirAsync">Imprimir</button>
     </div>
 </div>
+
+</EditForm>
 
 @if (!string.IsNullOrWhiteSpace(errorMessage))
 {

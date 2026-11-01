@@ -1,0 +1,65 @@
+@inject API.Clients.AuthApiClient Client
+
+@if (enviada)
+{
+    <div class="alert alert-success" role="status">
+        Solicitud enviada. Podrá iniciar sesión cuando el administrador apruebe el registro de su empresa.
+    </div>
+    <a class="btn btn-primary" href="login">Ir al inicio de sesión</a>
+}
+else
+{
+    <p class="text-muted">Complete los datos de la empresa y su cuenta. El administrador revisará la solicitud antes de habilitar el acceso.</p>
+    <EditForm Model="registro" OnValidSubmit="RegistrarAsync">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="empresa-razon">Razón social</label>
+            <InputText id="empresa-razon" class="form-control" @bind-Value="registro.RazonSocial" />
+            <div class="form-text">Utilizará la razón social como nombre de usuario para iniciar sesión.</div>
+        </div>
+        <div class="mb-3">
+            <label for="empresa-rubro">Rubro</label>
+            <InputText id="empresa-rubro" class="form-control" @bind-Value="registro.Rubro" />
+        </div>
+        <div class="mb-3">
+            <label for="empresa-descripcion">Descripción</label>
+            <InputTextArea id="empresa-descripcion" class="form-control" @bind-Value="registro.Descripcion" />
+        </div>
+        <div class="mb-3">
+            <label for="empresa-email">Email de contacto</label>
+            <InputText id="empresa-email" class="form-control" type="email" autocomplete="email" @bind-Value="registro.Email" />
+        </div>
+        <div class="mb-3">
+            <label for="empresa-password">Contraseña (mínimo 6 caracteres)</label>
+            <InputText id="empresa-password" class="form-control" type="password" autocomplete="new-password" @bind-Value="registro.Password" />
+        </div>
+        <div class="mb-3">
+            <label for="empresa-confirmacion">Confirmar contraseña</label>
+            <InputText id="empresa-confirmacion" class="form-control" type="password" autocomplete="new-password" @bind-Value="registro.ConfirmPassword" />
+        </div>
+        @if (error != null) { <div class="alert alert-danger" role="alert">@error</div> }
+        <button class="btn btn-primary" type="submit" disabled="@guardando">@(guardando ? "Enviando..." : "Enviar solicitud")</button>
+        <a class="btn btn-secondary ms-2" href="/">Cancelar</a>
+    </EditForm>
+}
+
+@code {
+    private DTOs.EmpresaRegistroRequest registro = new();
+    private bool guardando, enviada;
+    private string? error;
+    private async Task RegistrarAsync()
+    {
+        if (guardando) return;
+        guardando = true;
+        error = null;
+        try
+        {
+            await Client.RegisterEmpresaAsync(registro);
+            registro = new();
+            enviada = true;
+        }
+        catch (Exception ex) { error = ex.Message; }
+        finally { guardando = false; }
+    }
+}

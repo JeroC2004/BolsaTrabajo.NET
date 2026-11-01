@@ -113,7 +113,8 @@ namespace WindowsForms
             fechaDesdeLabel.TabIndex = 10;
             fechaDesdeLabel.Text = "Fecha desde:";
 
-            fechaDesdePicker.Format = DateTimePickerFormat.Short;
+            fechaDesdePicker.Format = DateTimePickerFormat.Custom;
+            fechaDesdePicker.CustomFormat = "dd/MM/yyyy";
             fechaDesdePicker.Location = new Point(124, 116);
             fechaDesdePicker.Margin = new Padding(2, 1, 2, 1);
             fechaDesdePicker.Name = "fechaDesdePicker";
@@ -128,7 +129,8 @@ namespace WindowsForms
             fechaHastaLabel.TabIndex = 12;
             fechaHastaLabel.Text = "Fecha hasta:";
 
-            fechaHastaPicker.Format = DateTimePickerFormat.Short;
+            fechaHastaPicker.Format = DateTimePickerFormat.Custom;
+            fechaHastaPicker.CustomFormat = "dd/MM/yyyy";
             fechaHastaPicker.Location = new Point(124, 141);
             fechaHastaPicker.Margin = new Padding(2, 1, 2, 1);
             fechaHastaPicker.Name = "fechaHastaPicker";

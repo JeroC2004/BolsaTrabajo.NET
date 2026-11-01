@@ -1,0 +1,39 @@
+@typeparam TValue
+@inherits Microsoft.AspNetCore.Components.Forms.InputBase<TValue>
+@using System.Globalization
+@using System.Diagnostics.CodeAnalysis
+
+<input @attributes="AdditionalAttributes" type="date" lang="es-AR" class="@CssClass"
+       aria-label="@(AdditionalAttributes?.ContainsKey("aria-label") == true ? AdditionalAttributes["aria-label"] : DisplayName)"
+       value="@CurrentValueAsString" @onchange="CambiarFecha" />
+@if (errorFecha != null)
+{
+    <div class="text-danger" role="alert">@errorFecha</div>
+}
+
+@code {
+    private string? errorFecha;
+    protected override string? FormatValueAsString(TValue? value) =>
+        value is DateTime fecha ? fecha.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) : null;
+
+    protected void CambiarFecha(ChangeEventArgs args)
+    {
+        errorFecha = null;
+        CurrentValueAsString = args.Value?.ToString();
+    }
+
+    protected override bool TryParseValueFromString(string? value, out TValue result, [NotNullWhen(false)] out string? validationErrorMessage)
+    {
+        if (DateTime.TryParseExact(value?.Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture,
+            DateTimeStyles.None, out var fecha))
+        {
+            result = (TValue)(object)fecha;
+            validationErrorMessage = null;
+            return true;
+        }
+
+        result = default!;
+        validationErrorMessage = errorFecha = $"{DisplayName ?? "La fecha"} debe ser válida.";
+        return false;
+    }
+}

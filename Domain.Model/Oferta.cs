@@ -80,28 +80,14 @@ namespace Domain.Model
 
         public void SetFechas(DateTime desde, DateTime hasta)
         {
-            if (desde == default || hasta == default || desde > hasta)
-                throw new ArgumentException("El período de la oferta debe tener fechas válidas y desde no puede superar hasta.");
+            if (desde == default)
+                throw new ArgumentException("Seleccione la fecha de inicio de la oferta.");
+            if (hasta == default)
+                throw new ArgumentException("Seleccione la fecha de finalización de la oferta.");
+            if (desde > hasta)
+                throw new ArgumentException("La fecha de finalización no puede ser anterior a la fecha de inicio.");
             FechaDesde = desde;
             FechaHasta = hasta;
-        }
-
-        public void SetFechaDesde(DateTime fechaDesde)
-        {
-            if (fechaDesde == default)
-                throw new ArgumentException("La fecha desde no puede ser nula.", nameof(fechaDesde));
-            if (FechaHasta != default && fechaDesde > FechaHasta)
-                throw new ArgumentException("La fecha desde no puede ser posterior a la fecha hasta.", nameof(fechaDesde));
-            FechaDesde = fechaDesde;
-        }
-
-        public void SetFechaHasta(DateTime fechaHasta)
-        {
-            if (fechaHasta == default)
-                throw new ArgumentException("La fecha hasta no puede ser nula.", nameof(fechaHasta));
-            if (FechaDesde != default && fechaHasta < FechaDesde)
-                throw new ArgumentException("La fecha hasta no puede ser anterior a la fecha desde.", nameof(fechaHasta));
-            FechaHasta = fechaHasta;
         }
 
         public void SetDetalle(string detalle)
@@ -136,13 +122,6 @@ namespace Domain.Model
                 _empresa = null;
         }
 
-        public void SetEmpresa(Empresa empresa)
-        {
-            ArgumentNullException.ThrowIfNull(empresa);
-            _empresa = empresa;
-            _empresaId = empresa.Id;
-        }
-
         public void SetTipoOfertaId(int tipoOfertaId)
         {
             if (tipoOfertaId <= 0)
@@ -151,13 +130,6 @@ namespace Domain.Model
             _tipoOfertaId = tipoOfertaId;
             if (_tipoOferta != null && _tipoOferta.Id != tipoOfertaId)
                 _tipoOferta = null;
-        }
-
-        public void SetTipoOferta(TipoOferta tipoOferta)
-        {
-            ArgumentNullException.ThrowIfNull(tipoOferta);
-            _tipoOferta = tipoOferta;
-            _tipoOfertaId = tipoOferta.Id;
         }
     }
 }

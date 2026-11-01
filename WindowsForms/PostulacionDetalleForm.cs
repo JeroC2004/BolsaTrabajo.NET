@@ -4,7 +4,7 @@ using DTOs;
 namespace WindowsForms
 {
 
-    internal sealed partial class PostulacionDetalleForm : DetalleCatalogoForm
+    internal sealed class PostulacionDetalleForm : DetalleCatalogoForm
     {
         private sealed record Opcion(int Id, string Texto);
 

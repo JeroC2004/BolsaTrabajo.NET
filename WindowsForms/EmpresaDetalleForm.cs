@@ -3,7 +3,7 @@ using DTOs;
 
 namespace WindowsForms
 {
-    internal sealed partial class EmpresaDetalleForm : DetalleCatalogoForm
+    internal sealed class EmpresaDetalleForm : DetalleCatalogoForm
     {
         private readonly EmpresaApiClient client = new(ApiHttpClientFactory.Shared);
         private readonly EmpresaDTO empresa;
@@ -11,18 +11,16 @@ namespace WindowsForms
         private readonly TextBox rubroTextBox;
         private readonly TextBox descripcionTextBox;
 
-        public EmpresaDetalleForm(EmpresaDTO? existente)
-            : base(existente == null ? "Nueva empresa" : "Modificar empresa")
+        public EmpresaDetalleForm(EmpresaDTO existente)
+            : base("Modificar empresa")
         {
-            empresa = existente == null
-                ? new EmpresaDTO()
-                : new EmpresaDTO
-                {
-                    Id = existente.Id,
-                    RazonSocial = existente.RazonSocial,
-                    Descripcion = existente.Descripcion,
-                    Rubro = existente.Rubro
-                };
+            empresa = new EmpresaDTO
+            {
+                Id = existente.Id,
+                RazonSocial = existente.RazonSocial,
+                Descripcion = existente.Descripcion,
+                Rubro = existente.Rubro
+            };
 
             razonSocialTextBox = AgregarCampoTexto("Razón social", 150);
             rubroTextBox = AgregarCampoTexto("Rubro", 100);
@@ -42,10 +40,7 @@ namespace WindowsForms
             System.ComponentModel.DataAnnotations.Validator.ValidateObject(
                 empresa, new System.ComponentModel.DataAnnotations.ValidationContext(empresa), validateAllProperties: true);
 
-            if (empresa.Id == 0)
-                await client.AddAsync(empresa);
-            else
-                await client.UpdateAsync(empresa);
+            await client.UpdateAsync(empresa);
         }
     }
 }

@@ -16,7 +16,7 @@ namespace API.Clients
 
         public async Task<CurriculumDTO?> GetInfoAsync(int alumnoId)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"alumnos/{alumnoId}/cv/info");
+            using HttpResponseMessage response = await _httpClient.GetAsync($"alumnos/{alumnoId}/cv/info");
 
             if (response.StatusCode == HttpStatusCode.NotFound)
                 return null;
@@ -29,7 +29,7 @@ namespace API.Clients
 
         public async Task<CurriculumArchivoDTO> DescargarAsync(int alumnoId)
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"alumnos/{alumnoId}/cv");
+            using HttpResponseMessage response = await _httpClient.GetAsync($"alumnos/{alumnoId}/cv");
 
             if (!response.IsSuccessStatusCode)
                 throw await ApiErrors.CrearExcepcionAsync(response, "Error al descargar el CV");
@@ -52,7 +52,7 @@ namespace API.Clients
             using var formulario = new MultipartFormDataContent();
             formulario.Add(archivo, "archivo", nombreArchivo);
 
-            HttpResponseMessage response = await _httpClient.PutAsync($"alumnos/{alumnoId}/cv", formulario);
+            using HttpResponseMessage response = await _httpClient.PutAsync($"alumnos/{alumnoId}/cv", formulario);
 
             if (!response.IsSuccessStatusCode)
                 throw await ApiErrors.CrearExcepcionAsync(response, "Error al cargar el CV");
@@ -62,7 +62,7 @@ namespace API.Clients
 
         public async Task EliminarAsync(int alumnoId)
         {
-            HttpResponseMessage response = await _httpClient.DeleteAsync($"alumnos/{alumnoId}/cv");
+            using HttpResponseMessage response = await _httpClient.DeleteAsync($"alumnos/{alumnoId}/cv");
 
             if (!response.IsSuccessStatusCode)
                 throw await ApiErrors.CrearExcepcionAsync(response, "Error al eliminar el CV");

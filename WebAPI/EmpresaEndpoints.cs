@@ -7,6 +7,12 @@ namespace WebAPI
     {
         public static void MapEmpresaEndpoints(this WebApplication app)
         {
+            app.MapGet("/empresas/solicitudes", async (IEmpresaService service) => Results.Ok(await service.GetSolicitudesAsync()))
+                .WithName("GetSolicitudesEmpresas").WithTags("Empresas").RequireAuthorization(Policies.Administrador);
+            app.MapPut("/empresas/solicitudes/{id:int}/aprobar", (int id, IEmpresaService service) => Resolver(id, true, service))
+                .WithName("AprobarEmpresa").WithTags("Empresas").RequireAuthorization(Policies.Administrador);
+            app.MapPut("/empresas/solicitudes/{id:int}/rechazar", (int id, IEmpresaService service) => Resolver(id, false, service))
+                .WithName("RechazarEmpresa").WithTags("Empresas").RequireAuthorization(Policies.Administrador);
             app.MapGet("/empresas", async (IEmpresaService empresaService) =>
             {
                 var dtos = await empresaService.GetAllAsync();
@@ -28,25 +34,6 @@ namespace WebAPI
             .WithTags("Empresas")
             .WithOpenApi()
             .RequireAuthorization();
-
-            app.MapPost("/empresas", async (EmpresaDTO dto, IEmpresaService empresaService) =>
-            {
-                try
-                {
-                    var creado = await empresaService.AddAsync(dto);
-                    return Results.Created($"/empresas/{creado.Id}", creado);
-                }
-                catch (ArgumentException ex)
-                {
-                    return Results.BadRequest(new { error = ex.Message });
-                }
-            })
-            .WithName("AddEmpresa")
-            .WithTags("Empresas")
-            .Produces<EmpresaDTO>(StatusCodes.Status201Created)
-            .Produces(StatusCodes.Status400BadRequest)
-            .WithOpenApi()
-            .RequireAuthorization(Policies.Administrador);
 
             app.MapPut("/empresas", async (EmpresaDTO dto, IEmpresaService empresaService) =>
             {
@@ -91,6 +78,16 @@ namespace WebAPI
             .Produces(StatusCodes.Status409Conflict)
             .WithOpenApi()
             .RequireAuthorization(Policies.Administrador);
+        }
+
+        private static async Task<IResult> Resolver(int id, bool aprobar, IEmpresaService service)
+        {
+            try
+            {
+                return await service.ResolverSolicitudAsync(id, aprobar) ? Results.NoContent()
+                    : Results.Conflict(new { error = "La solicitud no existe o ya fue resuelta." });
+            }
+            catch (InvalidOperationException ex) { return Results.Conflict(new { error = ex.Message }); }
         }
     }
 }

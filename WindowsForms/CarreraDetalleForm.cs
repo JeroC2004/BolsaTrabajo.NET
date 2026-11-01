@@ -3,7 +3,7 @@ using DTOs;
 
 namespace WindowsForms
 {
-    internal sealed partial class CarreraDetalleForm : DetalleCatalogoForm
+    internal sealed class CarreraDetalleForm : DetalleCatalogoForm
     {
         private readonly CarreraApiClient client = new(ApiHttpClientFactory.Shared);
         private readonly CarreraDTO carrera;

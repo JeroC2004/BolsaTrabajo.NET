@@ -1,4 +1,3 @@
-@page "/empresas/nuevo"
 @page "/empresas/editar/{ItemId:int}"
 
 @using DTOs
@@ -50,23 +49,20 @@ else
 }
 
 @code {
-    [Parameter] public int? ItemId { get; set; }
+    [Parameter] public int ItemId { get; set; }
 
     private EmpresaDTO item = new();
     private bool cargando = true;
     private bool guardando = false;
     private string? errorMessage;
 
-    private string TituloPagina => ItemId.HasValue ? "Editar Empresa" : "Nueva empresa";
+    private const string TituloPagina = "Editar Empresa";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            if (ItemId.HasValue)
-            {
-                item = await Client.GetAsync(ItemId.Value);
-            }
+            item = await Client.GetAsync(ItemId);
         }
         catch (UnauthorizedAccessException)
         {
@@ -89,10 +85,7 @@ else
 
         try
         {
-            if (ItemId.HasValue)
-                await Client.UpdateAsync(item);
-            else
-                await Client.AddAsync(item);
+            await Client.UpdateAsync(item);
 
             Navigation.NavigateTo("/empresas");
         }

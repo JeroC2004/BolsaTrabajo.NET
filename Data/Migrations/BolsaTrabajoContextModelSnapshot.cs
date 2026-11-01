@@ -190,6 +190,10 @@ namespace Data.Migrations
 
             modelBuilder.Entity("Domain.Model.Empresa", b =>
             {
+                b.Property<string>("EstadoRegistro")
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasColumnType("nvarchar(20)");
                 b.Property<int>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("int");
@@ -223,6 +227,7 @@ namespace Data.Migrations
                     {
                         Id = 1,
                         Descripcion = "Empresa de desarrollo de software",
+                        EstadoRegistro = "Aprobada",
                         RazonSocial = "TechCorp S.A.",
                         Rubro = "Tecnología"
                     },
@@ -230,6 +235,7 @@ namespace Data.Migrations
                     {
                         Id = 2,
                         Descripcion = "Desarrollo de software a medida y consultoría IT",
+                        EstadoRegistro = "Aprobada",
                         RazonSocial = "DataSoft Rosario S.A.",
                         Rubro = "Tecnología"
                     },
@@ -237,6 +243,7 @@ namespace Data.Migrations
                     {
                         Id = 3,
                         Descripcion = "Servicios de infraestructura cloud y ciberseguridad",
+                        EstadoRegistro = "Aprobada",
                         RazonSocial = "NubeCloud Argentina",
                         Rubro = "Tecnología"
                     });
@@ -428,8 +435,8 @@ namespace Data.Migrations
 
                 b.Property<string>("Username")
                     .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnType("nvarchar(50)");
+                    .HasMaxLength(150)
+                    .HasColumnType("nvarchar(150)");
 
                 b.HasKey("Id");
 

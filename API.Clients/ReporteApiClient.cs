@@ -28,7 +28,7 @@ namespace API.Clients
             if (parametros.Count > 0)
                 url += "?" + string.Join("&", parametros);
 
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            using HttpResponseMessage response = await _httpClient.GetAsync(url);
 
             if (response.IsSuccessStatusCode)
                 return (await response.Content.ReadFromJsonAsync<IEnumerable<ReportePostulacionesOfertaDTO>>())
@@ -39,7 +39,7 @@ namespace API.Clients
 
         public async Task<IEnumerable<ReporteOfertasTipoDTO>> GetOfertasPorTipoAsync()
         {
-            HttpResponseMessage response = await _httpClient.GetAsync("reportes/ofertas-por-tipo");
+            using HttpResponseMessage response = await _httpClient.GetAsync("reportes/ofertas-por-tipo");
 
             if (response.IsSuccessStatusCode)
                 return (await response.Content.ReadFromJsonAsync<IEnumerable<ReporteOfertasTipoDTO>>())

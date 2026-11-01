@@ -6,6 +6,15 @@ namespace Application.Services
 {
     public class EmpresaService : IEmpresaService
     {
+        public async Task<IEnumerable<EmpresaSolicitudDTO>> GetSolicitudesAsync() =>
+            (await empresaRepository.GetSolicitudesAsync()).Select(s => new EmpresaSolicitudDTO
+            {
+                Id = s.Empresa.Id, RazonSocial = s.Empresa.RazonSocial, Rubro = s.Empresa.Rubro,
+                Descripcion = s.Empresa.Descripcion, Username = s.Username, Email = s.Email,
+                Estado = s.Empresa.EstadoRegistro.ToString()
+            }).ToList();
+
+        public Task<bool> ResolverSolicitudAsync(int id, bool aprobar) => empresaRepository.ResolverSolicitudAsync(id, aprobar);
         private readonly IEmpresaRepository empresaRepository;
 
         public EmpresaService(IEmpresaRepository empresaRepository)

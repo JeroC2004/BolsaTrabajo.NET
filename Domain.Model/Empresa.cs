@@ -6,6 +6,9 @@ namespace Domain.Model
         public string RazonSocial { get; private set; }
         public string Descripcion { get; private set; }
         public string Rubro { get; private set; }
+        public EstadoRegistroEmpresa EstadoRegistro { get; private set; } = EstadoRegistroEmpresa.Aprobada;
+
+        public void SolicitarRegistro() => EstadoRegistro = EstadoRegistroEmpresa.Pendiente;
 
         public Empresa(int id, string razonSocial, string descripcion, string rubro)
         {

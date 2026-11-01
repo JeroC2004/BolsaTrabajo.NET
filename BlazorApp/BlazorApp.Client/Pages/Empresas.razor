@@ -14,10 +14,7 @@
 <h1 style="text-align:center;">Gestión de empresas</h1>
 
 <div class="mb-3 d-flex gap-2">
-    <button class="btn btn-success"
-            @onclick="Nuevo">
-        Nueva empresa
-    </button>
+    <a class="btn btn-primary" href="empresas/solicitudes">Solicitudes de empresas</a>
 </div>
 
 @if (!string.IsNullOrWhiteSpace(errorMessage))
@@ -105,11 +102,6 @@ else
         {
             loading = false;
         }
-    }
-
-    private void Nuevo()
-    {
-        Navigation.NavigateTo("/empresas/nuevo");
     }
 
     private void Editar(int id)

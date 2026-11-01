@@ -21,7 +21,7 @@ namespace API.Clients
 
         public async Task<LoginResponse?> LoginAsync(LoginRequest request)
         {
-            var response = await _httpClient.PostAsJsonAsync("auth/login", request);
+            using var response = await _httpClient.PostAsJsonAsync("auth/login", request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -34,7 +34,7 @@ namespace API.Clients
         public async Task<(bool Success, string? Error)> RegisterAsync(
             RegisterRequest request)
         {
-            HttpResponseMessage response =
+            using HttpResponseMessage response =
                 await _httpClient.PostAsJsonAsync(
                     "auth/register",
                     request);
@@ -49,6 +49,13 @@ namespace API.Clients
                 string.IsNullOrWhiteSpace(error)
                     ? "No fue posible completar el registro."
                     : error);
+        }
+
+        public async Task RegisterEmpresaAsync(EmpresaRegistroRequest request)
+        {
+            using var response = await _httpClient.PostAsJsonAsync("auth/register/empresa", request);
+            if (!response.IsSuccessStatusCode)
+                throw await ApiErrors.CrearExcepcionAsync(response, "No se pudo enviar la solicitud");
         }
     }
 }

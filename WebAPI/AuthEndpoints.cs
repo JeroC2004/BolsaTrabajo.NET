@@ -7,6 +7,16 @@ namespace WebAPI
     {
         public static void MapAuthEndpoints(this WebApplication app)
         {
+            app.MapPost("/auth/register/empresa", async (EmpresaRegistroRequest request, IAuthService service) =>
+            {
+                try
+                {
+                    await service.RegisterEmpresaAsync(request);
+                    return Results.Created("/auth/login", new { message = "Solicitud enviada. Podrá ingresar cuando el administrador la apruebe." });
+                }
+                catch (ArgumentException ex) { return Results.BadRequest(new { error = ex.Message }); }
+                catch (InvalidOperationException ex) { return Results.Conflict(new { error = ex.Message }); }
+            }).WithName("RegisterEmpresa").WithTags("Auth").AllowAnonymous();
             app.MapGet("/auth/carreras", async (ICarreraService service) =>
                 Results.Ok(await service.GetAllAsync()))
                 .WithTags("Auth").AllowAnonymous();

@@ -51,7 +51,7 @@ namespace WindowsForms
             var username = await authService.GetUsernameAsync();
             usuarioConectadoLabel.Text = $"Conectado como: {username} ({Sesion.Rol})";
 
-            alumnosToolStripMenuItem.Visible = Sesion.EsAdministrador || Sesion.EsEmpresa;
+            alumnosToolStripMenuItem.Visible = Sesion.EsAdministrador;
 
             if (administracionMenuItem != null)
                 administracionMenuItem.Visible = Sesion.EsAdministrador;
@@ -68,6 +68,8 @@ namespace WindowsForms
 
         private void alumnosToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (!Sesion.EsAdministrador)
+                return;
             AbrirVentanaHija(alumnoListaForm, f => alumnoListaForm = f, () => new AlumnoLista());
         }
 
@@ -83,6 +85,11 @@ namespace WindowsForms
 
             administracionMenuItem.DropDownItems.Add("Empresas", null,
                 (s, e) => AbrirVentanaHija<Form>(empresaListaForm, f => empresaListaForm = f, CrearListaEmpresas));
+            administracionMenuItem.DropDownItems.Add("Solicitudes de empresas", null, (s, e) =>
+            {
+                using var form = CrearSolicitudesEmpresas();
+                form.ShowDialog(this);
+            });
             administracionMenuItem.DropDownItems.Add("Carreras", null,
                 (s, e) => AbrirVentanaHija<Form>(carreraListaForm, f => carreraListaForm = f, CrearListaCarreras));
             administracionMenuItem.DropDownItems.Add("Tipos de oferta", null,
@@ -201,6 +208,7 @@ namespace WindowsForms
                 ("AlumnoNombre", "Alumno", 190),
                 ("AlumnoLegajo", "Legajo", 70),
                 ("AlumnoCarrera", "Carrera", 200),
+                ("AlumnoAnioCurso", "Año de cursado", 100),
                 ("AlumnoPromedio", "Prom.", 60)
             };
             if (puedeVerCv)
@@ -247,8 +255,33 @@ namespace WindowsForms
                 new[] { ("RazonSocial", "Razón social", 230), ("Rubro", "Rubro", 150), ("Descripcion", "Descripción", 400) },
                 () => client.GetAllAsync(),
                 empresa => empresa.Id,
-                empresa => new EmpresaDetalleForm(empresa),
-                id => client.DeleteAsync(id));
+                empresa => new EmpresaDetalleForm(empresa!),
+                id => client.DeleteAsync(id), permiteAgregar: false);
+        }
+
+        private static Form CrearSolicitudesEmpresas()
+        {
+            var client = new EmpresaApiClient(ApiHttpClientFactory.Shared);
+            ListaCatalogoForm<EmpresaSolicitudDTO>? lista = null;
+            async Task Resolver(EmpresaSolicitudDTO solicitud, bool aprobar)
+            {
+                if (solicitud.Estado != "Pendiente") throw new InvalidOperationException("La solicitud ya fue resuelta.");
+                if (MessageBox.Show($"¿{(aprobar ? "Aprobar" : "Rechazar")} el registro de {solicitud.RazonSocial}?",
+                    "Solicitud de empresa", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+                await client.ResolverSolicitudAsync(solicitud.Id, aprobar);
+                await lista!.ActualizarAsync();
+            }
+            lista = new ListaCatalogoForm<EmpresaSolicitudDTO>("Solicitudes de empresas", "la solicitud",
+                new[] { ("RazonSocial", "Razón social", 200), ("Rubro", "Rubro", 120), ("Descripcion", "Descripción", 220),
+                    ("Username", "Usuario", 120), ("Email", "Email", 190), ("Estado", "Estado", 100) },
+                async () => await client.GetSolicitudesAsync(), solicitud => solicitud.Id,
+                _ => throw new InvalidOperationException(), _ => throw new InvalidOperationException(),
+                permiteAgregar: false, permiteModificar: false, permiteEliminar: false,
+                accionesExtra: new List<(string, Func<EmpresaSolicitudDTO, Task>)>
+                {
+                    ("Aprobar", s => Resolver(s, true)), ("Rechazar", s => Resolver(s, false))
+                });
+            return lista;
         }
 
         private static Form CrearListaCarreras()

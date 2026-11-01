@@ -11,6 +11,8 @@
         private readonly Func<int, Task> eliminar;
         private readonly bool permiteModificar;
 
+        public Task ActualizarAsync() => CargarAsync();
+
         public ListaCatalogoForm(
             string titulo,
             string nombreEntidad,

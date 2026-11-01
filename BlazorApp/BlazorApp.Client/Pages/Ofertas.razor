@@ -3,12 +3,10 @@
 @using API.Clients
 @using DTOs
 @using Microsoft.AspNetCore.Authorization
-@* Protegemos la ruta para que solo usuarios logueados puedan ver la lista *@
 @attribute [Authorize]
 
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
-@* 1. INYECTAMOS EL CLIENTE AQUÍ *@
 @inject API.Clients.TipoOfertaApiClient TipoClient
 @inject API.Clients.OfertaApiClient OfertaClient
 
@@ -16,24 +14,25 @@
 
 <h1>Ofertas laborales</h1>
 
+<EditForm @key="filtro" Model="filtro" OnValidSubmit="BuscarAsync" Context="filtrosContext">
 <div class="mb-3 d-flex gap-2">
     <input class="form-control"
            placeholder="Buscar por criterio"
            @bind="criterio" />
 
     <button class="btn btn-primary"
-            @onclick="BuscarAsync">
+            type="submit">
         Buscar
     </button>
 
     <button class="btn btn-secondary"
-            @onclick="LimpiarAsync">
+            type="button" @onclick="LimpiarAsync">
         Mostrar todas
     </button>
 
     <AuthorizeView Roles="Administrador,Empresa">
         <button class="btn btn-success"
-                @onclick="NuevaOferta">
+                type="button" @onclick="NuevaOferta">
             Nueva oferta
         </button>
     </AuthorizeView>
@@ -62,13 +61,15 @@
     </div>
     <div class="col-md-2">
         <label for="f-desde">Publicada desde</label>
-        <input id="f-desde" type="date" class="form-control" @bind="filtro.Desde" />
+        <FechaInput id="f-desde" class="form-control" DisplayName="Publicada desde" @bind-Value="filtro.Desde" />
     </div>
     <div class="col-md-2">
         <label for="f-hasta">Publicada hasta</label>
-        <input id="f-hasta" type="date" class="form-control" @bind="filtro.Hasta" />
+        <FechaInput id="f-hasta" class="form-control" DisplayName="Publicada hasta" @bind-Value="filtro.Hasta" />
     </div>
 </div>
+
+</EditForm>
 
 @if (!string.IsNullOrWhiteSpace(errorMessage))
 {
@@ -111,7 +112,6 @@ else
                     <td>@oferta.EmpresaNombre</td>
                     <td>@oferta.TipoOfertaNombre</td>
                     <td>
-                        @* Pequeño detalle visual para el estado *@
                         <span class="badge @(oferta.Estado == "Activa" ? "bg-success" : "bg-secondary")">
                             @oferta.Estado
                         </span>

@@ -150,13 +150,6 @@ namespace Domain.Model
             }
         }
 
-        public void SetCarrera(Carrera carrera)
-        {
-            ArgumentNullException.ThrowIfNull(carrera);
-            _carrera = carrera;
-            _carreraId = carrera.Id;
-        }
-
         public void SetFechaAlta(DateTime fechaAlta)
         {
             if (fechaAlta == default)

@@ -11,5 +11,7 @@ namespace Data
         Task<bool> DeleteAsync(int id);
         Task<bool> NameExistsAsync(string razonSocial, int? excludeId = null);
         Task<bool> HasOfertasAsync(int id);
+        Task<IEnumerable<(Empresa Empresa, string Username, string Email)>> GetSolicitudesAsync();
+        Task<bool> ResolverSolicitudAsync(int id, bool aprobar);
     }
 }

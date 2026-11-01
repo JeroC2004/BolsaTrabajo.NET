@@ -9,12 +9,25 @@
 @inject AuthApiClient AuthClient
 @inject NavigationManager Navigation
 
-<PageTitle>Registro de alumno</PageTitle>
+<PageTitle>Registrarse</PageTitle>
 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-lg-8">
-            <h1>Registro de alumno</h1>
+            <h1>Registrarse</h1>
+            <div class="mb-3">
+                <label for="tipo-registro" class="form-label">Tipo de cuenta</label>
+                <select id="tipo-registro" class="form-select" @bind="tipoCuenta">
+                    <option value="Alumno">Alumno</option>
+                    <option value="Empresa">Empresa</option>
+                </select>
+            </div>
+            @if (tipoCuenta == "Empresa")
+            {
+                <RegistroEmpresaFormulario />
+            }
+            else
+            {
             <p class="text-muted">
                 Complete sus datos para crear una cuenta en la Bolsa de Trabajo.
             </p>
@@ -185,11 +198,13 @@
                     Cancelar
                 </button>
             </EditForm>
+            }
         </div>
     </div>
 </div>
 
 @code {
+    private string tipoCuenta = "Alumno";
     private readonly RegisterRequest registro = new();
 
     private List<CarreraDTO> carreras = new();

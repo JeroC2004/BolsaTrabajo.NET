@@ -13,7 +13,6 @@
         private void InitializeComponent()
         {
             dataGridView1 = new DataGridView();
-            agregarButton = new Button();
             actualizarButton = new Button();
             eliminarButton = new Button();
             buscarTextBox = new TextBox();
@@ -36,9 +35,6 @@
             dataGridView1.TabIndex = 5;
             dataGridView1.CellDoubleClick += dataGridView1_CellDoubleClick;
 
-            agregarButton.Location = new Point(20, 20); agregarButton.Size = new Size(120, 45);
-            agregarButton.Text = "Agregar"; agregarButton.UseVisualStyleBackColor = true; agregarButton.Click += agregarButton_Click;
-
             actualizarButton.Location = new Point(150, 20); actualizarButton.Size = new Size(120, 45);
             actualizarButton.Text = "Actualizar"; actualizarButton.UseVisualStyleBackColor = true; actualizarButton.Click += actualizarButton_Click;
 
@@ -58,7 +54,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1020, 600);
             Controls.Add(refrescarButton); Controls.Add(buscarButton); Controls.Add(buscarTextBox);
-            Controls.Add(eliminarButton); Controls.Add(actualizarButton); Controls.Add(agregarButton);
+            Controls.Add(eliminarButton); Controls.Add(actualizarButton);
             Controls.Add(dataGridView1);
             Name = "AlumnoLista";
             Text = "Alumnos";
@@ -70,7 +66,6 @@
         }
 
         private DataGridView dataGridView1;
-        private Button agregarButton;
         private Button actualizarButton;
         private Button eliminarButton;
         private TextBox buscarTextBox;

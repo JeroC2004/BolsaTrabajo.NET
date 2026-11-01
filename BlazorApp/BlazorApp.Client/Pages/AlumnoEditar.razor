@@ -1,4 +1,3 @@
-@page "/alumnos/nuevo"
 @page "/alumnos/editar/{AlumnoId:int}"
 
 @using DTOs
@@ -149,10 +148,7 @@ else
         guardando = true;
         try
         {
-            if (AlumnoId.HasValue)
-                await AlumnoClient.UpdateAsync(alumno);
-            else
-                await AlumnoClient.AddAsync(alumno);
+            await AlumnoClient.UpdateAsync(alumno);
 
             Navigation.NavigateTo(RutaVolver);
         }
