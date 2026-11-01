@@ -1,4 +1,4 @@
-﻿using Domain.Model;
+using Domain.Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data
@@ -30,8 +30,8 @@ namespace Data
         private sealed record AlumnoDemo(string Legajo, string Nombre, string Apellido, string Email, string Dni,
             int Anio, int Materias, float Promedio, int CarreraId, string Usuario);
 
-        private sealed record OfertaDemo(string Clave, string Titulo, TipoVinculo Vinculo, int DesdeDias, int HastaDias,
-            string Detalle, EstadoOferta Estado, int EmpresaId, int TipoOfertaId, (string Texto, bool Excluyente)[] Requisitos);
+        private sealed record OfertaDemo(string Clave, string Titulo, int DesdeDias, int HastaDias,
+            string Detalle, EstadoOferta Estado, int EmpresaId, int? TipoOfertaId, (string Texto, bool Excluyente)[] Requisitos);
 
         private sealed record PostulacionDemo(string Legajo, string Oferta, int DiasAtras, EstadoPostulacion Estado);
 
@@ -49,7 +49,7 @@ namespace Data
 
         private static readonly OfertaDemo[] OfertasDemo =
         {
-            new("a", PrimeraOfertaDemo, TipoVinculo.Pasantia, -20, 40,
+            new("a", PrimeraOfertaDemo, -20, 40,
                 "Pasantía en el equipo de desarrollo de productos web. Se trabaja con metodologías ágiles junto a desarrolladores senior.",
                 EstadoOferta.Activa, 1, 1, new[]
                 {
@@ -58,7 +58,7 @@ namespace Data
                     ("Manejo de Git", false),
                     ("Inglés técnico de lectura", false)
                 }),
-            new("b", "Desarrollador Backend Junior", TipoVinculo.EmpleoFullTime, -10, 30,
+            new("b", "Desarrollador Backend Junior", -10, 30,
                 "Desarrollo y mantenimiento de APIs REST sobre .NET para clientes del sector financiero.",
                 EstadoOferta.Activa, 1, 4, new[]
                 {
@@ -66,21 +66,21 @@ namespace Data
                     ("SQL Server y Entity Framework", false),
                     ("Diseño de APIs REST", false)
                 }),
-            new("c", "Analista de Calidad (QA) part-time", TipoVinculo.EmpleoPartTime, -5, 25,
+            new("c", "Analista de Calidad (QA) part-time", -5, 25,
                 "Diseño y ejecución de casos de prueba manuales y automatizados. Horario flexible, 20 horas semanales.",
                 EstadoOferta.Activa, 1, 3, new[]
                 {
                     ("Conocimientos de pruebas manuales y automatizadas", true),
                     ("Disponibilidad de 20 horas semanales", true)
                 }),
-            new("d", "Pasante de Soporte Técnico", TipoVinculo.Pasantia, -90, -30,
+            new("d", "Pasante de Soporte Técnico", -90, -30,
                 "Atención de incidentes de primer nivel y soporte a usuarios internos. Búsqueda ya cerrada.",
                 EstadoOferta.Cerrada, 1, 1, new[]
                 {
                     ("Disponibilidad horaria por la tarde", true)
                 }),
 
-            new("e", "Primer empleo: Analista de Datos", TipoVinculo.PrimerEmpleo, -15, 45,
+            new("e", "Primer empleo: Analista de Datos", -15, 45,
                 "Armado de tableros e indicadores para clientes de distintos rubros. Ideal para quien busca su primera experiencia laboral.",
                 EstadoOferta.Activa, 2, 2, new[]
                 {
@@ -88,7 +88,7 @@ namespace Data
                     ("Manejo de SQL", true),
                     ("Conocimientos de Power BI o herramientas similares", false)
                 }),
-            new("f", "Desarrollador Full Stack", TipoVinculo.EmpleoFullTime, -7, 60,
+            new("f", "Desarrollador Full Stack", -7, 60,
                 "Desarrollo de aplicaciones web a medida: backend en .NET y frontend con frameworks modernos.",
                 EstadoOferta.Activa, 2, 4, new[]
                 {
@@ -96,22 +96,22 @@ namespace Data
                     ("Experiencia con .NET", false),
                     ("Trabajo en equipo con metodologías ágiles", false)
                 }),
-            new("g", "Pasante de Consultoría IT", TipoVinculo.Pasantia, -30, 30,
+            new("g", "Pasante de Consultoría IT", -30, 30,
                 "Acompañamiento a consultores en relevamientos y documentación de procesos. Búsqueda en pausa hasta nuevo aviso.",
                 EstadoOferta.Pausada, 2, 1, new[]
                 {
                     ("Cursando Ingeniería en Sistemas o Industrial", true),
                     ("Buena comunicación oral y escrita", false)
                 }),
-            new("h", "Practicante de Mejora de Procesos", TipoVinculo.PracticaProfesional, -12, 35,
+            new("h", "Practicante de Mejora de Procesos", -12, 35,
                 "Relevamiento y optimización de procesos internos y de clientes. Práctica profesional supervisada.",
-                EstadoOferta.Activa, 2, 1, new[]
+                EstadoOferta.Activa, 2, null, new[]
                 {
                     ("Cursando Ingeniería Industrial", true),
                     ("Conocimientos de Excel avanzado", false)
                 }),
 
-            new("i", "Pasante DevOps", TipoVinculo.Pasantia, -18, 50,
+            new("i", "Pasante DevOps", -18, 50,
                 "Automatización de despliegues y monitoreo de infraestructura en la nube.",
                 EstadoOferta.Activa, 3, 1, new[]
                 {
@@ -119,20 +119,20 @@ namespace Data
                     ("Nociones de Docker y contenedores", false),
                     ("Interés en infraestructura cloud", false)
                 }),
-            new("j", "Analista de Ciberseguridad Junior", TipoVinculo.PrimerEmpleo, -3, 55,
+            new("j", "Analista de Ciberseguridad Junior", -3, 55,
                 "Monitoreo de eventos de seguridad y respuesta a incidentes junto al equipo de SOC.",
                 EstadoOferta.Activa, 3, 2, new[]
                 {
                     ("Conocimientos de redes y seguridad informática", true),
                     ("Certificaciones de seguridad (deseable)", false)
                 }),
-            new("k", "Ingeniero de Infraestructura Cloud", TipoVinculo.EmpleoFullTime, -120, -20,
+            new("k", "Ingeniero de Infraestructura Cloud", -120, -20,
                 "Diseño y operación de infraestructura en AWS y Azure. Búsqueda finalizada: el puesto ya fue cubierto.",
                 EstadoOferta.Finalizada, 3, 4, new[]
                 {
                     ("Experiencia comprobable en AWS o Azure", true)
                 }),
-            new("l", "Administrador de Sistemas part-time", TipoVinculo.EmpleoPartTime, -9, 20,
+            new("l", "Administrador de Sistemas part-time", -9, 20,
                 "Administración de servidores Windows y Linux. Cuatro horas diarias, modalidad híbrida.",
                 EstadoOferta.Activa, 3, 3, new[]
                 {
@@ -201,14 +201,16 @@ namespace Data
             }
 
             var ofertas = new Dictionary<string, Oferta>();
+            int practicaProfesionalId = await context.TiposOferta
+                .Where(t => t.Nombre == "Práctica profesional").Select(t => t.Id).SingleAsync();
             foreach (var d in OfertasDemo)
             {
                 var oferta = await context.Ofertas.FirstOrDefaultAsync(o => o.Titulo == d.Titulo && o.EmpresaId == d.EmpresaId);
 
                 if (oferta == null)
                 {
-                    oferta = new Oferta(0, d.Titulo, d.Vinculo, hoy.AddDays(d.DesdeDias), hoy.AddDays(d.HastaDias),
-                        d.Detalle, d.Estado, d.EmpresaId, d.TipoOfertaId);
+                    oferta = new Oferta(0, d.Titulo, hoy.AddDays(d.DesdeDias), hoy.AddDays(d.HastaDias),
+                        d.Detalle, d.Estado, d.EmpresaId, d.TipoOfertaId ?? practicaProfesionalId);
                     oferta.SetRequisitos(d.Requisitos
                         .Select(r => new RequisitoOferta { Descripcion = r.Texto, EsExcluyente = r.Excluyente })
                         .ToList());

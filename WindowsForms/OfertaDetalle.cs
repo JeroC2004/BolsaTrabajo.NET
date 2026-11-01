@@ -94,7 +94,6 @@ namespace WindowsForms
                 tipoOfertaComboBox.DisplayMember = "Nombre";
                 tipoOfertaComboBox.ValueMember = "Id";
 
-                tipoVinculoComboBox.DataSource = Enum.GetNames(typeof(TipoVinculo));
                 estadoComboBox.DataSource = Enum.GetNames(typeof(EstadoOferta));
 
                 if (ofertaId.HasValue)
@@ -127,7 +126,6 @@ namespace WindowsForms
             tituloTextBox.Text = oferta.Titulo;
             empresaComboBox.SelectedValue = oferta.EmpresaId;
             tipoOfertaComboBox.SelectedValue = oferta.TipoOfertaId;
-            tipoVinculoComboBox.SelectedItem = oferta.TipoVinculo;
             estadoComboBox.SelectedItem = oferta.Estado;
             fechaDesdePicker.Value = oferta.FechaDesde;
             fechaHastaPicker.Value = oferta.FechaHasta;
@@ -154,7 +152,6 @@ namespace WindowsForms
                 Titulo = tituloTextBox.Text.Trim(),
                 EmpresaId = (int)(empresaComboBox.SelectedValue ?? 0),
                 TipoOfertaId = (int)(tipoOfertaComboBox.SelectedValue ?? 0),
-                TipoVinculo = tipoVinculoComboBox.SelectedItem!.ToString()!,
                 Estado = estadoComboBox.SelectedItem!.ToString()!,
                 FechaDesde = fechaDesdePicker.Value.Date,
                 FechaHasta = fechaHastaPicker.Value.Date,

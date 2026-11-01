@@ -22,10 +22,9 @@ namespace Application.Services
 
         public async Task<OfertaDTO> AddAsync(OfertaDTO dto)
         {
-            var tipoVinculo = ParseTipoVinculo(dto.TipoVinculo);
             var estado = ParseEstado(dto.Estado);
 
-            Oferta oferta = new Oferta(0, dto.Titulo, tipoVinculo, dto.FechaDesde, dto.FechaHasta,
+            Oferta oferta = new Oferta(0, dto.Titulo, dto.FechaDesde, dto.FechaHasta,
                                         dto.Detalle, estado, dto.EmpresaId, dto.TipoOfertaId);
             oferta.SetRequisitos(MapRequisitos(dto.Requisitos, conservarIds: false));
 
@@ -63,10 +62,9 @@ namespace Application.Services
             if (existing == null)
                 return false;
 
-            var tipoVinculo = ParseTipoVinculo(dto.TipoVinculo);
             var estado = ParseEstado(dto.Estado);
 
-            Oferta oferta = new Oferta(dto.Id, dto.Titulo, tipoVinculo, dto.FechaDesde, dto.FechaHasta,
+            Oferta oferta = new Oferta(dto.Id, dto.Titulo, dto.FechaDesde, dto.FechaHasta,
                                         dto.Detalle, estado, dto.EmpresaId, dto.TipoOfertaId);
             oferta.SetRequisitos(MapRequisitos(dto.Requisitos, conservarIds: true));
 
@@ -79,17 +77,9 @@ namespace Application.Services
         {
             var criteria = new OfertaCriteria(criteriaDTO.Texto, criteriaDTO.TipoOfertaId,
                 string.IsNullOrWhiteSpace(criteriaDTO.Estado) ? null : ParseEstado(criteriaDTO.Estado),
-                string.IsNullOrWhiteSpace(criteriaDTO.TipoVinculo) ? null : ParseTipoVinculo(criteriaDTO.TipoVinculo),
                 criteriaDTO.Desde, criteriaDTO.Hasta);
             var ofertas = await ofertaRepository.GetByCriteriaAsync(criteria);
             return ofertas.Select(MapToDTO).ToList();
-        }
-
-        private static TipoVinculo ParseTipoVinculo(string value)
-        {
-            if (!Enum.TryParse<TipoVinculo>(value, ignoreCase: true, out var result))
-                throw new ArgumentException($"El tipo de vínculo '{value}' no es válido. Valores permitidos: {string.Join(", ", Enum.GetNames(typeof(TipoVinculo)))}.");
-            return result;
         }
 
         private static EstadoOferta ParseEstado(string value)
@@ -135,7 +125,6 @@ namespace Application.Services
             {
                 Id = oferta.Id,
                 Titulo = oferta.Titulo,
-                TipoVinculo = oferta.TipoVinculo.ToString(),
                 Estado = oferta.Estado.ToString(),
                 FechaDesde = oferta.FechaDesde,
                 FechaHasta = oferta.FechaHasta,

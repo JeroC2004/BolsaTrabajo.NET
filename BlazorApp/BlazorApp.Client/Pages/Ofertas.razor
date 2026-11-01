@@ -40,7 +40,7 @@
 </div>
 
 <div class="row g-2 mb-3">
-    <div class="col-md-3">
+    <div class="col-md-4">
         <label for="f-tipo">Tipo de oferta</label>
         <select id="f-tipo" class="form-select" @bind="filtro.TipoOfertaId">
             <option value="">Todos</option>
@@ -50,23 +50,13 @@
             }
         </select>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-4">
         <label for="f-estado">Estado</label>
         <select id="f-estado" class="form-select" @bind="filtro.Estado">
             <option value="">Todos los permitidos</option>
             @foreach (var estado in estados)
             {
                 <option value="@estado">@estado</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-3">
-        <label for="f-vinculo">Vínculo</label>
-        <select id="f-vinculo" class="form-select" @bind="filtro.TipoVinculo">
-            <option value="">Todos</option>
-            @foreach (var vinculo in vinculos)
-            {
-                <option value="@vinculo">@vinculo</option>
             }
         </select>
     </div>
@@ -106,7 +96,6 @@ else
                 <th>Título</th>
                 <th>Empresa</th>
                 <th>Tipo de oferta</th>
-                <th>Vínculo</th>
                 <th>Estado</th>
                 <th>Desde</th>
                 <th>Hasta</th>
@@ -121,7 +110,6 @@ else
                     <td>@oferta.Titulo</td>
                     <td>@oferta.EmpresaNombre</td>
                     <td>@oferta.TipoOfertaNombre</td>
-                    <td>@oferta.TipoVinculo</td>
                     <td>
                         @* Pequeño detalle visual para el estado *@
                         <span class="badge @(oferta.Estado == "Activa" ? "bg-success" : "bg-secondary")">
@@ -157,7 +145,6 @@ else
     private OfertaCriteriaDTO filtro = new();
     private List<TipoOfertaDTO> tipos = new();
     private readonly string[] estados = { "Activa", "Pausada", "Cerrada", "Finalizada" };
-    private readonly string[] vinculos = { "Pasantia", "PrimerEmpleo", "PracticaProfesional", "EmpleoFullTime", "EmpleoPartTime" };
 
     private async Task LimpiarAsync()
     {

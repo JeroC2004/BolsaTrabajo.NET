@@ -130,7 +130,7 @@ namespace WebAPI
 
             app.MapGet("/ofertas/criteria", async (IOfertaService ofertaService, ClaimsPrincipal user,
                 string? texto = null, int? tipoOfertaId = null, string? estado = null,
-                string? tipoVinculo = null, DateTime? desde = null, DateTime? hasta = null) =>
+                DateTime? desde = null, DateTime? hasta = null) =>
             {
                 try
                 {
@@ -139,7 +139,6 @@ namespace WebAPI
                         Texto = texto ?? string.Empty,
                         TipoOfertaId = tipoOfertaId,
                         Estado = estado,
-                        TipoVinculo = tipoVinculo,
                         Desde = desde,
                         Hasta = hasta
                     };

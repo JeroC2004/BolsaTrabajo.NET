@@ -91,7 +91,7 @@ namespace WindowsForms
                 postulado = yaPostulado;
                 titulo.Text = oferta.Titulo;
                 informacion.Text = $"Empresa: {oferta.EmpresaNombre}\nTipo de oferta: {oferta.TipoOfertaNombre}\n" +
-                    $"Vínculo: {oferta.TipoVinculo}    Estado: {oferta.Estado}\n" +
+                    $"Estado: {oferta.Estado}\n" +
                     $"Desde: {oferta.FechaDesde:dd/MM/yyyy}    Hasta: {oferta.FechaHasta:dd/MM/yyyy}";
                 descripcion.Text = oferta.Detalle;
                 requisitos.DataSource = oferta.Requisitos.Select(r => new

@@ -4,7 +4,6 @@ namespace Domain.Model
     {
         public int Id { get; private set; }
         public string Titulo { get; private set; }
-        public TipoVinculo TipoVinculo { get; private set; }
         public DateTime FechaDesde { get; private set; }
         public DateTime FechaHasta { get; private set; }
         public string Detalle { get; private set; }
@@ -51,12 +50,11 @@ namespace Domain.Model
             }
         }
 
-        public Oferta(int id, string titulo, TipoVinculo tipoVinculo, DateTime fechaDesde, DateTime fechaHasta,
+        public Oferta(int id, string titulo, DateTime fechaDesde, DateTime fechaHasta,
                        string detalle, EstadoOferta estado, int empresaId, int tipoOfertaId)
         {
             SetId(id);
             SetTitulo(titulo);
-            SetTipoVinculo(tipoVinculo);
             SetFechas(fechaDesde, fechaHasta);
             SetDetalle(detalle);
             SetEstado(estado);
@@ -80,12 +78,6 @@ namespace Domain.Model
             Titulo = titulo;
         }
 
-        public void SetTipoVinculo(TipoVinculo tipoVinculo)
-        {
-            if (!Enum.IsDefined(typeof(TipoVinculo), tipoVinculo))
-                throw new ArgumentException("El tipo de vínculo no es válido.", nameof(tipoVinculo));
-            TipoVinculo = tipoVinculo;
-        }
         public void SetFechas(DateTime desde, DateTime hasta)
         {
             if (desde == default || hasta == default || desde > hasta)

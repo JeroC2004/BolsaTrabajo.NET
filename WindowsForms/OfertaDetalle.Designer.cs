@@ -1,4 +1,4 @@
-﻿namespace WindowsForms
+namespace WindowsForms
 {
     partial class OfertaDetalle
     {
@@ -24,8 +24,6 @@
             empresaComboBox = new ComboBox();
             tipoOfertaLabel = new Label();
             tipoOfertaComboBox = new ComboBox();
-            tipoVinculoLabel = new Label();
-            tipoVinculoComboBox = new ComboBox();
             estadoLabel = new Label();
             estadoComboBox = new ComboBox();
             fechaDesdeLabel = new Label();
@@ -92,23 +90,8 @@
             tipoOfertaComboBox.Size = new Size(228, 23);
             tipoOfertaComboBox.TabIndex = 5;
 
-            tipoVinculoLabel.AutoSize = true;
-            tipoVinculoLabel.Location = new Point(16, 91);
-            tipoVinculoLabel.Margin = new Padding(2, 0, 2, 0);
-            tipoVinculoLabel.Name = "tipoVinculoLabel";
-            tipoVinculoLabel.Size = new Size(92, 15);
-            tipoVinculoLabel.TabIndex = 6;
-            tipoVinculoLabel.Text = "Tipo de vínculo:";
-
-            tipoVinculoComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-            tipoVinculoComboBox.Location = new Point(124, 90);
-            tipoVinculoComboBox.Margin = new Padding(2, 1, 2, 1);
-            tipoVinculoComboBox.Name = "tipoVinculoComboBox";
-            tipoVinculoComboBox.Size = new Size(228, 23);
-            tipoVinculoComboBox.TabIndex = 7;
-
             estadoLabel.AutoSize = true;
-            estadoLabel.Location = new Point(16, 117);
+            estadoLabel.Location = new Point(16, 91);
             estadoLabel.Margin = new Padding(2, 0, 2, 0);
             estadoLabel.Name = "estadoLabel";
             estadoLabel.Size = new Size(45, 15);
@@ -116,14 +99,14 @@
             estadoLabel.Text = "Estado:";
 
             estadoComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
-            estadoComboBox.Location = new Point(124, 116);
+            estadoComboBox.Location = new Point(124, 90);
             estadoComboBox.Margin = new Padding(2, 1, 2, 1);
             estadoComboBox.Name = "estadoComboBox";
             estadoComboBox.Size = new Size(228, 23);
             estadoComboBox.TabIndex = 9;
 
             fechaDesdeLabel.AutoSize = true;
-            fechaDesdeLabel.Location = new Point(16, 143);
+            fechaDesdeLabel.Location = new Point(16, 117);
             fechaDesdeLabel.Margin = new Padding(2, 0, 2, 0);
             fechaDesdeLabel.Name = "fechaDesdeLabel";
             fechaDesdeLabel.Size = new Size(75, 15);
@@ -131,14 +114,14 @@
             fechaDesdeLabel.Text = "Fecha desde:";
 
             fechaDesdePicker.Format = DateTimePickerFormat.Short;
-            fechaDesdePicker.Location = new Point(124, 142);
+            fechaDesdePicker.Location = new Point(124, 116);
             fechaDesdePicker.Margin = new Padding(2, 1, 2, 1);
             fechaDesdePicker.Name = "fechaDesdePicker";
             fechaDesdePicker.Size = new Size(110, 23);
             fechaDesdePicker.TabIndex = 11;
 
             fechaHastaLabel.AutoSize = true;
-            fechaHastaLabel.Location = new Point(16, 169);
+            fechaHastaLabel.Location = new Point(16, 143);
             fechaHastaLabel.Margin = new Padding(2, 0, 2, 0);
             fechaHastaLabel.Name = "fechaHastaLabel";
             fechaHastaLabel.Size = new Size(72, 15);
@@ -146,28 +129,28 @@
             fechaHastaLabel.Text = "Fecha hasta:";
 
             fechaHastaPicker.Format = DateTimePickerFormat.Short;
-            fechaHastaPicker.Location = new Point(124, 167);
+            fechaHastaPicker.Location = new Point(124, 141);
             fechaHastaPicker.Margin = new Padding(2, 1, 2, 1);
             fechaHastaPicker.Name = "fechaHastaPicker";
             fechaHastaPicker.Size = new Size(110, 23);
             fechaHastaPicker.TabIndex = 13;
 
             detalleLabel.AutoSize = true;
-            detalleLabel.Location = new Point(16, 195);
+            detalleLabel.Location = new Point(16, 169);
             detalleLabel.Margin = new Padding(2, 0, 2, 0);
             detalleLabel.Name = "detalleLabel";
             detalleLabel.Size = new Size(46, 15);
             detalleLabel.TabIndex = 14;
             detalleLabel.Text = "Detalle:";
 
-            detalleTextBox.Location = new Point(124, 193);
+            detalleTextBox.Location = new Point(124, 167);
             detalleTextBox.Margin = new Padding(2, 1, 2, 1);
             detalleTextBox.Multiline = true;
             detalleTextBox.Name = "detalleTextBox";
             detalleTextBox.Size = new Size(228, 40);
             detalleTextBox.TabIndex = 15;
 
-            guardarButton.Location = new Point(196, 453);
+            guardarButton.Location = new Point(196, 427);
             guardarButton.Margin = new Padding(2, 1, 2, 1);
             guardarButton.Name = "guardarButton";
             guardarButton.Size = new Size(75, 22);
@@ -176,7 +159,7 @@
             guardarButton.UseVisualStyleBackColor = true;
             guardarButton.Click += guardarButton_Click;
 
-            cancelarButton.Location = new Point(111, 453);
+            cancelarButton.Location = new Point(111, 427);
             cancelarButton.Margin = new Padding(2, 1, 2, 1);
             cancelarButton.Name = "cancelarButton";
             cancelarButton.Size = new Size(75, 22);
@@ -187,7 +170,7 @@
 
             errorProvider.ContainerControl = this;
  
-            requisitoTextBox.Location = new Point(124, 237);
+            requisitoTextBox.Location = new Point(124, 211);
             requisitoTextBox.Multiline = true;
             requisitoTextBox.Name = "requisitoTextBox";
             requisitoTextBox.Size = new Size(228, 40);
@@ -195,7 +178,7 @@
             requisitoTextBox.TextChanged += textBox1_TextChanged;
 
             EsExcluyentechk.AutoSize = true;
-            EsExcluyentechk.Location = new Point(175, 286);
+            EsExcluyentechk.Location = new Point(175, 260);
             EsExcluyentechk.Name = "EsExcluyentechk";
             EsExcluyentechk.Size = new Size(96, 19);
             EsExcluyentechk.TabIndex = 21;
@@ -203,7 +186,7 @@
             EsExcluyentechk.UseVisualStyleBackColor = true;
             EsExcluyentechk.CheckedChanged += EsExcluyentechk_CheckedChanged;
 
-            agregarButton.Location = new Point(277, 283);
+            agregarButton.Location = new Point(277, 257);
             agregarButton.Name = "agregarButton";
             agregarButton.Size = new Size(75, 23);
             agregarButton.TabIndex = 22;
@@ -212,12 +195,12 @@
             agregarButton.Click += agregarButton_Click;
 
             requisitosGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            requisitosGridView.Location = new Point(16, 312);
+            requisitosGridView.Location = new Point(16, 286);
             requisitosGridView.Name = "requisitosGridView";
             requisitosGridView.Size = new Size(336, 98);
             requisitosGridView.TabIndex = 23;
 
-            btnEliminarRequisito.Location = new Point(222, 416);
+            btnEliminarRequisito.Location = new Point(222, 390);
             btnEliminarRequisito.Name = "btnEliminarRequisito";
             btnEliminarRequisito.Size = new Size(130, 23);
             btnEliminarRequisito.TabIndex = 24;
@@ -226,7 +209,7 @@
             btnEliminarRequisito.Click += btnEliminarRequisito_Click_1;
 
             requisitoLabel.AutoSize = true;
-            requisitoLabel.Location = new Point(16, 240);
+            requisitoLabel.Location = new Point(16, 214);
             requisitoLabel.Name = "requisitoLabel";
             requisitoLabel.Size = new Size(56, 15);
             requisitoLabel.TabIndex = 25;
@@ -237,7 +220,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = cancelarButton;
-            ClientSize = new Size(377, 483);
+            ClientSize = new Size(377, 457);
             Controls.Add(requisitoLabel);
             Controls.Add(btnEliminarRequisito);
             Controls.Add(requisitosGridView);
@@ -250,8 +233,6 @@
             Controls.Add(empresaComboBox);
             Controls.Add(tipoOfertaLabel);
             Controls.Add(tipoOfertaComboBox);
-            Controls.Add(tipoVinculoLabel);
-            Controls.Add(tipoVinculoComboBox);
             Controls.Add(estadoLabel);
             Controls.Add(estadoComboBox);
             Controls.Add(fechaDesdeLabel);
@@ -284,8 +265,6 @@
         private ComboBox empresaComboBox;
         private Label tipoOfertaLabel;
         private ComboBox tipoOfertaComboBox;
-        private Label tipoVinculoLabel;
-        private ComboBox tipoVinculoComboBox;
         private Label estadoLabel;
         private ComboBox estadoComboBox;
         private Label fechaDesdeLabel;

@@ -59,7 +59,6 @@ namespace Data
 
             existing.SetFechas(oferta.FechaDesde, oferta.FechaHasta);
             existing.SetTitulo(oferta.Titulo);
-            existing.SetTipoVinculo(oferta.TipoVinculo);
             existing.SetDetalle(oferta.Detalle);
             existing.SetEstado(oferta.Estado);
             existing.SetEmpresaId(oferta.EmpresaId);
@@ -112,8 +111,6 @@ namespace Data
                 query = query.Where(o => o.TipoOfertaId == criteria.TipoOfertaId.Value);
             if (criteria.Estado.HasValue)
                 query = query.Where(o => o.Estado == criteria.Estado.Value);
-            if (criteria.TipoVinculo.HasValue)
-                query = query.Where(o => o.TipoVinculo == criteria.TipoVinculo.Value);
             if (criteria.Desde.HasValue)
                 query = query.Where(o => o.FechaDesde >= criteria.Desde.Value);
             if (criteria.Hasta.HasValue)

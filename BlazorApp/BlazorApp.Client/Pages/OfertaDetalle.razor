@@ -41,7 +41,7 @@ else
                 </InputSelect>
             </div>
             <div class="col-md-3 mb-3">
-                <label>Tipo Oferta</label>
+                <label>Tipo de oferta</label>
                 <InputSelect class="form-select" @bind-Value="oferta.TipoOfertaId">
                     <option value="0">Seleccione...</option>
                     @foreach (var tipo in tiposOferta)
@@ -53,17 +53,7 @@ else
         </div>
 
         <div class="row">
-            <div class="col-md-3 mb-3">
-                <label>Vínculo</label>
-                <InputSelect class="form-select" @bind-Value="oferta.TipoVinculo">
-                    <option value="">Seleccione...</option>
-                    @foreach (var vinculo in Enum.GetNames<TipoVinculo>())
-                    {
-                        <option value="@vinculo">@vinculo</option>
-                    }
-                </InputSelect>
-            </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <label>Estado</label>
                 <InputSelect class="form-select" @bind-Value="oferta.Estado">
                     <option value="">Seleccione...</option>
@@ -73,11 +63,11 @@ else
                     }
                 </InputSelect>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <label>Fecha Desde</label>
                 <InputDate class="form-control" @bind-Value="oferta.FechaDesde" />
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-4 mb-3">
                 <label>Fecha Hasta</label>
                 <InputDate class="form-control" @bind-Value="oferta.FechaHasta" />
             </div>

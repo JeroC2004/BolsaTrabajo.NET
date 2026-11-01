@@ -272,11 +272,6 @@ namespace Data.Migrations
                 b.Property<int>("TipoOfertaId")
                     .HasColumnType("int");
 
-                b.Property<string>("TipoVinculo")
-                    .IsRequired()
-                    .HasMaxLength(30)
-                    .HasColumnType("nvarchar(30)");
-
                 b.Property<string>("Titulo")
                     .IsRequired()
                     .HasMaxLength(150)

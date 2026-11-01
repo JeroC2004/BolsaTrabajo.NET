@@ -9,7 +9,6 @@ namespace WindowsForms
         private List<OfertaDTO> ofertas = new();
         private readonly ComboBox tipoFiltro = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
         private readonly ComboBox estadoFiltro = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 160 };
-        private readonly ComboBox vinculoFiltro = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 180 };
         private readonly DateTimePicker desdeFiltro = new() { ShowCheckBox = true, Checked = false, Format = DateTimePickerFormat.Short, Width = 145 };
         private readonly DateTimePicker hastaFiltro = new() { ShowCheckBox = true, Checked = false, Format = DateTimePickerFormat.Short, Width = 145 };
 
@@ -33,9 +32,7 @@ namespace WindowsForms
         {
             estadoFiltro.Items.Add("Todos los estados");
             estadoFiltro.Items.AddRange(Sesion.EsAlumno ? new object[] { "Activa" } : Enum.GetNames<Domain.Model.EstadoOferta>().Cast<object>().ToArray());
-            vinculoFiltro.Items.Add("Todos los vínculos");
-            vinculoFiltro.Items.AddRange(Enum.GetNames<Domain.Model.TipoVinculo>().Cast<object>().ToArray());
-            estadoFiltro.SelectedIndex = vinculoFiltro.SelectedIndex = 0;
+            estadoFiltro.SelectedIndex = 0;
             tipoFiltro.DisplayMember = nameof(TipoOfertaDTO.Nombre);
             tipoFiltro.ValueMember = nameof(TipoOfertaDTO.Id);
             var barra = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, Padding = new Padding(8) };
@@ -47,7 +44,7 @@ namespace WindowsForms
                 filtros.Controls.Add(new Label { Text = nombre, AutoSize = true, Margin = new Padding(4, 8, 4, 4) });
                 filtros.Controls.Add(control);
             }
-            Filtro("Tipo", tipoFiltro); Filtro("Estado", estadoFiltro); Filtro("Vínculo", vinculoFiltro);
+            Filtro("Tipo", tipoFiltro); Filtro("Estado", estadoFiltro);
             Filtro("Publicada desde", desdeFiltro); Filtro("hasta", hastaFiltro);
             var layout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 3 };
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
@@ -93,7 +90,6 @@ namespace WindowsForms
             dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Titulo", HeaderText = "Título", Width = 200 });
             dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "EmpresaNombre", HeaderText = "Empresa", Width = 180 });
             dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "TipoOfertaNombre", HeaderText = "Tipo de Oferta", Width = 160 });
-            dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "TipoVinculo", HeaderText = "Vínculo", Width = 130 });
             dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Estado", HeaderText = "Estado", Width = 90 });
             dataGridView1.Columns.Add(new DataGridViewTextBoxColumn
             {
@@ -160,7 +156,6 @@ namespace WindowsForms
                     Texto = buscarTextBox.Text,
                     TipoOfertaId = tipoFiltro.SelectedValue is int id && id > 0 ? id : null,
                     Estado = estadoFiltro.SelectedIndex > 0 ? estadoFiltro.Text : null,
-                    TipoVinculo = vinculoFiltro.SelectedIndex > 0 ? vinculoFiltro.Text : null,
                     Desde = desdeFiltro.Checked ? desdeFiltro.Value.Date : null,
                     Hasta = hastaFiltro.Checked ? hastaFiltro.Value.Date : null
                 };
@@ -183,7 +178,7 @@ namespace WindowsForms
         {
             buscarTextBox.Clear();
             if (tipoFiltro.Items.Count > 0) tipoFiltro.SelectedIndex = 0;
-            estadoFiltro.SelectedIndex = vinculoFiltro.SelectedIndex = 0;
+            estadoFiltro.SelectedIndex = 0;
             desdeFiltro.Checked = hastaFiltro.Checked = false;
             await CargarOfertasAsync();
         }

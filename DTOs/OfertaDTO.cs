@@ -6,7 +6,6 @@ namespace DTOs
         public string Titulo { get; set; } = string.Empty;
 
        
-        public string TipoVinculo { get; set; } = string.Empty;
         public string Estado { get; set; } = string.Empty;
 
         public DateTime FechaDesde { get; set; }

@@ -56,7 +56,6 @@ namespace API.Clients
             Add("texto", criteria.Texto);
             Add("tipoOfertaId", criteria.TipoOfertaId?.ToString(System.Globalization.CultureInfo.InvariantCulture));
             Add("estado", criteria.Estado);
-            Add("tipoVinculo", criteria.TipoVinculo);
             Add("desde", criteria.Desde?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture));
             Add("hasta", criteria.Hasta?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture));
             using var response = await _httpClient.GetAsync("ofertas/criteria?" + string.Join("&", parameters));

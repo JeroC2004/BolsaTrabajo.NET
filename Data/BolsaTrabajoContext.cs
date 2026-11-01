@@ -145,7 +145,6 @@ namespace Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).ValueGeneratedOnAdd();
                 entity.Property(e => e.Titulo).IsRequired().HasMaxLength(150);
-                entity.Property(e => e.TipoVinculo).IsRequired().HasConversion<string>().HasMaxLength(30);
                 entity.Property(e => e.FechaDesde).IsRequired();
                 entity.Property(e => e.FechaHasta).IsRequired();
                 entity.Property(e => e.Detalle).IsRequired().HasMaxLength(1000);
