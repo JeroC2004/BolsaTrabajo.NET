@@ -24,7 +24,49 @@
             </div>
             @if (tipoCuenta == "Empresa")
             {
-                <RegistroEmpresaFormulario />
+                @if (solicitudEmpresaEnviada)
+                {
+                    <div class="alert alert-success" role="status">
+                        Solicitud enviada. Podrá iniciar sesión cuando el administrador apruebe el registro de su empresa.
+                    </div>
+                    <a class="btn btn-primary" href="login">Ir al inicio de sesión</a>
+                }
+                else
+                {
+                    <p class="text-muted">Complete los datos de la empresa y su cuenta. El administrador revisará la solicitud antes de habilitar el acceso.</p>
+                    <EditForm Model="registroEmpresa" OnValidSubmit="RegistrarEmpresaAsync">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="mb-3">
+                            <label for="empresa-razon">Razón social</label>
+                            <InputText id="empresa-razon" class="form-control" @bind-Value="registroEmpresa.RazonSocial" />
+                            <div class="form-text">Utilizará la razón social como nombre de usuario para iniciar sesión.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="empresa-rubro">Rubro</label>
+                            <InputText id="empresa-rubro" class="form-control" @bind-Value="registroEmpresa.Rubro" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="empresa-descripcion">Descripción</label>
+                            <InputTextArea id="empresa-descripcion" class="form-control" @bind-Value="registroEmpresa.Descripcion" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="empresa-email">Email de contacto</label>
+                            <InputText id="empresa-email" class="form-control" type="email" autocomplete="email" @bind-Value="registroEmpresa.Email" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="empresa-password">Contraseña (mínimo 6 caracteres)</label>
+                            <InputText id="empresa-password" class="form-control" type="password" autocomplete="new-password" @bind-Value="registroEmpresa.Password" />
+                        </div>
+                        <div class="mb-3">
+                            <label for="empresa-confirmacion">Confirmar contraseña</label>
+                            <InputText id="empresa-confirmacion" class="form-control" type="password" autocomplete="new-password" @bind-Value="registroEmpresa.ConfirmPassword" />
+                        </div>
+                        @if (errorEmpresa != null) { <div class="alert alert-danger" role="alert">@errorEmpresa</div> }
+                        <button class="btn btn-primary" type="submit" disabled="@guardandoEmpresa">@(guardandoEmpresa ? "Enviando..." : "Enviar solicitud")</button>
+                        <a class="btn btn-secondary ms-2" href="/">Cancelar</a>
+                    </EditForm>
+                }
             }
             else
             {
@@ -204,6 +246,24 @@
 </div>
 
 @code {
+    private DTOs.EmpresaRegistroRequest registroEmpresa = new();
+    private bool guardandoEmpresa, solicitudEmpresaEnviada;
+    private string? errorEmpresa;
+    private async Task RegistrarEmpresaAsync()
+    {
+        if (guardandoEmpresa) return;
+        guardandoEmpresa = true;
+        errorEmpresa = null;
+        try
+        {
+            await AuthClient.RegisterEmpresaAsync(registroEmpresa);
+            registroEmpresa = new();
+            solicitudEmpresaEnviada = true;
+        }
+        catch (Exception ex) { errorEmpresa = ex.Message; }
+        finally { guardandoEmpresa = false; }
+    }
+
     private string tipoCuenta = "Alumno";
     private readonly RegisterRequest registro = new();
 
